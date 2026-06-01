@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="ST² — Stop Talking, Start Trying. Personal life tracker." />
+
+  <!-- PWA / Android -->
+  <meta name="theme-color" content="#7C3AED" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="ST²" />
+
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ST²" />
+  <link rel="apple-touch-icon" href="icon.png" />
+
+  <title>ST²</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- CDN Libraries -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── App Header ────────────────────────────────────────────────────── -->
+  <div class="app-header" id="app-header">
+    <div class="app-logo">ST²</div>
+    <div class="header-greeting">
+      <div class="greeting-text" id="greeting-text">Good Morning, Richie 👋</div>
+      <div class="greeting-date" id="greeting-date"></div>
+    </div>
+  </div>
+
+  <!-- ── Main scroll area ──────────────────────────────────────────────── -->
+  <main>
+
+    <!-- ================================================================
+         TAB 1 — DASHBOARD
+         ================================================================ -->
+    <div id="tab-dashboard" class="tab-content active">
+
+      <!-- Row 1: Weight + Streak -->
+      <div class="dashboard-row-2 mb-12">
+
+        <!-- Weight Card -->
+        <div class="card weight-card">
+          <div class="flex-between mb-12" style="gap:8px">
+            <span style="font-size:1rem">⚖️</span>
+            <span style="font-size:0.82rem;font-weight:600;flex:1">Current Weight</span>
+            <button class="icon-btn" onclick="openLogWeightModal()">···</button>
+          </div>
+          <div class="weight-value"><span id="dash-weight">--</span> <span class="unit">kg</span></div>
+          <div id="dash-weight-loss" class="weight-loss">Loading…</div>
+          <div class="weight-sparkline-wrap">
+            <canvas id="weight-sparkline"></canvas>
+          </div>
+          <button class="card-link" onclick="App.switchTab('fitness')">View Progress ›</button>
+        </div>
+
+        <!-- Streak Card -->
+        <div class="card streak-card">
+          <div class="flex-between mb-12">
+            <span style="font-size:1rem">🔥</span>
+            <span style="font-size:0.82rem;font-weight:600;color:var(--accent2);flex:1;padding-left:6px">Streak</span>
+            <button class="icon-btn">···</button>
+          </div>
+          <div class="streak-number" id="dash-streak">--</div>
+          <div class="streak-label">day streak</div>
+          <div class="streak-tagline" id="dash-streak-tagline">Keep it going! 💪</div>
+          <div class="streak-dots" id="dash-streak-dots" style="margin-top:auto"></div>
+        </div>
+      </div>
+
+      <!-- Row 2: This Week -->
+      <div class="card this-week-card mb-12">
+        <div class="this-week-header">
+          <span style="font-size:1.1rem">📊</span>
+          <h3>This Week</h3>
+          <button class="icon-btn">···</button>
+        </div>
+        <div class="this-week-stats">
+          <div class="week-stat">
+            <div id="week-workouts">--</div>
+            <span class="stat-label">Workouts</span>
+            <div id="week-workouts-delta"></div>
+          </div>
+          <div class="week-stat">
+            <div id="week-km">--</div>
+            <span class="stat-label">km Run</span>
+            <div id="week-km-delta"></div>
+          </div>
+          <div class="week-stat">
+            <div id="week-study">--</div>
+            <span class="stat-label">Study</span>
+            <div id="week-study-delta"></div>
+          </div>
+          <div class="week-stat">
+            <div id="week-weight-delta">-- kg</div>
+            <span class="stat-label">Weight Δ</span>
+          </div>
+        </div>
+        <div class="week-chart-wrap">
+          <canvas id="week-study-chart"></canvas>
+        </div>
+        <button class="view-all-stats-btn" onclick="App.switchTab('study')">View All Stats ›</button>
+      </div>
+
+      <!-- Row 3: Quick Actions -->
+      <div class="card quick-actions-card mb-12">
+        <h3>Quick Actions</h3>
+        <div class="quick-actions-grid">
+          <button class="action-btn action-workout" data-action="log-workout">
+            <span class="action-icon">🏋️</span>
+            Log Workout
+          </button>
+          <button class="action-btn action-run" data-action="log-run">
+            <span class="action-icon">🏃</span>
+            Log Run
+          </button>
+          <button class="action-btn action-weight" data-action="log-weight">
+            <span class="action-icon">⚖️</span>
+            Log Weight
+          </button>
+          <button class="action-btn action-note" data-action="new-note">
+            <span class="action-icon">📝</span>
+            New Note
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 4: Today's Timeline -->
+      <div class="card timeline-card">
+        <div class="timeline-card-header">
+          <h3>Today's Timeline</h3>
+          <button class="view-all-link" onclick="App.switchTab('fitness')">View All</button>
+        </div>
+        <div class="timeline-list" id="timeline-list">
+          <div class="empty-state"><p>Loading…</p></div>
+        </div>
+      </div>
+
+    </div><!-- /tab-dashboard -->
+
+
+    <!-- ================================================================
+         TAB 2 — FITNESS
+         ================================================================ -->
+    <div id="tab-fitness" class="tab-content">
+
+      <div class="tab-page-header">
+        <h2>Fitness</h2>
+        <div class="header-actions">
+          <button class="icon-btn-round" title="Search">🔍</button>
+          <button class="icon-btn-round" title="Filter">⚙️</button>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="fitness-filter-btn active" data-filter="all">All</button>
+        <button class="fitness-filter-btn" data-filter="workouts">🏋️ Workouts</button>
+        <button class="fitness-filter-btn" data-filter="runs">🏃 Runs</button>
+      </div>
+
+      <!-- Weekly summary -->
+      <div class="weekly-summary-strip" id="fitness-weekly-summary">This Week &nbsp;·&nbsp; Loading…</div>
+
+      <!-- Feed -->
+      <div class="activity-feed" id="fitness-feed">
+        <div class="empty-state"><p>Loading…</p></div>
+      </div>
+
+      <!-- FAB -->
+      <button class="fab" id="fitness-fab" onclick="this.nextElementSibling.classList.toggle('open')">＋</button>
+      <div class="fab-menu" id="fitness-fab-menu">
+        <button class="fab-menu-item" onclick="Fitness.openLogWorkoutModal();document.getElementById('fitness-fab-menu').classList.remove('open')">🏋️ Log Workout</button>
+        <button class="fab-menu-item" onclick="Fitness.openLogRunModal();document.getElementById('fitness-fab-menu').classList.remove('open')">🏃 Log Run</button>
+      </div>
+
+    </div><!-- /tab-fitness -->
+
+
+    <!-- ================================================================
+         TAB 3 — STUDY
+         ================================================================ -->
+    <div id="tab-study" class="tab-content">
+
+      <div class="tab-page-header">
+        <h2>Study 🎓</h2>
+        <div class="header-actions">
+          <button class="icon-btn-round" onclick="Study.openManualLogModal()" title="Log Study Time">⏱</button>
+          <button class="icon-btn-round" title="More">···</button>
+        </div>
+      </div>
+
+      <!-- Sub-tabs -->
+      <div class="study-subtabs">
+        <button class="study-subtab-btn active" data-subtab="overview">Overview</button>
+        <button class="study-subtab-btn" data-subtab="classes">Classes</button>
+        <button class="study-subtab-btn" data-subtab="sessions">Sessions</button>
+      </div>
+
+      <!-- ── Overview Pane ─────────────────────────────────────────────── -->
+      <div class="study-subtab-pane active" data-subtab-pane="overview">
+
+        <!-- Term & Degree Progress -->
+        <div class="card progress-card mb-12" onclick="Study.switchSubTab('classes')" id="study-progress-card">
+          <div style="color:var(--subtext);font-size:0.72rem;margin-bottom:2px">Loading progress…</div>
+        </div>
+
+        <!-- Timer Card -->
+        <div class="card timer-card mb-12">
+          <div class="timer-ring" id="timer-ring">
+            <div class="timer-display" id="timer-display">00:00:00</div>
+          </div>
+          <select class="form-select timer-subject" id="timer-subject-select">
+            <option value="">Select subject…</option>
+          </select>
+          <div class="timer-buttons">
+            <button class="timer-btn timer-btn-start" id="timer-start-btn" onclick="StudyStartTimer()">▶ Start</button>
+            <button class="timer-btn timer-btn-pause" id="timer-pause-btn" onclick="StudyPauseTimer()" style="display:none">⏸ Pause</button>
+            <button class="timer-btn timer-btn-stop" id="timer-stop-btn" onclick="StudyStopTimer()" style="display:none">⏹ Stop</button>
+          </div>
+          <div style="margin-top:12px">
+            <button class="link-btn" style="font-size:0.8rem" onclick="StudyOpenManualLog()">+ Log Study Time</button>
+          </div>
+        </div>
+
+        <!-- Today card -->
+        <div class="card study-today-card mb-12">
+          <div style="font-size:0.72rem;color:var(--subtext);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">TODAY'S STUDY TIME</div>
+          <div class="study-today-total" id="study-today-total">0m</div>
+          <div id="study-today-breakdown" style="margin-top:8px"></div>
+        </div>
+
+        <!-- This week card -->
+        <div class="card study-week-card mb-12">
+          <div class="flex-between mb-12">
+            <div style="font-size:0.72rem;color:var(--subtext);font-weight:700;text-transform:uppercase;letter-spacing:0.06em">THIS WEEK</div>
+            <div id="study-week-vs"></div>
+          </div>
+          <div class="study-week-total" id="study-week-total">0h 0m</div>
+          <div class="study-week-chart-wrap">
+            <canvas id="study-week-chart"></canvas>
+          </div>
+          <div class="study-week-goal-row">
+            <span>Weekly Goal</span>
+            <span id="study-week-goal-pct" style="color:var(--accent);font-weight:700">0%</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar" id="study-week-goal-bar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Streak + Calendar -->
+        <div class="card study-streak-section mb-12">
+          <div class="flex-between mb-12">
+            <div>
+              <div class="streak-section-row">
+                <span class="streak-big" id="study-streak-count">0</span>
+                <div style="margin-left:8px">
+                  <div style="font-size:0.85rem;font-weight:700">Day Streak</div>
+                  <div style="font-size:0.72rem;color:var(--subtext)">Days with ≥ 30 min study</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="calendar-nav">
+            <span id="study-calendar-month">MAY 2026</span>
+          </div>
+          <div class="calendar-day-labels">
+            <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+          </div>
+          <div class="calendar-grid" id="study-calendar"></div>
+          <div class="calendar-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(124,58,237,0.3)"></div> &lt;1h</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(124,58,237,0.6)"></div> 1–3h</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> 3–6h</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div> 6h+</div>
+            <div class="legend-item">⭐ Passed</div>
+          </div>
+        </div>
+
+      </div><!-- /overview pane -->
+
+      <!-- ── Classes Pane ──────────────────────────────────────────────── -->
+      <div class="study-subtab-pane" data-subtab-pane="classes">
+        <div class="flex-between mb-12">
+          <span class="text-sub fs-sm">Manage your WGU classes</span>
+          <button class="btn btn-primary" style="padding:8px 14px;font-size:0.8rem" onclick="StudyOpenAddClass()">+ Add Class</button>
+        </div>
+        <div class="classes-filter">
+          <button class="class-filter-btn active" data-class-filter="all" onclick="StudySetClassFilter('all')">All</button>
+          <button class="class-filter-btn" data-class-filter="in_progress" onclick="StudySetClassFilter('in_progress')">In Progress</button>
+          <button class="class-filter-btn" data-class-filter="passed" onclick="StudySetClassFilter('passed')">Passed</button>
+          <button class="class-filter-btn" data-class-filter="not_started" onclick="StudySetClassFilter('not_started')">Not Started</button>
+        </div>
+        <div class="classes-list" id="classes-list">
+          <div class="empty-state"><p>Loading…</p></div>
+        </div>
+      </div>
+
+      <!-- ── Sessions Pane ─────────────────────────────────────────────── -->
+      <div class="study-subtab-pane" data-subtab-pane="sessions">
+        <div class="sessions-filters">
+          <select class="form-select" id="session-class-filter" onchange="StudyFilterSessions()">
+            <option value="">All subjects</option>
+          </select>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input type="date" class="form-input" id="session-date-from" placeholder="From" onchange="StudyFilterSessions()" />
+            <input type="date" class="form-input" id="session-date-to" placeholder="To" onchange="StudyFilterSessions()" />
+          </div>
+        </div>
+        <div class="sessions-total" id="sessions-total">All time</div>
+        <div class="sessions-list" id="sessions-list">
+          <div class="empty-state"><p>Loading…</p></div>
+        </div>
+      </div>
+
+    </div><!-- /tab-study -->
+
+
+    <!-- ================================================================
+         TAB 4 — NOTES
+         ================================================================ -->
+    <div id="tab-notes" class="tab-content">
+
+      <div class="tab-page-header">
+        <h2>Notes</h2>
+      </div>
+
+      <input type="text" class="notes-search" id="notes-search" placeholder="🔍 Search notes…" />
+
+      <div id="notes-pinned-row" style="display:none"></div>
+      <div class="notes-grid" id="notes-grid">
+        <div class="empty-state"><p>Loading…</p></div>
+      </div>
+
+      <button class="notes-fab" onclick="Notes.openEditor(null)">＋</button>
+
+    </div><!-- /tab-notes -->
+
+
+    <!-- ================================================================
+         TAB 5 — SETTINGS
+         ================================================================ -->
+    <div id="tab-settings" class="tab-content">
+
+      <div class="tab-page-header">
+        <h2>Settings</h2>
+      </div>
+
+      <!-- Appearance -->
+      <div class="settings-section">
+        <div class="settings-section-title">Appearance</div>
+        <div class="settings-card">
+          <div class="theme-swatches">
+            <button class="theme-swatch" data-theme="dark" onclick="SettingsSetTheme('dark')">
+              <div class="swatch-preview swatch-dark"><div class="swatch-accent"></div></div>
+              <span class="swatch-label">Dark</span>
+            </button>
+            <button class="theme-swatch" data-theme="darker" onclick="SettingsSetTheme('darker')">
+              <div class="swatch-preview swatch-darker"><div class="swatch-accent"></div></div>
+              <span class="swatch-label">AMOLED</span>
+            </button>
+            <button class="theme-swatch" data-theme="light" onclick="SettingsSetTheme('light')">
+              <div class="swatch-preview swatch-light"><div class="swatch-accent"></div></div>
+              <span class="swatch-label">Light</span>
+            </button>
+            <button class="theme-swatch" data-theme="midnight" onclick="SettingsSetTheme('midnight')">
+              <div class="swatch-preview swatch-midnight"><div class="swatch-accent"></div></div>
+              <span class="swatch-label">Midnight</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div class="settings-section">
+        <div class="settings-section-title">Profile</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">Display Name</div>
+            <input class="settings-input" id="settings-name" type="text" value="Richie" />
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Target Weight<div class="sub">kg</div></div>
+            <input class="settings-input" id="settings-target-weight" type="number" min="40" max="200" step="0.5" placeholder="e.g. 80" />
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Degree Credit Hours<div class="sub">WGU total</div></div>
+            <input class="settings-input" id="settings-degree-credits" type="number" min="60" max="240" value="120" />
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Current Term</div>
+            <input class="settings-input" id="settings-term-name" type="text" placeholder="e.g. Term 1 2026" />
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Term End Date</div>
+            <input class="settings-input" id="settings-term-end" type="date" />
+          </div>
+          <div class="settings-row">
+            <button class="btn btn-primary" onclick="SettingsSave()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strava -->
+      <div class="settings-section">
+        <div class="settings-section-title">Strava</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">
+              Connection
+              <div class="strava-status" id="strava-connection-status">
+                <span class="status-disconnected">● Not connected</span>
+              </div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <button class="btn btn-primary" id="strava-connect-btn" onclick="FitnessConnectStrava()" style="background:#FC4C02">Connect Strava</button>
+            <button class="btn btn-secondary" id="strava-disconnect-btn" onclick="SettingsDisconnectStrava()" style="display:none">Disconnect</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data -->
+      <div class="settings-section">
+        <div class="settings-section-title">Data</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">Export All Data<div class="sub">Download JSON backup</div></div>
+            <button class="btn btn-secondary" onclick="SettingsExport()">Export</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Import Data<div class="sub">Restore from JSON</div></div>
+            <button class="btn btn-secondary" onclick="SettingsTriggerImport()">Import</button>
+            <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="SettingsHandleImport(this)" />
+          </div>
+          <div class="settings-row" id="clear-sample-data-btn" style="display:none">
+            <div class="settings-row-label">Sample Data<div class="sub">Remove all seeded data</div></div>
+            <button class="btn btn-danger" onclick="SettingsClearSampleData()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="settings-section">
+        <div class="settings-section-title">About</div>
+        <div class="settings-card">
+          <div class="settings-row about-row" style="justify-content:center;flex-direction:column;align-items:flex-start">
+            <div class="about-name">ST²</div>
+            <div class="about-tagline">Stop Talking, Start Trying</div>
+            <div class="sub" style="margin-top:4px">v1.0.0</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-settings -->
+
+  </main><!-- /main -->
+
+  <!-- ── Bottom Nav ──────────────────────────────────────────────────────── -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="dashboard">
+      <span class="nav-icon">🏠</span>
+      Dashboard
+    </button>
+    <button class="nav-item" data-tab="fitness">
+      <span class="nav-icon">🏋️</span>
+      Fitness
+    </button>
+    <button class="nav-item" data-tab="study">
+      <span class="nav-icon">🎓</span>
+      Study
+    </button>
+    <button class="nav-item" data-tab="notes">
+      <span class="nav-icon">📝</span>
+      Notes
+    </button>
+    <button class="nav-item" data-tab="settings">
+      <span class="nav-icon">⚙️</span>
+      Settings
+    </button>
+  </nav>
+
+</div><!-- /app -->
+
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     MODALS
+     ════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ── Log Weight Modal ────────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-log-weight">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>Log Weight</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Weight (kg)</label>
+        <input type="number" class="form-input" id="weight-value-input" min="30" max="300" step="0.1" placeholder="e.g. 83.5" />
+      </div>
+      <div class="form-group">
+        <label>Date & Time</label>
+        <input type="datetime-local" class="form-input" id="weight-date-input" />
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <input type="text" class="form-input" id="weight-notes-input" placeholder="e.g. after breakfast" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveWeight()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Log Workout Modal ───────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-log-workout">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>Log Workout</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Workout Name</label>
+        <input type="text" class="form-input" id="workout-name-input" placeholder="e.g. Push Day" />
+      </div>
+      <div class="form-group">
+        <label>Date & Time</label>
+        <input type="datetime-local" class="form-input" id="workout-date-input" />
+      </div>
+
+      <!-- Quick add chips (populated by JS) -->
+      <div style="margin-bottom:8px">
+        <label style="display:block;font-size:0.78rem;color:var(--subtext);margin-bottom:6px;font-weight:600">Quick Add</label>
+        <div class="quick-add-chips" style="min-height:32px"></div>
+      </div>
+
+      <!-- Exercise list -->
+      <div id="workout-exercises-list"></div>
+      <button class="btn btn-secondary" style="width:100%;margin-bottom:12px" onclick="FitnessAddExercise()">+ Add Exercise</button>
+
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea class="form-textarea" id="workout-notes-input" placeholder="Optional notes…" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="FitnessSaveWorkout()">Save Workout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Log Run Modal ───────────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-log-run">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>Log Run</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="run-tab-btns">
+        <button class="run-tab-btn" data-run-tab="strava" onclick="FitnessSwitchRunTab('strava')">Import from Strava</button>
+        <button class="run-tab-btn active" data-run-tab="manual" onclick="FitnessSwitchRunTab('manual')">Manual Entry</button>
+      </div>
+
+      <!-- Strava pane -->
+      <div class="run-tab-pane" data-run-pane="strava">
+        <div class="strava-disconnected">
+          <p class="sub" style="margin-bottom:12px">Connect Strava to import your runs automatically.</p>
+          <button class="btn btn-primary" style="background:#FC4C02;width:100%" onclick="FitnessConnectStrava()">Connect Strava</button>
+        </div>
+        <div class="strava-connected" style="display:none">
+          <div class="flex-between mb-12">
+            <span class="sub" id="strava-sync-status">Never synced</span>
+            <button class="link-btn" id="strava-load-btn" onclick="FitnessLoadStrava()">Load Activities</button>
+          </div>
+          <div id="strava-activities-list"></div>
+          <button class="btn btn-primary" id="strava-import-btn" style="width:100%;margin-top:10px" onclick="FitnessImportStrava()">Import Selected</button>
+        </div>
+      </div>
+
+      <!-- Manual pane -->
+      <div class="run-tab-pane active" data-run-pane="manual">
+        <div class="form-group">
+          <label>Run Name</label>
+          <input type="text" class="form-input" id="run-name-input" placeholder="e.g. Morning Run" />
+        </div>
+        <div class="form-group">
+          <label>Date & Time</label>
+          <input type="datetime-local" class="form-input" id="run-date-input" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label>Distance (km)</label>
+            <input type="number" class="form-input" id="run-distance-input" min="0" step="0.01" placeholder="5.21" oninput="FitnessUpdatePace()" />
+          </div>
+          <div class="form-group">
+            <label>Time (MM:SS)</label>
+            <input type="text" class="form-input" id="run-time-input" placeholder="29:14" oninput="FitnessUpdatePace()" />
+          </div>
+        </div>
+        <div class="pace-preview" id="run-pace-preview">--:-- /km</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div class="form-group">
+            <label>Calories (optional)</label>
+            <input type="number" class="form-input" id="run-calories-input" min="0" placeholder="412" />
+          </div>
+          <div class="form-group">
+            <label>Elevation m (opt.)</label>
+            <input type="number" class="form-input" id="run-elevation-input" min="0" placeholder="64" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea class="form-textarea" id="run-notes-input" rows="2" placeholder="Optional…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="FitnessSaveRun()">Save Run</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add Class Modal ─────────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-add-class">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>Add Class</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Class Name</label>
+        <input type="text" class="form-input" id="class-name-input" placeholder="e.g. Data Structures and Algorithms I" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Course Code</label>
+          <input type="text" class="form-input" id="class-code-input" placeholder="e.g. C949" />
+        </div>
+        <div class="form-group">
+          <label>Credit Hours</label>
+          <input type="number" class="form-input" id="class-credits-input" min="1" max="12" value="3" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Term</label>
+        <input type="text" class="form-input" id="class-term-input" placeholder="e.g. Term 1" />
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select class="form-select" id="class-status-select">
+          <option value="not_started">Not Started</option>
+          <option value="in_progress">In Progress</option>
+          <option value="passed">Passed</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="StudySaveClass()">Save Class</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Manual Study Log Modal ──────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-log-study">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>Log Study Time</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Subject</label>
+        <select class="form-select" id="study-class-select">
+          <option value="">Select subject…</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date & Time</label>
+        <input type="datetime-local" class="form-input" id="study-date-input" />
+      </div>
+      <div class="form-group">
+        <label>Duration (minutes)</label>
+        <input type="number" class="form-input" id="study-duration-input" min="1" max="600" placeholder="e.g. 90" />
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea class="form-textarea" id="study-notes-input" rows="2" placeholder="What did you study?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="StudySaveManualSession()">Save Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Note Editor Modal (full-screen) ────────────────────────────────── -->
+<div class="modal-backdrop modal-fullscreen" id="modal-note-editor">
+  <div class="modal-sheet" style="border-radius:0;height:100dvh;display:flex;flex-direction:column">
+    <!-- Header -->
+    <div class="note-editor-header">
+      <button class="modal-close-btn" onclick="NotesSave()" style="margin-right:4px">✕</button>
+      <input type="text" id="note-title-input" placeholder="Title…" />
+      <button class="note-pin-btn" id="note-pin-btn" onclick="NotesTogglePin()" title="Pin">📌</button>
+      <button class="icon-btn danger-btn" onclick="NotesDelete()" title="Delete">🗑</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="note-toolbar">
+      <button class="toolbar-btn" onclick="NotesExecFormat('bold')"><strong>B</strong></button>
+      <button class="toolbar-btn" onclick="NotesExecFormat('italic')"><em>I</em></button>
+      <button class="toolbar-btn" onclick="NotesExecFormat('insertUnorderedList')">• List</button>
+      <button class="toolbar-btn" onclick="NotesExecFormat('formatBlock','h3')">H</button>
+      <button class="toolbar-btn" id="note-voice-btn" onclick="NotesToggleVoice()">🎤 Voice</button>
+      <button class="toolbar-btn" onclick="NotesTriggerPhoto()">📷 Photo</button>
+      <button class="toolbar-btn" onclick="NotesToggleDrawing()">✏️ Draw</button>
+    </div>
+
+    <!-- Body (scrollable) -->
+    <div style="flex:1;overflow-y:auto">
+      <div
+        class="note-body"
+        id="note-body"
+        contenteditable="true"
+        data-placeholder="Start typing…"
+      ></div>
+
+      <!-- Photos -->
+      <div class="note-attachments">
+        <div class="note-photos-row" id="note-photos-container"></div>
+        <input type="file" id="note-photo-input" accept="image/*" multiple style="display:none" onchange="NotesHandlePhoto(this)" />
+      </div>
+
+      <!-- Drawing canvas -->
+      <div class="note-drawing-section" id="note-drawing-section" style="display:none">
+        <div class="drawing-toolbar">
+          <span style="font-size:0.75rem;color:var(--subtext);font-weight:600">Draw:</span>
+          <div class="color-dot" style="background:#7C3AED" onclick="NotesSetDrawColor('#7C3AED')"></div>
+          <div class="color-dot" style="background:#22C55E" onclick="NotesSetDrawColor('#22C55E')"></div>
+          <div class="color-dot" style="background:#EF4444" onclick="NotesSetDrawColor('#EF4444')"></div>
+          <div class="color-dot" style="background:#F59E0B" onclick="NotesSetDrawColor('#F59E0B')"></div>
+          <div class="color-dot" style="background:#F8F8FF" onclick="NotesSetDrawColor('#F8F8FF')"></div>
+          <button class="toolbar-btn" onclick="NotesSetDrawMode('eraser')">⌫ Eraser</button>
+          <button class="toolbar-btn" onclick="NotesClearDrawing()">🗑 Clear</button>
+        </div>
+        <div class="drawing-canvas-wrap">
+          <canvas id="drawing-canvas" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="note-tags-section">
+        <div class="note-tags-label">Tags</div>
+        <div class="note-tags-input-wrap">
+          <div id="note-tags-container" style="display:contents"></div>
+          <input
+            type="text"
+            class="note-tag-input-field"
+            id="note-tag-input"
+            placeholder="Add tag, press Enter…"
+            onkeydown="NotesHandleTagInput(event)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="note-editor-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Close</button>
+      <button class="btn btn-primary" onclick="NotesSave()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     SCRIPTS (dependency order)
+     ════════════════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/strava.js"></script>
+<script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/fitness.js"></script>
+<script src="js/study.js"></script>
+<script src="js/notes.js"></script>
+<script src="js/settings.js"></script>
+
+</body>
+</html>

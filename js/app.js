@@ -1,0 +1,198 @@
+window.App = {
+  currentTab: 'dashboard',
+  _tabModules: {},
+
+  async init() {
+    // Check for Strava OAuth callback
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('code') && params.has('state')) {
+      await Strava.handleCallback(params.get('code'), params.get('state'));
+      history.replaceState({}, '', window.location.pathname);
+    }
+
+    // Load and apply saved theme
+    const theme = await window.db.settings.get('theme', 'dark');
+    this.applyTheme(theme);
+
+    // Register tab modules
+    this._tabModules = {
+      dashboard: typeof Dashboard !== 'undefined' ? Dashboard : null,
+      fitness: typeof Fitness !== 'undefined' ? Fitness : null,
+      study: typeof Study !== 'undefined' ? Study : null,
+      notes: typeof Notes !== 'undefined' ? Notes : null,
+      settings: typeof SettingsModule !== 'undefined' ? SettingsModule : null,
+    };
+
+    // Update greeting
+    this.updateGreeting();
+
+    // Bottom nav wiring
+    document.querySelectorAll('.nav-item').forEach((btn) => {
+      btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+    });
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    // Activate initial tab
+    await this.switchTab('dashboard');
+
+    // Close modals on backdrop click
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-backdrop')) {
+        this.closeAllModals();
+      }
+    });
+
+    // Keyboard: Escape closes modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this.closeAllModals();
+    });
+  },
+
+  async switchTab(tab) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach((el) => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach((el) => el.classList.remove('active'));
+
+    // Show target tab
+    const tabEl = document.getElementById(`tab-${tab}`);
+    const navEl = document.querySelector(`.nav-item[data-tab="${tab}"]`);
+    if (!tabEl) return;
+    tabEl.classList.add('active');
+    if (navEl) navEl.classList.add('active');
+    this.currentTab = tab;
+
+    // Render the module
+    const mod = this._tabModules[tab];
+    if (mod) {
+      try {
+        if (!mod._initialized) {
+          await mod.init();
+          mod._initialized = true;
+        }
+        await mod.render();
+      } catch (e) {
+        console.error(`Error rendering ${tab}:`, e);
+      }
+    }
+  },
+
+  applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const themeColors = { dark: '#7C3AED', darker: '#9D50FF', light: '#6D28D9', midnight: '#3B82F6' };
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = themeColors[theme] || themeColors.dark;
+  },
+
+  updateGreeting() {
+    const el = document.getElementById('greeting-text');
+    const dateEl = document.getElementById('greeting-date');
+    if (!el) return;
+    const hour = new Date().getHours();
+    let time = 'Good Morning';
+    if (hour >= 12 && hour < 17) time = 'Good Afternoon';
+    else if (hour >= 17) time = 'Good Evening';
+    el.textContent = `${time}, Richie 👋`;
+    if (dateEl) {
+      dateEl.textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+  },
+
+  closeAllModals() {
+    document.querySelectorAll('.modal-backdrop.open').forEach((m) => {
+      m.classList.remove('open');
+    });
+    document.body.style.overflow = '';
+  },
+
+  openModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const first = modal.querySelector('input, select, textarea');
+    if (first) setTimeout(() => first.focus(), 100);
+  },
+
+  showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toast-container';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  },
+
+  // Shared utility: format seconds as HH:MM:SS or MM:SS
+  formatDuration(totalSeconds) {
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${m}:${String(s).padStart(2, '0')}`;
+  },
+
+  formatMinutes(totalMinutes) {
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    if (h > 0 && m > 0) return `${h}h ${m}m`;
+    if (h > 0) return `${h}h`;
+    return `${m}m`;
+  },
+
+  formatDate(isoStr, opts = {}) {
+    const d = new Date(isoStr);
+    const now = new Date();
+    const diffDays = Math.floor((now - d) / 86400000);
+    if (opts.relative) {
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+    }
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: diffDays > 365 ? 'numeric' : undefined });
+  },
+
+  formatTime(isoStr) {
+    return new Date(isoStr).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  },
+
+  // Returns Mon–Sun dates for the current week
+  getWeekDates() {
+    const now = new Date();
+    const day = now.getDay(); // 0=Sun
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - ((day + 6) % 7));
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      return d.toISOString().split('T')[0];
+    });
+  },
+
+  calc1RM(weight, reps) {
+    if (reps === 1) return weight;
+    return Math.round(weight * (1 + reps / 30) * 2) / 2;
+  },
+
+  escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  },
+};
+
+document.addEventListener('DOMContentLoaded', () => App.init());
