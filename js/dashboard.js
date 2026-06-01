@@ -74,7 +74,7 @@ window.Dashboard = {
 
     streakEl.textContent = streak;
     if (taglineEl) {
-      taglineEl.textContent = streak >= 7 ? 'On fire!' : streak >= 3 ? 'Keep it going!' : streak > 0 ? 'Building momentum!' : 'Start today!';
+      taglineEl.textContent = streak >= 7 ? 'On fire! 🔥' : streak >= 3 ? 'Keep it going! 💪' : streak > 0 ? 'Building momentum!' : 'Start today!';
     }
 
     if (dotsEl) {
