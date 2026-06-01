@@ -155,11 +155,7 @@ window.Dashboard = {
       set('week-weight-delta', '<strong>-- kg</strong>');
     }
 
-    // Study hours per day bar chart
-    const studyPerDay = weekDates.map((d) =>
-      Math.round(allStudy.filter((s) => s.date.startsWith(d)).reduce((sum, x) => sum + x.durationMinutes, 0) / 60 * 10) / 10
-    );
-    Charts.createWeekStudyBars('week-study-chart', studyPerDay);
+    // (Chart removed from dashboard — see Study tab for weekly breakdown)
   },
 
   async renderTimeline() {
@@ -203,8 +199,10 @@ window.Dashboard = {
 
     container.innerHTML = events.map((e, idx) => `
       <div class="timeline-item" data-type="${e.type}" data-id="${e.id}">
-        ${idx < events.length - 1 ? '<div class="timeline-line"></div>' : ''}
-        <div class="timeline-icon ${e.iconClass}">${e.icon}</div>
+        <div class="timeline-icon-col">
+          <div class="timeline-icon ${e.iconClass}">${e.icon}</div>
+          ${idx < events.length - 1 ? '<div class="timeline-connector"></div>' : ''}
+        </div>
         <div class="timeline-content">
           <div class="timeline-time">${App.formatTime(e.time)}</div>
           <div class="timeline-title">${App.escapeHtml(e.title)}</div>
