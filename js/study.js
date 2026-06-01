@@ -323,7 +323,7 @@ window.Study = {
       else if (mins >= 60) dotClass = 'dot-mid';
       else if (mins >= 1) dotClass = 'dot-light';
       cells.push(`<div class="cal-cell ${isToday ? 'cal-today' : ''}">
-        <div class="cal-dot ${dotClass}">${passed ? '⭐' : ''}</div>
+        <div class="cal-dot ${dotClass}"></div>
         <span class="cal-day-num">${day}</span>
       </div>`);
     }
@@ -377,7 +377,7 @@ window.Study = {
         </div>
         <div class="class-hours">${App.formatMinutes(totalMin)} studied</div>
         ${cls.status === 'passed' && cls.passedDate
-          ? `<div class="class-passed-date">Completed ${App.formatDate(cls.passedDate)} ⭐</div>`
+          ? `<div class="class-passed-date">Completed ${App.formatDate(cls.passedDate)}</div>`
           : ''}
         ${cls.status !== 'passed'
           ? `<button class="btn-mark-passed" onclick="Study.markPassed(${cls.id})">Mark as Passed ✓</button>`
@@ -401,7 +401,7 @@ window.Study = {
 
     const passedDate = new Date().toISOString().split('T')[0];
     await window.db.classes.update({ ...cls, status: 'passed', passedDate });
-    App.showToast(`${cls.code} marked as passed! 🎉`, 'success');
+    App.showToast(`${cls.code} marked as passed!`, 'success');
     await this.renderClasses();
     await this.renderTermProgress();
     await this.renderStreakCalendar();
@@ -486,7 +486,7 @@ window.Study = {
 
     container.innerHTML = filtered.map((s) => `
       <div class="session-row">
-        <div class="session-icon">📚</div>
+        <div class="session-icon"><i data-lucide="book-open" style="width:16px;height:16px;stroke:#60A5FA;fill:none"></i></div>
         <div class="session-content">
           <div class="session-subject">${App.escapeHtml(s.subject)}</div>
           <div class="session-meta">${App.formatDate(s.date, { relative: true })} · ${App.formatTime(s.date)}</div>

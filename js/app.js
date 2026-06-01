@@ -39,6 +39,9 @@ window.App = {
     // Activate initial tab
     await this.switchTab('dashboard');
 
+    // Render Lucide icons in static HTML (nav, etc.)
+    if (window.lucide) lucide.createIcons();
+
     // Close modals on backdrop click
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('modal-backdrop')) {
@@ -96,7 +99,7 @@ window.App = {
     let time = 'Good Morning';
     if (hour >= 12 && hour < 17) time = 'Good Afternoon';
     else if (hour >= 17) time = 'Good Evening';
-    el.textContent = `${time}, Richie 👋`;
+    el.textContent = `${time}, Richie`;
     if (dateEl) {
       dateEl.textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
     }

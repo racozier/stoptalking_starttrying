@@ -36,7 +36,7 @@
   <div class="app-header" id="app-header">
     <div class="app-logo">ST²</div>
     <div class="header-greeting">
-      <div class="greeting-text" id="greeting-text">Good Morning, Richie 👋</div>
+      <div class="greeting-text" id="greeting-text">Good Morning, Richie</div>
       <div class="greeting-date" id="greeting-date"></div>
     </div>
   </div>
@@ -49,90 +49,92 @@
          ================================================================ -->
     <div id="tab-dashboard" class="tab-content active">
 
-      <!-- Row 1: Weight + Streak side by side -->
-      <div class="dashboard-row-2 mb-8">
+      <!-- Dashboard top: Weight (left) | Streak + This Week (right) -->
+      <div class="dashboard-top mb-8">
 
-        <!-- Weight Card -->
+        <!-- Weight Card — spans full height on left -->
         <div class="card weight-card">
           <div class="card-header-row">
             <div class="card-icon-wrap icon-purple">
               <i data-lucide="scale" style="width:13px;height:13px"></i>
             </div>
-            <span class="card-label">Current Weight</span>
+            <span class="card-label">Weight</span>
             <button class="card-menu-btn" onclick="openLogWeightModal()">···</button>
           </div>
           <div class="weight-value">
             <span id="dash-weight">--</span><span class="unit">kg</span>
           </div>
-          <div id="dash-weight-loss" class="weight-loss">Loading…</div>
+          <div id="dash-weight-loss" class="weight-loss"></div>
           <div class="weight-sparkline-wrap">
             <canvas id="weight-sparkline"></canvas>
           </div>
           <button class="card-link" onclick="App.switchTab('fitness')">View Progress ›</button>
         </div>
 
-        <!-- Streak Card -->
-        <div class="card streak-card">
-          <div class="card-header-row">
-            <div class="card-icon-wrap icon-orange">
-              <i data-lucide="flame" style="width:13px;height:13px"></i>
-            </div>
-            <span class="card-label" style="color:#F97316">Streak</span>
-            <button class="card-menu-btn">···</button>
-          </div>
-          <div class="streak-number" id="dash-streak">--</div>
-          <div class="streak-label">day streak</div>
-          <div class="streak-tagline" id="dash-streak-tagline">Keep it going! 💪</div>
-          <div class="streak-dots" id="dash-streak-dots"></div>
-        </div>
-      </div>
+        <!-- Right column: Streak on top, This Week below -->
+        <div class="dashboard-right-col">
 
-      <!-- This Week Card -->
-      <div class="card this-week-card mb-8">
-        <div class="card-header-row" style="margin-bottom:8px">
-          <div class="card-icon-wrap icon-green">
-            <i data-lucide="trending-up" style="width:13px;height:13px"></i>
+          <!-- Streak Card -->
+          <div class="card streak-card">
+            <div class="card-header-row">
+              <div class="card-icon-wrap icon-orange">
+                <i data-lucide="flame" style="width:13px;height:13px"></i>
+              </div>
+              <span class="card-label" style="color:#F97316">Streak</span>
+            </div>
+            <div class="streak-number" id="dash-streak">--</div>
+            <div class="streak-label">day streak</div>
+            <div class="streak-tagline" id="dash-streak-tagline">Start today!</div>
+            <div class="streak-dots" id="dash-streak-dots"></div>
           </div>
-          <span class="card-label">This Week</span>
-          <button class="card-menu-btn">···</button>
-        </div>
-        <div class="week-stats-list">
-          <div class="week-stat-row">
-            <div class="week-stat-icon icon-green">
-              <i data-lucide="dumbbell" style="width:13px;height:13px"></i>
+
+          <!-- This Week Card -->
+          <div class="card this-week-card">
+            <div class="card-header-row">
+              <div class="card-icon-wrap icon-green">
+                <i data-lucide="trending-up" style="width:13px;height:13px"></i>
+              </div>
+              <span class="card-label">This Week</span>
             </div>
-            <div class="week-stat-content">
-              <div id="week-workouts" class="week-stat-num">--</div>
-              <div class="week-stat-label">Workouts</div>
+            <div class="week-stats-list">
+              <div class="week-stat-row">
+                <div class="week-stat-icon icon-green">
+                  <i data-lucide="dumbbell" style="width:13px;height:13px"></i>
+                </div>
+                <div class="week-stat-content">
+                  <div id="week-workouts" class="week-stat-num">--</div>
+                  <div class="week-stat-label">Workouts</div>
+                </div>
+                <div id="week-workouts-delta" class="week-stat-delta"></div>
+                <canvas class="week-mini-chart" id="week-workout-mini-chart"></canvas>
+              </div>
+              <div class="week-stat-row">
+                <div class="week-stat-icon icon-blue">
+                  <i data-lucide="footprints" style="width:13px;height:13px"></i>
+                </div>
+                <div class="week-stat-content">
+                  <div id="week-km" class="week-stat-num">--</div>
+                  <div class="week-stat-label">km Run</div>
+                </div>
+                <div id="week-km-delta" class="week-stat-delta"></div>
+                <canvas class="week-mini-chart" id="week-run-mini-chart"></canvas>
+              </div>
+              <div class="week-stat-row">
+                <div class="week-stat-icon icon-purple">
+                  <i data-lucide="scale" style="width:13px;height:13px"></i>
+                </div>
+                <div class="week-stat-content">
+                  <div id="week-weight-delta" class="week-stat-num">-- kg</div>
+                  <div class="week-stat-label">Weight Change</div>
+                </div>
+                <div class="week-stat-delta"></div>
+                <canvas class="week-mini-chart" id="week-weight-mini-chart"></canvas>
+              </div>
             </div>
-            <div id="week-workouts-delta" class="week-stat-delta"></div>
-            <canvas class="week-mini-chart" id="week-workout-mini-chart"></canvas>
           </div>
-          <div class="week-stat-row">
-            <div class="week-stat-icon icon-green">
-              <i data-lucide="footprints" style="width:13px;height:13px"></i>
-            </div>
-            <div class="week-stat-content">
-              <div id="week-km" class="week-stat-num">--</div>
-              <div class="week-stat-label">km Run</div>
-            </div>
-            <div id="week-km-delta" class="week-stat-delta"></div>
-            <canvas class="week-mini-chart" id="week-run-mini-chart"></canvas>
-          </div>
-          <div class="week-stat-row week-stat-row-last">
-            <div class="week-stat-icon icon-purple">
-              <i data-lucide="scale" style="width:13px;height:13px"></i>
-            </div>
-            <div class="week-stat-content">
-              <div id="week-weight-delta" class="week-stat-num">-- kg</div>
-              <div class="week-stat-label">Weight Change</div>
-            </div>
-            <div class="week-stat-delta"></div>
-            <canvas class="week-mini-chart" id="week-weight-mini-chart"></canvas>
-          </div>
-        </div>
-        <button class="view-all-stats-btn" onclick="App.switchTab('study')">View All Stats ›</button>
-      </div>
+
+        </div><!-- /dashboard-right-col -->
+      </div><!-- /dashboard-top -->
 
       <!-- Quick Actions (bare buttons on black bg) -->
       <div class="quick-actions-section mb-8">
@@ -178,16 +180,16 @@
       <div class="tab-page-header">
         <h2>Fitness</h2>
         <div class="header-actions">
-          <button class="icon-btn-round" title="Search">🔍</button>
-          <button class="icon-btn-round" title="Filter">⚙️</button>
+          <button class="icon-btn-round" title="Search"><i data-lucide="search" style="width:16px;height:16px"></i></button>
+          <button class="icon-btn-round" title="Filter"><i data-lucide="sliders-horizontal" style="width:16px;height:16px"></i></button>
         </div>
       </div>
 
       <!-- Filter tabs -->
       <div class="filter-tabs">
         <button class="fitness-filter-btn active" data-filter="all">All</button>
-        <button class="fitness-filter-btn" data-filter="workouts">🏋️ Workouts</button>
-        <button class="fitness-filter-btn" data-filter="runs">🏃 Runs</button>
+        <button class="fitness-filter-btn" data-filter="workouts">Workouts</button>
+        <button class="fitness-filter-btn" data-filter="runs">Runs</button>
       </div>
 
       <!-- Weekly summary -->
@@ -201,8 +203,8 @@
       <!-- FAB -->
       <button class="fab" id="fitness-fab" onclick="this.nextElementSibling.classList.toggle('open')">＋</button>
       <div class="fab-menu" id="fitness-fab-menu">
-        <button class="fab-menu-item" onclick="Fitness.openLogWorkoutModal();document.getElementById('fitness-fab-menu').classList.remove('open')">🏋️ Log Workout</button>
-        <button class="fab-menu-item" onclick="Fitness.openLogRunModal();document.getElementById('fitness-fab-menu').classList.remove('open')">🏃 Log Run</button>
+        <button class="fab-menu-item" onclick="Fitness.openLogWorkoutModal();document.getElementById('fitness-fab-menu').classList.remove('open')">Log Workout</button>
+        <button class="fab-menu-item" onclick="Fitness.openLogRunModal();document.getElementById('fitness-fab-menu').classList.remove('open')">Log Run</button>
       </div>
 
     </div><!-- /tab-fitness -->
@@ -214,9 +216,9 @@
     <div id="tab-study" class="tab-content">
 
       <div class="tab-page-header">
-        <h2>Study 🎓</h2>
+        <h2>Study</h2>
         <div class="header-actions">
-          <button class="icon-btn-round" onclick="Study.openManualLogModal()" title="Log Study Time">⏱</button>
+          <button class="icon-btn-round" onclick="Study.openManualLogModal()" title="Log Study Time"><i data-lucide="timer" style="width:16px;height:16px"></i></button>
           <button class="icon-btn-round" title="More">···</button>
         </div>
       </div>
@@ -306,7 +308,7 @@
             <div class="legend-item"><div class="legend-dot" style="background:rgba(124,58,237,0.6)"></div> 1–3h</div>
             <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> 3–6h</div>
             <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div> 6h+</div>
-            <div class="legend-item">⭐ Passed</div>
+            <div class="legend-item">Passed</div>
           </div>
         </div>
 
@@ -358,7 +360,7 @@
         <h2>Notes</h2>
       </div>
 
-      <input type="text" class="notes-search" id="notes-search" placeholder="🔍 Search notes…" />
+      <input type="text" class="notes-search" id="notes-search" placeholder="Search notes…" />
 
       <div id="notes-pinned-row" style="display:none"></div>
       <div class="notes-grid" id="notes-grid">
@@ -492,23 +494,23 @@
   <!-- ── Bottom Nav ──────────────────────────────────────────────────────── -->
   <nav class="bottom-nav">
     <button class="nav-item active" data-tab="dashboard">
-      <span class="nav-icon">🏠</span>
+      <i data-lucide="layout-dashboard"></i>
       Dashboard
     </button>
     <button class="nav-item" data-tab="fitness">
-      <span class="nav-icon">🏋️</span>
+      <i data-lucide="dumbbell"></i>
       Fitness
     </button>
     <button class="nav-item" data-tab="study">
-      <span class="nav-icon">🎓</span>
+      <i data-lucide="book-open"></i>
       Study
     </button>
     <button class="nav-item" data-tab="notes">
-      <span class="nav-icon">📝</span>
+      <i data-lucide="file-text"></i>
       Notes
     </button>
     <button class="nav-item" data-tab="settings">
-      <span class="nav-icon">⚙️</span>
+      <i data-lucide="settings"></i>
       Settings
     </button>
   </nav>

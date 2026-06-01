@@ -111,7 +111,7 @@ window.Fitness = {
     return `
     <div class="activity-card workout-card" data-id="${w.id}">
       <div class="activity-card-header">
-        <div class="activity-icon-wrap icon-workout">🏋️</div>
+        <div class="activity-icon-wrap icon-workout"><i data-lucide="dumbbell" style="width:18px;height:18px;stroke:#C084FC;fill:none"></i></div>
         <div class="activity-meta">
           <div class="activity-date-label">${dateLabel} · ${timeLabel}</div>
           <div class="activity-title">${App.escapeHtml(w.name)}</div>
@@ -162,9 +162,9 @@ window.Fitness = {
     return `
     <div class="activity-card run-card" data-id="${r.id}">
       <div class="activity-card-header">
-        <div class="activity-icon-wrap icon-run">🏃</div>
+        <div class="activity-icon-wrap icon-run"><i data-lucide="footprints" style="width:18px;height:18px;stroke:#4ADE80;fill:none"></i></div>
         <div class="activity-meta">
-          <div class="activity-date-label">${dateLabel} · ${timeLabel}${r.temp ? ` · ☁️ ${r.temp}°C` : ''}</div>
+          <div class="activity-date-label">${dateLabel} · ${timeLabel}${r.temp ? ` · ${r.temp}°C` : ''}</div>
           <div class="activity-title">${App.escapeHtml(r.name)}</div>
         </div>
         <div class="activity-menu" onclick="Fitness.showRunMenu(${r.id})">···</div>
