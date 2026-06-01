@@ -74,6 +74,7 @@ window.App = {
           mod._initialized = true;
         }
         await mod.render();
+        if (window.lucide) setTimeout(() => lucide.createIcons(), 10);
       } catch (e) {
         console.error(`Error rendering ${tab}:`, e);
       }

@@ -202,6 +202,33 @@ window.Charts = {
     });
   },
 
+  // Tiny 60×28px bar chart using raw Canvas2D (no Chart.js overhead)
+  createMiniBarChart(canvasId, data, color) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const W = 60, H = 28;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, W, H);
+    const max = Math.max(...data, 1);
+    const barW = Math.floor((W - (data.length - 1) * 2) / data.length);
+    data.forEach((v, i) => {
+      const barH = Math.max(2, Math.round((v / max) * (H - 2)));
+      const x = i * (barW + 2);
+      const y = H - barH;
+      ctx.fillStyle = v > 0 ? color : color + '33';
+      ctx.beginPath();
+      const r = 2;
+      ctx.roundRect(x, y, barW, barH, r);
+      ctx.fill();
+    });
+  },
+
   destroyAll() {
     ['weight-sparkline', 'week-study-chart', 'week-workout-chart', 'study-week-chart'].forEach((id) => {
       const canvas = document.getElementById(id);

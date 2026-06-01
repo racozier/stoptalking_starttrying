@@ -155,7 +155,12 @@ window.Dashboard = {
       set('week-weight-delta', '<strong>-- kg</strong>');
     }
 
-    // (Chart removed from dashboard — see Study tab for weekly breakdown)
+    // Mini bar charts per day of week
+    const dayWorkouts = weekDates.map((d) => allWorkouts.filter((w) => w.date.startsWith(d)).length);
+    const dayKm = weekDates.map((d) => allRuns.filter((r) => r.date.startsWith(d)).reduce((s, r) => s + r.distance, 0));
+    const dayStudy = weekDates.map((d) => allStudy.filter((s) => s.date.startsWith(d)).reduce((t, s) => t + s.durationMinutes, 0) / 60);
+    Charts.createMiniBarChart('week-workout-mini-chart', dayWorkouts, '#7C3AED');
+    Charts.createMiniBarChart('week-run-mini-chart', dayKm, '#0EA5E9');
   },
 
   async renderTimeline() {
@@ -175,19 +180,19 @@ window.Dashboard = {
     const events = [];
 
     weights.filter((w) => w.date.startsWith(today)).forEach((w) => {
-      events.push({ time: w.date, icon: '⚖️', iconClass: 'icon-weight', title: 'Weight Logged', sub: `${w.value} kg`, type: 'weight', id: w.id });
+      events.push({ time: w.date, lucide: 'scale', iconClass: 'icon-weight', title: 'Weight Logged', sub: `${w.value} kg`, type: 'weight', id: w.id });
     });
     runs.filter((r) => r.date.startsWith(today)).forEach((r) => {
-      events.push({ time: r.date, icon: '🏃', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id });
+      events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id });
     });
     workouts.filter((w) => w.date.startsWith(today)).forEach((w) => {
-      events.push({ time: w.date, icon: '🏋️', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id });
+      events.push({ time: w.date, lucide: 'dumbbell', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id });
     });
     study.filter((s) => s.date.startsWith(today)).forEach((s) => {
-      events.push({ time: s.date, icon: '📚', iconClass: 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id });
+      events.push({ time: s.date, lucide: 'book-open', iconClass: 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id });
     });
     notes.filter((n) => n.created.startsWith(today)).forEach((n) => {
-      events.push({ time: n.created, icon: '📝', iconClass: 'icon-note', title: 'Note Added', sub: n.title, type: 'note', id: n.id });
+      events.push({ time: n.created, lucide: 'notebook-pen', iconClass: 'icon-note', title: 'Note Added', sub: n.title, type: 'note', id: n.id });
     });
 
     events.sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -200,7 +205,7 @@ window.Dashboard = {
     container.innerHTML = events.map((e, idx) => `
       <div class="timeline-item" data-type="${e.type}" data-id="${e.id}">
         <div class="timeline-icon-col">
-          <div class="timeline-icon ${e.iconClass}">${e.icon}</div>
+          <div class="timeline-icon ${e.iconClass}"><i data-lucide="${e.lucide}"></i></div>
           ${idx < events.length - 1 ? '<div class="timeline-connector"></div>' : ''}
         </div>
         <div class="timeline-content">
@@ -211,6 +216,7 @@ window.Dashboard = {
         <div class="timeline-arrow">›</div>
       </div>
     `).join('');
+    if (window.lucide) lucide.createIcons();
   },
 };
 

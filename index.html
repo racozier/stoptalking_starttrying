@@ -49,17 +49,21 @@
          ================================================================ -->
     <div id="tab-dashboard" class="tab-content active">
 
-      <!-- Row 1: Weight + Streak -->
-      <div class="dashboard-row-2 mb-12">
+      <!-- Row 1: Weight + Streak side by side -->
+      <div class="dashboard-row-2 mb-8">
 
         <!-- Weight Card -->
         <div class="card weight-card">
-          <div class="flex-between mb-12" style="gap:8px">
-            <span style="font-size:1rem">⚖️</span>
-            <span style="font-size:0.82rem;font-weight:600;flex:1">Current Weight</span>
-            <button class="icon-btn" onclick="openLogWeightModal()">···</button>
+          <div class="card-header-row">
+            <div class="card-icon-wrap icon-purple">
+              <i data-lucide="scale" style="width:13px;height:13px"></i>
+            </div>
+            <span class="card-label">Current Weight</span>
+            <button class="card-menu-btn" onclick="openLogWeightModal()">···</button>
           </div>
-          <div class="weight-value"><span id="dash-weight">--</span> <span class="unit">kg</span></div>
+          <div class="weight-value">
+            <span id="dash-weight">--</span><span class="unit">kg</span>
+          </div>
           <div id="dash-weight-loss" class="weight-loss">Loading…</div>
           <div class="weight-sparkline-wrap">
             <canvas id="weight-sparkline"></canvas>
@@ -69,76 +73,93 @@
 
         <!-- Streak Card -->
         <div class="card streak-card">
-          <div class="flex-between mb-12">
-            <span style="font-size:1rem">🔥</span>
-            <span style="font-size:0.82rem;font-weight:600;color:var(--accent2);flex:1;padding-left:6px">Streak</span>
-            <button class="icon-btn">···</button>
+          <div class="card-header-row">
+            <div class="card-icon-wrap icon-orange">
+              <i data-lucide="flame" style="width:13px;height:13px"></i>
+            </div>
+            <span class="card-label" style="color:#F97316">Streak</span>
+            <button class="card-menu-btn">···</button>
           </div>
           <div class="streak-number" id="dash-streak">--</div>
           <div class="streak-label">day streak</div>
           <div class="streak-tagline" id="dash-streak-tagline">Keep it going! 💪</div>
-          <div class="streak-dots" id="dash-streak-dots" style="margin-top:auto"></div>
+          <div class="streak-dots" id="dash-streak-dots"></div>
         </div>
       </div>
 
-      <!-- Row 2: This Week -->
-      <div class="card this-week-card mb-12">
-        <div class="this-week-header">
-          <span style="font-size:1.1rem">📊</span>
-          <h3>This Week</h3>
-          <button class="icon-btn">···</button>
+      <!-- This Week Card -->
+      <div class="card this-week-card mb-8">
+        <div class="card-header-row" style="margin-bottom:8px">
+          <div class="card-icon-wrap icon-green">
+            <i data-lucide="trending-up" style="width:13px;height:13px"></i>
+          </div>
+          <span class="card-label">This Week</span>
+          <button class="card-menu-btn">···</button>
         </div>
-        <div class="this-week-stats">
-          <div class="week-stat">
-            <div id="week-workouts">--</div>
-            <span class="stat-label">Workouts</span>
-            <div id="week-workouts-delta"></div>
+        <div class="week-stats-list">
+          <div class="week-stat-row">
+            <div class="week-stat-icon icon-green">
+              <i data-lucide="dumbbell" style="width:13px;height:13px"></i>
+            </div>
+            <div class="week-stat-content">
+              <div id="week-workouts" class="week-stat-num">--</div>
+              <div class="week-stat-label">Workouts</div>
+            </div>
+            <div id="week-workouts-delta" class="week-stat-delta"></div>
+            <canvas class="week-mini-chart" id="week-workout-mini-chart"></canvas>
           </div>
-          <div class="week-stat">
-            <div id="week-km">--</div>
-            <span class="stat-label">km Run</span>
-            <div id="week-km-delta"></div>
+          <div class="week-stat-row">
+            <div class="week-stat-icon icon-green">
+              <i data-lucide="footprints" style="width:13px;height:13px"></i>
+            </div>
+            <div class="week-stat-content">
+              <div id="week-km" class="week-stat-num">--</div>
+              <div class="week-stat-label">km Run</div>
+            </div>
+            <div id="week-km-delta" class="week-stat-delta"></div>
+            <canvas class="week-mini-chart" id="week-run-mini-chart"></canvas>
           </div>
-          <div class="week-stat">
-            <div id="week-study">--</div>
-            <span class="stat-label">Study</span>
-            <div id="week-study-delta"></div>
-          </div>
-          <div class="week-stat">
-            <div id="week-weight-delta">-- kg</div>
-            <span class="stat-label">Weight Δ</span>
+          <div class="week-stat-row week-stat-row-last">
+            <div class="week-stat-icon icon-purple">
+              <i data-lucide="scale" style="width:13px;height:13px"></i>
+            </div>
+            <div class="week-stat-content">
+              <div id="week-weight-delta" class="week-stat-num">-- kg</div>
+              <div class="week-stat-label">Weight Change</div>
+            </div>
+            <div class="week-stat-delta"></div>
+            <canvas class="week-mini-chart" id="week-weight-mini-chart"></canvas>
           </div>
         </div>
         <button class="view-all-stats-btn" onclick="App.switchTab('study')">View All Stats ›</button>
       </div>
 
-      <!-- Row 3: Quick Actions -->
-      <div class="card quick-actions-card mb-12">
-        <h3>Quick Actions</h3>
+      <!-- Quick Actions (bare buttons on black bg) -->
+      <div class="quick-actions-section mb-8">
         <div class="quick-actions-grid">
           <button class="action-btn action-workout" data-action="log-workout">
-            <span class="action-icon">🏋️</span>
-            Log Workout
+            <i data-lucide="dumbbell"></i>
+            <span>Log Workout</span>
           </button>
           <button class="action-btn action-run" data-action="log-run">
-            <span class="action-icon">🏃</span>
-            Log Run
+            <i data-lucide="footprints"></i>
+            <span>Log Run</span>
           </button>
           <button class="action-btn action-weight" data-action="log-weight">
-            <span class="action-icon">⚖️</span>
-            Log Weight
+            <i data-lucide="scale"></i>
+            <span>Log Weight</span>
           </button>
           <button class="action-btn action-note" data-action="new-note">
-            <span class="action-icon">📝</span>
-            New Note
+            <i data-lucide="notebook-pen"></i>
+            <span>New Note</span>
           </button>
         </div>
       </div>
 
-      <!-- Row 4: Today's Timeline -->
+      <!-- Today's Timeline -->
       <div class="card timeline-card">
-        <div class="timeline-card-header">
-          <h3>Today's Timeline</h3>
+        <div class="card-header-row" style="margin-bottom:10px">
+          <span style="font-size:0.88rem;font-weight:700;flex:1;color:var(--text)">Today's Timeline</span>
           <button class="view-all-link" onclick="App.switchTab('fitness')">View All</button>
         </div>
         <div class="timeline-list" id="timeline-list">
@@ -805,6 +826,7 @@
 <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
 <script src="config.js"></script>
 <script src="js/db.js"></script>
