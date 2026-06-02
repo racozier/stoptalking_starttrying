@@ -549,8 +549,17 @@ h3 { font-size: 1rem; font-weight: 600; }
 .action-run     { background: #0EA5E9; }
 .action-study   { background: #0D9488; }
 .action-polish  { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.15); }
-/* Polish flag SVG must not inherit fill:none / stroke:white from action-btn */
-.action-polish .flag-pl { stroke: none !important; width: 28px; height: 18px; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+/* Wrapper gives the flag the same 24px vertical footprint as Lucide icons */
+.flag-pl-wrap {
+  width: 28px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+/* The flag SVG must not inherit fill:none or stroke:white from .action-btn svg */
+.action-polish svg { fill: unset; stroke: none; width: unset; height: unset; }
 
 /* ── Timeline ─────────────────────────────────────────────────────────────── */
 .timeline-card { margin-bottom: 8px; }

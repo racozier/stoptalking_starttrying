@@ -320,25 +320,50 @@ window.openWeightExpand = openWeightExpand;
 window.closeWeightExpand = closeWeightExpand;
 window.closeWeightExpandBackdrop = closeWeightExpandBackdrop;
 
-// ─── Quick Actions ────────────────────────────────────────────────────────────
+// ─── Quick Actions — instant timeline logging ─────────────────────────────────
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
-  const action = btn.dataset.action;
-  if (action === 'log-workout') Fitness.openLogWorkoutModal();
-  else if (action === 'log-run') Fitness.openLogRunModal();
-  else if (action === 'log-weight') openLogWeightModal();
-  else if (action === 'new-note') Notes.openEditor(null);
-  else if (action === 'log-study') App.switchTab('study');
-  else if (action === 'log-polish') {
-    App.switchTab('study');
-    // Pre-select Polish if the study tab supports it
-    setTimeout(() => {
-      const subjectInput = document.getElementById('study-subject-input');
-      if (subjectInput) { subjectInput.value = 'Polish Language'; subjectInput.dispatchEvent(new Event('input')); }
-    }, 150);
-  }
+  quickLog(btn.dataset.action);
 });
+
+async function quickLog(action) {
+  const now = new Date().toISOString();
+  if (action === 'log-workout') {
+    await window.db.workouts.add({
+      date: now, name: 'Gym Session',
+      exercises: [], totalVolume: 0, setCount: 0, exerciseCount: 0,
+      durationMinutes: 0, notes: '',
+    });
+    App.showToast('Workout logged!', 'success');
+  } else if (action === 'log-run') {
+    await window.db.runs.add({
+      date: now, name: 'Run',
+      distance: 0, durationSeconds: 0, paceSecsPerKm: 0,
+      paceFormatted: '--:--', calories: 0, elevation: 0,
+      avgHR: 0, polyline: null, source: 'quick', notes: '',
+    });
+    App.showToast('Run logged!', 'success');
+  } else if (action === 'log-study') {
+    await window.db.study.add({
+      date: now, classId: null,
+      subject: 'Study Session', durationMinutes: 60, notes: '',
+    });
+    App.showToast('Study logged!', 'success');
+  } else if (action === 'log-polish') {
+    await window.db.study.add({
+      date: now, classId: null,
+      subject: 'Polish Language', durationMinutes: 60, notes: '',
+    });
+    App.showToast('Polish logged!', 'success');
+  } else if (action === 'log-weight') {
+    openLogWeightModal(); return;
+  } else if (action === 'new-note') {
+    Notes.openEditor(null); return;
+  } else { return; }
+  if (App.currentTab === 'dashboard') await Dashboard.render();
+}
+window.quickLog = quickLog;
 
 function initWeekCardSwipe() {
   const card = document.getElementById('this-week-card');
