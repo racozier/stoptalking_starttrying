@@ -416,22 +416,21 @@ h3 { font-size: 1rem; font-weight: 600; }
   flex-direction: column;
   overflow: hidden;
 }
+/* slider is in normal flow — panel widths set by JS so intrinsic height works */
 .week-card-slider {
   flex: 1;
-  position: relative;
-  min-height: 0;
-  overflow: hidden;
-}
-.week-panel {
-  position: absolute;
-  inset: 0;
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
   transition: transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94);
   will-change: transform;
+  min-height: 0;
 }
-/* panel 0 visible by default, panel 1 starts off-screen right */
-.week-panel:nth-child(2) { transform: translateX(100%); }
+.week-panel {
+  flex: 0 0 auto;   /* exact width set by JS after layout */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 
 .week-swipe-dots {
   display: flex;
@@ -544,7 +543,9 @@ h3 { font-size: 1rem; font-weight: 600; }
 .action-workout { background: #7C3AED; }
 .action-run     { background: #0EA5E9; }
 .action-study   { background: #0D9488; }
-.action-polish  { background: #DC2626; }
+.action-polish  { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.15); }
+/* Polish flag SVG must not inherit fill:none / stroke:white from action-btn */
+.action-polish .flag-pl { stroke: none !important; width: 28px; height: 18px; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
 
 /* ── Timeline ─────────────────────────────────────────────────────────────── */
 .timeline-card { margin-bottom: 8px; }
