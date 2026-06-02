@@ -214,13 +214,17 @@ h3 { font-size: 1rem; font-weight: 600; }
 .weight-card {
   background: #1C1A3A;
   border-color: rgba(139,92,246,0.25);
-  display: flex;
-  flex-direction: column;
   min-width: 0;
   overflow: hidden;
 }
-.weight-card .weight-sparkline-wrap { flex: 1; overflow: hidden; }
-#weight-sparkline { width: 100% !important; height: 100% !important; max-width: 100%; }
+/* Fixed height — never flex: 1, which triggers Chart.js resize loops */
+.weight-sparkline-wrap {
+  height: 80px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+#weight-sparkline { width: 100% !important; max-width: 100%; }
 .streak-card {
   background: #2A1A08;
   border-color: rgba(249,115,22,0.25);
@@ -286,7 +290,6 @@ h3 { font-size: 1rem; font-weight: 600; }
 .weight-loss { font-size: 0.7rem; margin-bottom: 4px; color: var(--accent2); }
 .trend-down { color: var(--accent2); }
 .trend-up { color: var(--danger); }
-.weight-sparkline-wrap { height: 85px; position: relative; min-height: 0; }
 
 .streak-card { display: flex; flex-direction: column; gap: 2px; overflow: hidden; min-width: 0; }
 .streak-number { font-size: 2.2rem; font-weight: 800; color: #F97316; line-height: 1; }
