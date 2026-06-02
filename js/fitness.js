@@ -127,11 +127,10 @@ window.Fitness = {
       </div>
       ${allEx.length > 0 ? `
       <div class="exercise-list" id="workout-detail-${w.id}">
-        ${allEx.map((ex, i) => this.renderExerciseRow(ex, i >= 2)).join('')}
+        ${allEx.map((ex) => this.renderExerciseRow(ex, true)).join('')}
       </div>
-      ${allEx.length > 2 ? `
-        <button class="workout-expand-btn link-btn" data-id="${w.id}">View Full Workout ›</button>
-      ` : ''}` : ''}
+      <button class="workout-expand-btn link-btn" data-id="${w.id}">View Full Workout ›</button>
+      ` : ''}
       ${this.renderCardNotes('workout', w.id, w.notes)}
     </div>`;
   },
