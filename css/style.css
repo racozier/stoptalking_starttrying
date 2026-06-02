@@ -549,7 +549,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .action-workout { background: #7C3AED; }
 .action-run     { background: #0EA5E9; }
 .action-study   { background: #0D9488; }
-.action-polish  { background: #92400E; }
+.action-polish  { background: #CA8A04; }
 /* Wrapper gives the flag the same 24px vertical footprint as Lucide icons */
 .flag-pl-wrap {
   width: 28px;
@@ -608,6 +608,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .icon-workout { background: rgba(139,92,246,0.3);  color: #C084FC; }
 .icon-study   { background: rgba(59,130,246,0.25); color: #60A5FA; }
 .icon-note    { background: rgba(245,158,11,0.25); color: #FCD34D; }
+.icon-polish  { background: rgba(202,138,4,0.2);   color: #FDE68A; }
 
 /* Lucide SVG icons inside timeline circles */
 .timeline-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
@@ -833,7 +834,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.7);
-  z-index: 200;
+  z-index: 1100;
   align-items: flex-end;
   backdrop-filter: blur(4px);
 }

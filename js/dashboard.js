@@ -123,10 +123,15 @@ window.Dashboard = {
     const thisDist = thisRuns.reduce((s, r) => s + r.distance, 0);
     const prevDist = prevRuns.reduce((s, r) => s + r.distance, 0);
 
-    const thisStudy = allStudy.filter((s) => inWeek(s.date, weekDates));
-    const prevStudy = allStudy.filter((s) => inWeek(s.date, prevWeekDates));
+    const thisStudy = allStudy.filter((s) => inWeek(s.date, weekDates) && s.subject !== 'Polish Language');
+    const prevStudy = allStudy.filter((s) => inWeek(s.date, prevWeekDates) && s.subject !== 'Polish Language');
     const thisStudyHours = Math.round(thisStudy.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
     const prevStudyHours = Math.round(prevStudy.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
+
+    const thisPolish = allStudy.filter((s) => inWeek(s.date, weekDates) && s.subject === 'Polish Language');
+    const prevPolish = allStudy.filter((s) => inWeek(s.date, prevWeekDates) && s.subject === 'Polish Language');
+    const thisPolishHours = Math.round(thisPolish.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
+    const prevPolishHours = Math.round(prevPolish.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
 
     // Weight change this week
     const weekWeights = allWeight.filter((w) => inWeek(w.date, weekDates));
@@ -154,28 +159,37 @@ window.Dashboard = {
     set('week-km-delta', delta(thisDist, prevDist, (v) => `${Math.abs(v).toFixed(1)}km`));
     set('week-study', `<strong>${thisStudyHours}h</strong>`);
     set('week-study-delta', delta(thisStudyHours, prevStudyHours, (v) => `${Math.abs(v).toFixed(1)}h`));
-    set('week-study', `<strong>${thisStudyHours}h</strong>`);
+    set('week-polish', `<strong>${thisPolishHours}h</strong>`);
 
     // Mini bar charts per day of week
     const dayWorkouts = weekDates.map((d) => allWorkouts.filter((w) => w.date.startsWith(d)).length);
     const dayKm = weekDates.map((d) => allRuns.filter((r) => r.date.startsWith(d)).reduce((s, r) => s + r.distance, 0));
-    const dayStudy = weekDates.map((d) => allStudy.filter((s) => s.date.startsWith(d)).reduce((t, s) => t + s.durationMinutes, 0) / 60);
+    const dayStudy = weekDates.map((d) => allStudy.filter((s) => s.date.startsWith(d) && s.subject !== 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
+    const dayPolish = weekDates.map((d) => allStudy.filter((s) => s.date.startsWith(d) && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
     Charts.createMiniBarChart('week-workout-mini-chart', dayWorkouts, '#7C3AED');
     Charts.createMiniBarChart('week-run-mini-chart', dayKm, '#0EA5E9');
     Charts.createMiniBarChart('week-study-mini-chart', dayStudy, '#A78BFA');
+    Charts.createMiniBarChart('week-polish-mini-chart', dayPolish, '#CA8A04');
 
     // Today's activity checklist (panel 0)
     const todayStr = new Date().toISOString().split('T')[0];
     const checkList = document.getElementById('today-activity-list');
     if (checkList) {
+      const todayPolish = allStudy.filter((s) => s.date.startsWith(todayStr) && s.subject === 'Polish Language');
+      const todayStudy  = allStudy.filter((s) => s.date.startsWith(todayStr) && s.subject !== 'Polish Language');
       const items = [
-        { label: 'Workout', done: allWorkouts.some((w) => w.date.startsWith(todayStr)), icon: 'dumbbell',   cls: 'icon-workout' },
-        { label: 'Run',     done: allRuns.some((r) => r.date.startsWith(todayStr)),     icon: 'footprints', cls: 'icon-run' },
-        { label: 'Study',   done: allStudy.some((s) => s.date.startsWith(todayStr)),    icon: 'book-open',  cls: 'icon-study' },
+        { label: 'Workout',      done: allWorkouts.some((w) => w.date.startsWith(todayStr)), lucide: 'dumbbell',   cls: 'icon-workout' },
+        { label: 'Run',          done: allRuns.some((r) => r.date.startsWith(todayStr)),     lucide: 'footprints', cls: 'icon-run' },
+        { label: 'WGU Study',    done: todayStudy.length > 0,                                lucide: 'book-open',  cls: 'icon-study' },
+        { label: 'Learn Polish', done: todayPolish.length > 0,                               lucide: null,         cls: 'icon-polish' },
       ];
       checkList.innerHTML = items.map((it) => `
         <div class="today-act-row">
-          <div class="today-act-icon ${it.cls}"><i data-lucide="${it.icon}" style="width:12px;height:12px"></i></div>
+          <div class="today-act-icon ${it.cls}">${
+            it.lucide
+              ? `<i data-lucide="${it.lucide}" style="width:12px;height:12px"></i>`
+              : `<svg viewBox="0 0 18 12" width="18" height="12" style="border-radius:2px;display:block"><rect width="18" height="6" style="fill:#FFFFFF;stroke:none"/><rect y="6" width="18" height="6" style="fill:#DC143C;stroke:none"/></svg>`
+          }</div>
           <span class="today-act-label">${it.label}</span>
           <div class="today-act-check${it.done ? ' done' : ''}">✓</div>
         </div>`).join('');
@@ -209,13 +223,14 @@ window.Dashboard = {
       events.push({ time: w.date, lucide: 'dumbbell', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
     });
     study.filter((s) => s.date.startsWith(today)).forEach((s) => {
-      events.push({ time: s.date, lucide: 'book-open', iconClass: 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id, hasNotes: !!(s.notes && s.notes.trim()) });
+      const isPolish = s.subject === 'Polish Language';
+      events.push({ time: s.date, lucide: isPolish ? null : 'book-open', iconClass: isPolish ? 'icon-polish' : 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id, hasNotes: !!(s.notes && s.notes.trim()), isPolish });
     });
     notes.filter((n) => n.created.startsWith(today)).forEach((n) => {
       events.push({ time: n.created, lucide: 'notebook-pen', iconClass: 'icon-note', title: 'Note Added', sub: n.title, type: 'note', id: n.id });
     });
 
-    events.sort((a, b) => new Date(b.time) - new Date(a.time));
+    events.sort((a, b) => new Date(a.time) - new Date(b.time));
 
     if (events.length === 0) {
       container.innerHTML = '<div class="empty-state"><p>Nothing logged today yet.</p><p class="sub">Use the Quick Actions above to get started.</p></div>';
@@ -228,7 +243,11 @@ window.Dashboard = {
       <div class="timeline-item${hasMap ? ' has-map' : ''}" data-type="${e.type}" data-id="${e.id}">
         <div class="timeline-icon-col">
           <div class="timeline-connector"></div>
-          <div class="timeline-icon ${e.iconClass}"><i data-lucide="${e.lucide}"></i></div>
+          <div class="timeline-icon ${e.iconClass}">${
+            e.isPolish
+              ? `<svg viewBox="0 0 20 14" width="16" height="11" style="border-radius:2px;display:block"><rect width="20" height="7" style="fill:#FFFFFF;stroke:none"/><rect y="7" width="20" height="7" style="fill:#DC143C;stroke:none"/></svg>`
+              : `<i data-lucide="${e.lucide}"></i>`
+          }</div>
         </div>
         <div class="timeline-time">${App.formatTime(e.time)}</div>
         <div class="timeline-body">
