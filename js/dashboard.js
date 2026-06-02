@@ -14,8 +14,7 @@ window.Dashboard = {
     // Re-size swipe panels now that layout is settled
     setTimeout(() => {
       const card = document.getElementById('this-week-card');
-      const slider = card?.querySelector('.week-card-slider');
-      if (slider) { const w = slider.offsetWidth; if (w) card.querySelectorAll('.week-panel').forEach((p) => { p.style.width = w + 'px'; }); }
+      if (card) { const w = card.offsetWidth; if (w) card.querySelectorAll('.week-panel').forEach((p) => { p.style.width = w + 'px'; }); }
     }, 0);
   },
 
@@ -351,11 +350,11 @@ function initWeekCardSwipe() {
   let startX = 0, currentView = 0;
 
   function resize() {
-    // offsetWidth of the slider gives inner width (inside card padding)
-    const w = slider.offsetWidth;
+    // Use the full card offsetWidth — card padding is now 0 so slider
+    // spans the entire card, and panels must match exactly to prevent bleed.
+    const w = card.offsetWidth;
     if (!w) { setTimeout(resize, 50); return; }
     panels.forEach((p) => { p.style.width = w + 'px'; });
-    // Re-snap to current view at new width
     slider.style.transition = 'none';
     slider.style.transform = currentView === 0 ? '' : `translateX(-${w}px)`;
     requestAnimationFrame(() => { slider.style.transition = ''; });
@@ -363,7 +362,7 @@ function initWeekCardSwipe() {
 
   function goTo(n) {
     currentView = n;
-    const w = panels[0] ? (parseInt(panels[0].style.width, 10) || slider.offsetWidth) : slider.offsetWidth;
+    const w = card.offsetWidth;
     slider.style.transform = n === 0 ? '' : `translateX(-${w}px)`;
     card.querySelectorAll('.week-swipe-dot').forEach((d, i) => d.classList.toggle('active', i === n));
   }

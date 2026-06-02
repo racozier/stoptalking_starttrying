@@ -416,7 +416,11 @@ h3 { font-size: 1rem; font-weight: 600; }
   flex-direction: column;
   overflow: hidden;
 }
-/* slider is in normal flow — panel widths set by JS so intrinsic height works */
+/* Remove card padding so the slider is flush against the card edges.
+   This is critical — any left-padding offset causes the adjacent panel
+   to peek through the clip region. Padding lives inside each panel. */
+.dashboard-right-col .this-week-card { padding: 0; }
+
 .week-card-slider {
   flex: 1;
   display: flex;
@@ -426,17 +430,18 @@ h3 { font-size: 1rem; font-weight: 600; }
   min-height: 0;
 }
 .week-panel {
-  flex: 0 0 auto;   /* exact width set by JS after layout */
+  flex: 0 0 auto;          /* exact width set by JS after layout */
   display: flex;
   flex-direction: column;
   min-width: 0;
+  padding: 9px 10px 4px;   /* matches old .dashboard-right-col .card padding */
 }
 
 .week-swipe-dots {
   display: flex;
   justify-content: center;
   gap: 6px;
-  padding: 5px 0 2px;
+  padding: 4px 10px 7px;
   flex-shrink: 0;
 }
 .week-swipe-dot {
