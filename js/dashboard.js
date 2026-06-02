@@ -12,7 +12,7 @@ window.Dashboard = {
   },
 
   async renderWeightCard() {
-    const weights = await window.db.weight.getRecent(60);
+    const weights = await window.db.weight.getRecent(30);
     const el = document.getElementById('dash-weight');
     const lossEl = document.getElementById('dash-weight-loss');
     if (!el) return;
@@ -177,7 +177,7 @@ window.Dashboard = {
       events.push({ time: w.date, lucide: 'scale', iconClass: 'icon-weight', title: 'Weight Logged', sub: `${w.value} kg`, type: 'weight', id: w.id });
     });
     runs.filter((r) => r.date.startsWith(today)).forEach((r) => {
-      events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id });
+      events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id, polyline: r.polyline });
     });
     workouts.filter((w) => w.date.startsWith(today)).forEach((w) => {
       events.push({ time: w.date, lucide: 'dumbbell', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id });
@@ -208,9 +208,29 @@ window.Dashboard = {
           <div class="timeline-sub">${App.escapeHtml(e.sub)}</div>
         </div>
         <div class="timeline-arrow">›</div>
+        ${e.polyline && e.polyline.length ? `<div class="timeline-mini-map" id="tl-map-${e.id}"></div>` : ''}
       </div>
     `).join('');
     if (window.lucide) lucide.createIcons();
+
+    // Initialise Leaflet mini-maps for run events that have GPS polylines
+    events.filter((e) => e.polyline && e.polyline.length).forEach((e) => {
+      const mapDiv = document.getElementById(`tl-map-${e.id}`);
+      if (!mapDiv || !window.L) return;
+      if (mapDiv._leaflet_id) return; // already initialised
+      const map = L.map(mapDiv, {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        touchZoom: false,
+        doubleClickZoom: false,
+        keyboard: false,
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { opacity: 0.65 }).addTo(map);
+      const line = L.polyline(e.polyline, { color: '#4ADE80', weight: 3, opacity: 0.95 }).addTo(map);
+      map.fitBounds(line.getBounds(), { padding: [8, 8] });
+    });
   },
 };
 

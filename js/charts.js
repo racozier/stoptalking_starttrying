@@ -21,10 +21,10 @@ window.Charts = {
         datasets: [{
           data: vals,
           borderColor: 'rgba(139, 92, 246, 0.9)',
-          borderWidth: 1.5,
-          pointRadius: vals.map((_, i) => (i === vals.length - 1 ? 2.5 : 0)),
+          borderWidth: 2,
+          pointRadius: vals.map((_, i) => (i === vals.length - 1 ? 3 : 0)),
           pointBackgroundColor: 'rgba(139, 92, 246, 1)',
-          tension: 0.4,
+          tension: 0.5,
           fill: true,
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
@@ -41,30 +41,30 @@ window.Charts = {
         maintainAspectRatio: false,
         animation: false,
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
-        layout: { padding: { right: 6, top: 4, bottom: 0, left: 0 } },
+        layout: { padding: { right: 4, top: 2, bottom: 0, left: 0 } },
         scales: {
           x: {
             display: true,
             grid: { display: false, drawTicks: false },
             ticks: {
-              color: 'rgba(255,255,255,0.30)',
+              color: 'rgba(255,255,255,0.35)',
               font: { size: 9 },
               maxRotation: 0,
-              padding: 1,
+              padding: 2,
               autoSkip: true,
-              maxTicksLimit: 4,
+              maxTicksLimit: 3,
             },
             border: { display: false },
           },
           y: {
             display: true,
             position: 'left',
-            grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+            grid: { color: 'rgba(255,255,255,0.06)', drawTicks: false },
             ticks: {
-              color: 'rgba(255,255,255,0.30)',
-              font: { size: 9 },
-              maxTicksLimit: 3,
-              padding: 6,
+              color: 'rgba(255,255,255,0.45)',
+              font: { size: 10, weight: '500' },
+              maxTicksLimit: 4,
+              padding: 4,
             },
             border: { display: false },
           },

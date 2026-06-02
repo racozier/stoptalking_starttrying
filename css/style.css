@@ -203,6 +203,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .dashboard-right-col .this-week-card {
   flex: 1;
   min-height: 0;
+  margin-bottom: 0;
 }
 
 /* Right column cards get tighter padding */
@@ -457,7 +458,7 @@ h3 { font-size: 1rem; font-weight: 600; }
    No vertical padding (min-height instead) so the dotted line stays unbroken. */
 .timeline-item {
   display: grid;
-  grid-template-columns: 36px auto 1fr 14px;
+  grid-template-columns: 36px 46px 1fr 14px;
   gap: 0 8px;
   align-items: center;
   min-height: 50px;
@@ -514,6 +515,15 @@ h3 { font-size: 1rem; font-weight: 600; }
 /* Lucide SVG icons inside timeline circles */
 .timeline-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
 
+/* Mini Leaflet map for run events — spans time+body+arrow columns */
+.timeline-mini-map {
+  grid-column: 2 / -1;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 2px 0 6px;
+  align-self: start;
+}
 .timeline-time  { font-size: 0.65rem; color: var(--subtext); white-space: nowrap; line-height: 1; }
 .timeline-body  { min-width: 0; }
 .timeline-title { font-size: 0.82rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; }

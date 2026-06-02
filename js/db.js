@@ -285,7 +285,7 @@ window.db = {
 // ─── Sample Data Seeder ───────────────────────────────────────────────────────
 
 async function seedSampleData() {
-  const already = await window.db.settings.get('sampleDataV2');
+  const already = await window.db.settings.get('sampleDataV3');
   if (already) return;
 
   const today = new Date('2026-06-01');
@@ -657,7 +657,7 @@ async function seedSampleData() {
   await window.db.settings.set('degreeCreditHours', 120);
   await window.db.settings.set('currentTermName', 'Term 1 2026');
   await window.db.settings.set('currentTermEnd', '2026-08-31');
-  await window.db.settings.set('sampleDataV2', true);
+  await window.db.settings.set('sampleDataV3', true);
 }
 
 // Run seeder on load
