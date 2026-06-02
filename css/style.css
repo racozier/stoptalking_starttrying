@@ -799,20 +799,20 @@ h3 { font-size: 1rem; font-weight: 600; }
   overflow: hidden;
   margin-bottom: 4px;
 }
-.exercise-list-more { display: none; margin-top: 4px; }
-.exercise-list-more.open { display: block; }
-
 .exercise-row {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
-  align-items: center;
+  align-items: start;
   padding: 9px 12px;
   border-bottom: 1px solid var(--border);
 }
 .exercise-row:last-child { border-bottom: none; }
+.exercise-row.ex-hidden { display: none; }
+.exercise-list.expanded .ex-hidden { display: grid; }
 .exercise-name { font-size: 0.84rem; font-weight: 500; }
-.exercise-sets { font-size: 0.74rem; color: var(--subtext); text-align: right; }
+.exercise-sets { font-size: 0.74rem; color: var(--subtext); text-align: right; display: flex; flex-direction: column; gap: 1px; }
+.set-line { white-space: nowrap; }
 
 .workout-expand-btn {
   margin-top: 6px;
@@ -827,11 +827,16 @@ h3 { font-size: 1rem; font-weight: 600; }
   margin-top: 10px;
   padding-top: 6px;
 }
+.card-notes-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .card-notes-toggle {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  gap: 4px;
+  flex: 1;
   background: none;
   border: none;
   cursor: pointer;
@@ -839,12 +844,22 @@ h3 { font-size: 1rem; font-weight: 600; }
   font-family: 'Outfit', sans-serif;
   font-size: 0.78rem;
   color: var(--subtext);
+  text-align: left;
 }
 .card-notes-chevron {
   font-size: 1rem;
   color: var(--subtext);
   transition: transform 0.2s;
   display: inline-block;
+}
+.card-note-dots {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--subtext);
+  padding: 2px 4px;
+  line-height: 1;
 }
 .card-notes-body {
   display: none;

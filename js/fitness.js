@@ -86,9 +86,9 @@ window.Fitness = {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = Number(btn.dataset.id);
-        const detail = document.getElementById(`workout-detail-${id}`);
-        if (detail) {
-          const open = detail.classList.toggle('open');
+        const list = document.getElementById(`workout-detail-${id}`);
+        if (list) {
+          const open = list.classList.toggle('expanded');
           btn.textContent = open ? 'View Less ‹' : 'View Full Workout ›';
         }
       });
@@ -119,26 +119,23 @@ window.Fitness = {
         <div class="run-stat-col">${durStr}<span>Duration</span></div>
       </div>
       ${allEx.length > 0 ? `
-      <div class="exercise-list">
-        ${allEx.slice(0, 3).map((ex) => this.renderExerciseRow(ex)).join('')}
+      <div class="exercise-list" id="workout-detail-${w.id}">
+        ${allEx.map((ex, i) => this.renderExerciseRow(ex, i >= 3)).join('')}
       </div>
       ${allEx.length > 3 ? `
-        <div class="exercise-list exercise-list-more" id="workout-detail-${w.id}">
-          ${allEx.slice(3).map((ex) => this.renderExerciseRow(ex)).join('')}
-        </div>
         <button class="workout-expand-btn link-btn" data-id="${w.id}">View Full Workout ›</button>
       ` : ''}` : ''}
       ${this.renderCardNotes('workout', w.id, w.notes)}
     </div>`;
   },
 
-  renderExerciseRow(ex) {
+  renderExerciseRow(ex, hidden = false) {
     const sets = (ex.sets || []).map((s) =>
-      s.weight > 0 ? `${s.weight} kg × ${s.reps}` : `BW × ${s.reps}`
-    ).join('  ·  ');
+      `<div class="set-line">${s.weight > 0 ? `${s.weight} kg × ${s.reps}` : `BW × ${s.reps}`}</div>`
+    ).join('');
 
     return `
-    <div class="exercise-row">
+    <div class="exercise-row${hidden ? ' ex-hidden' : ''}">
       <div class="exercise-name">${App.escapeHtml(ex.name)}</div>
       <div class="exercise-sets">${sets}</div>
     </div>`;
@@ -148,19 +145,15 @@ window.Fitness = {
     const hasNote = notes && notes.trim();
     return `
     <div class="card-notes-section" id="card-notes-${type}-${id}">
-      <button class="card-notes-toggle" onclick="Fitness.toggleCardNotes('${type}', ${id})">
-        <span class="card-notes-label">${hasNote ? 'Notes' : 'Add note'}</span>
-        <span class="card-notes-chevron">${hasNote ? '›' : '+'}</span>
-      </button>
+      <div class="card-notes-header">
+        <button class="card-notes-toggle" onclick="Fitness.toggleCardNotes('${type}', ${id})">
+          <span class="card-notes-label">${hasNote ? 'Notes' : 'Add note'}</span>
+          <span class="card-notes-chevron">${hasNote ? '›' : '+'}</span>
+        </button>
+        ${hasNote ? `<button class="card-note-dots" onclick="Fitness.showNoteMenu(event,'${type}',${id})">···</button>` : ''}
+      </div>
       <div class="card-notes-body" id="card-notes-body-${type}-${id}">
-        ${hasNote
-          ? `<div class="card-note-text" id="card-note-text-${type}-${id}">${App.escapeHtml(notes)}</div>
-             <div class="card-note-actions">
-               <button class="card-note-btn" onclick="Fitness.editCardNote('${type}', ${id})">Edit</button>
-               <button class="card-note-btn danger" onclick="Fitness.deleteCardNote('${type}', ${id})">Delete</button>
-             </div>`
-          : `<button class="link-btn" onclick="Fitness.editCardNote('${type}', ${id})">+ Add note</button>`
-        }
+        ${hasNote ? `<div class="card-note-text" id="card-note-text-${type}-${id}">${App.escapeHtml(notes)}</div>` : ''}
       </div>
     </div>`;
   },
@@ -247,12 +240,7 @@ window.Fitness = {
     const body = document.getElementById(`card-notes-body-${type}-${id}`);
     if (!body) return;
     body.classList.add('open');
-    const section = document.getElementById(`card-notes-${type}-${id}`);
-    const chevron = section?.querySelector('.card-notes-chevron');
-    if (chevron) chevron.style.transform = 'rotate(90deg)';
-    if (!document.getElementById(`card-note-text-${type}-${id}`)) {
-      this.editCardNote(type, id);
-    }
+    this.editCardNote(type, id);
   },
 
   // ─── Card-level notes ──────────────────────────────────────────────────
@@ -260,9 +248,33 @@ window.Fitness = {
     const body = document.getElementById(`card-notes-body-${type}-${id}`);
     const section = document.getElementById(`card-notes-${type}-${id}`);
     if (!body) return;
+    const hasNote = !!document.getElementById(`card-note-text-${type}-${id}`);
+    const inEdit = !!body.querySelector('.card-note-textarea');
+    if (!hasNote && !inEdit) {
+      body.classList.add('open');
+      this.editCardNote(type, id);
+      return;
+    }
     const isOpen = body.classList.toggle('open');
     const chevron = section?.querySelector('.card-notes-chevron');
     if (chevron) chevron.style.transform = isOpen ? 'rotate(90deg)' : '';
+  },
+
+  showNoteMenu(e, type, id) {
+    e.stopPropagation();
+    document.getElementById('activity-action-sheet')?.remove();
+    const sheet = document.createElement('div');
+    sheet.id = 'activity-action-sheet';
+    sheet.className = 'action-sheet-backdrop';
+    sheet.innerHTML = `
+      <div class="action-sheet">
+        <button class="action-sheet-item" onclick="Fitness.editCardNote('${type}',${id});document.getElementById('activity-action-sheet').remove()">Edit Note</button>
+        <button class="action-sheet-item action-sheet-danger" onclick="Fitness.deleteCardNote('${type}',${id});document.getElementById('activity-action-sheet').remove()">Delete Note</button>
+        <button class="action-sheet-cancel" onclick="document.getElementById('activity-action-sheet').remove()">Cancel</button>
+      </div>`;
+    sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
+    document.body.appendChild(sheet);
+    requestAnimationFrame(() => sheet.classList.add('open'));
   },
 
   editCardNote(type, id) {
@@ -310,20 +322,26 @@ window.Fitness = {
     const body = document.getElementById(`card-notes-body-${type}-${id}`);
     const section = document.getElementById(`card-notes-${type}-${id}`);
     if (!body) return;
-    const hasNote = notes && notes.trim();
-    body.classList.add('open');
+    const hasNote = !!(notes && notes.trim());
+    body.classList.toggle('open', hasNote);
     body.innerHTML = hasNote
-      ? `<div class="card-note-text" id="card-note-text-${type}-${id}">${App.escapeHtml(notes)}</div>
-         <div class="card-note-actions">
-           <button class="card-note-btn" onclick="Fitness.editCardNote('${type}', ${id})">Edit</button>
-           <button class="card-note-btn danger" onclick="Fitness.deleteCardNote('${type}', ${id})">Delete</button>
-         </div>`
-      : `<button class="link-btn" onclick="Fitness.editCardNote('${type}', ${id})">+ Add note</button>`;
+      ? `<div class="card-note-text" id="card-note-text-${type}-${id}">${App.escapeHtml(notes)}</div>`
+      : '';
     if (section) {
+      const header = section.querySelector('.card-notes-header');
       const label = section.querySelector('.card-notes-label');
       const chevron = section.querySelector('.card-notes-chevron');
+      // Sync dots button
+      section.querySelector('.card-note-dots')?.remove();
+      if (hasNote && header) {
+        const dots = document.createElement('button');
+        dots.className = 'card-note-dots';
+        dots.textContent = '···';
+        dots.onclick = (e) => Fitness.showNoteMenu(e, type, id);
+        header.appendChild(dots);
+      }
       if (label) label.textContent = hasNote ? 'Notes' : 'Add note';
-      if (chevron) { chevron.textContent = hasNote ? '›' : '+'; chevron.style.transform = 'rotate(90deg)'; }
+      if (chevron) { chevron.textContent = hasNote ? '›' : '+'; chevron.style.transform = hasNote ? 'rotate(90deg)' : ''; }
     }
   },
 
