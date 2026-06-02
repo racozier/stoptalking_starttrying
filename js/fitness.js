@@ -76,6 +76,9 @@ window.Fitness = {
       item._type === 'workout' ? this.renderWorkoutCard(item) : this.renderRunCard(item)
     ).join('');
 
+    // Re-initialise Lucide icons for freshly injected HTML
+    if (window.lucide) setTimeout(() => lucide.createIcons(), 0);
+
     // Initialise Leaflet maps for runs with polylines
     runs.filter((r) => r.polyline && r.polyline.length > 0).forEach((r) => {
       setTimeout(() => this.initRunMap(r), 0);
