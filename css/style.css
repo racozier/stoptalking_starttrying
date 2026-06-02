@@ -731,7 +731,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 .exercise-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto;
   gap: 8px;
   align-items: start;
   padding: 8px;
@@ -740,16 +740,6 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .exercise-name { font-size: 0.85rem; font-weight: 600; }
 .exercise-sets { font-size: 0.75rem; color: var(--subtext); line-height: 1.6; text-align: right; }
-.orm-badge {
-  background: rgba(124,58,237,0.25);
-  color: var(--accent);
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 6px;
-  white-space: nowrap;
-  align-self: center;
-}
 
 .workout-expand-btn {
   margin-top: 10px;
@@ -759,10 +749,10 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 
 .run-map {
-  height: 160px;
-  border-radius: 10px;
+  height: 200px;
+  border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   background: var(--surface2);
 }
 .run-map-placeholder {

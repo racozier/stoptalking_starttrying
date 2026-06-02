@@ -100,13 +100,11 @@ window.Fitness = {
     const date = new Date(w.date);
     const dateLabel = App.formatDate(w.date, { relative: true });
     const timeLabel = App.formatTime(w.date);
-    const volK = w.totalVolume >= 1000 ? `${(w.totalVolume / 1000).toFixed(1)}k` : w.totalVolume;
     const durH = Math.floor((w.durationMinutes || 0) / 60);
     const durM = (w.durationMinutes || 0) % 60;
     const durStr = durH > 0 ? `${durH}:${String(durM).padStart(2, '0')}:00` : `${durM}m`;
 
     const previewExercises = (w.exercises || []).slice(0, 3);
-    const extraCount = (w.exercises || []).length - 3;
 
     return `
     <div class="activity-card workout-card" data-id="${w.id}">
@@ -120,9 +118,8 @@ window.Fitness = {
       </div>
       <div class="workout-stats-row">
         <div class="stat-col"><strong>${w.setCount || 0}</strong><span>Sets</span></div>
-        <div class="stat-col"><strong>${w.exerciseCount || 0}</strong><span>Exercises</span></div>
         <div class="stat-divider"></div>
-        <div class="stat-col"><strong>${volK} kg</strong><span>Volume</span></div>
+        <div class="stat-col"><strong>${w.exerciseCount || 0}</strong><span>Exercises</span></div>
         <div class="stat-divider"></div>
         <div class="stat-col"><strong>${durStr}</strong><span>Duration</span></div>
       </div>
@@ -143,14 +140,10 @@ window.Fitness = {
       s.weight > 0 ? `${s.weight} kg × ${s.reps}` : `BW × ${s.reps}`
     ).join('<br>');
 
-    const maxSet = (ex.sets || []).reduce((best, s) => s.weight >= (best?.weight || 0) ? s : best, null);
-    const orm = maxSet && maxSet.weight > 0 ? App.calc1RM(maxSet.weight, maxSet.reps) : null;
-
     return `
     <div class="exercise-row">
       <div class="exercise-name">${App.escapeHtml(ex.name)}</div>
       <div class="exercise-sets">${sets}</div>
-      ${orm ? `<div class="orm-badge">1RM ${orm} kg</div>` : ''}
     </div>`;
   },
 
@@ -162,33 +155,30 @@ window.Fitness = {
     return `
     <div class="activity-card run-card" data-id="${r.id}">
       <div class="activity-card-header">
-        <div class="activity-icon-wrap icon-run"><i data-lucide="footprints" style="width:18px;height:18px;stroke:#4ADE80;fill:none"></i></div>
+        <div class="activity-icon-wrap icon-run"><i data-lucide="footprints" style="width:18px;height:18px;stroke:#38BDF8;fill:none"></i></div>
         <div class="activity-meta">
           <div class="activity-date-label">${dateLabel} · ${timeLabel}${r.temp ? ` · ${r.temp}°C` : ''}</div>
           <div class="activity-title">${App.escapeHtml(r.name)}</div>
         </div>
         <div class="activity-menu" onclick="Fitness.showRunMenu(${r.id})">···</div>
       </div>
+      ${hasMap
+        ? `<div class="run-map" id="run-map-${r.id}"></div>`
+        : `<div class="run-map-placeholder"><span>No route data</span></div>`
+      }
       <div class="run-stats-row">
         <div class="stat-col"><strong>${r.distance} km</strong><span>Distance</span></div>
+        <div class="stat-divider"></div>
         <div class="stat-col"><strong>${App.formatDuration(r.durationSeconds)}</strong><span>Time</span></div>
+        <div class="stat-divider"></div>
         <div class="stat-col"><strong>${r.paceFormatted} /km</strong><span>Avg Pace</span></div>
+        <div class="stat-divider"></div>
         <div class="stat-col"><strong>${r.calories || '--'}</strong><span>Calories</span></div>
       </div>
-      ${hasMap
-        ? `<div class="run-map" id="run-map-${r.id}"></div>
-           <div class="run-map-stats">
-             <span>↑ ${r.elevation || '--'} m elev</span>
-             <span>${r.avgHR ? `❤️ ${r.avgHR} bpm` : ''}</span>
-           </div>`
-        : `<div class="run-map-placeholder">
-             <span>📍 No route data</span>
-           </div>
-           <div class="run-map-stats">
-             <span>↑ ${r.elevation || '--'} m</span>
-             <span>${r.avgHR ? `❤️ ${r.avgHR} bpm` : ''}</span>
-           </div>`
-      }
+      ${(r.elevation || r.avgHR) ? `<div class="run-map-stats">
+        ${r.elevation ? `<span>↑ ${r.elevation} m elev</span>` : ''}
+        ${r.avgHR ? `<span>❤ ${r.avgHR} bpm avg</span>` : ''}
+      </div>` : ''}
       ${r.notes ? `<div class="activity-notes">${App.escapeHtml(r.notes)}</div>` : ''}
     </div>`;
   },
@@ -199,7 +189,7 @@ window.Fitness = {
     const coords = run.polyline;
     const map = L.map(mapEl, { zoomControl: false, dragging: false, scrollWheelZoom: false, attributionControl: false });
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
-    const polyline = L.polyline(coords, { color: '#22C55E', weight: 3 }).addTo(map);
+    const polyline = L.polyline(coords, { color: '#38BDF8', weight: 4 }).addTo(map);
     map.fitBounds(polyline.getBounds(), { padding: [10, 10] });
     this._leafletMaps[run.id] = map;
   },
