@@ -41,7 +41,7 @@ window.Charts = {
         maintainAspectRatio: false,
         animation: false,
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
-        layout: { padding: { right: 4, top: 2, bottom: 0, left: 0 } },
+        layout: { padding: { right: 4, top: 2, bottom: 0, left: 6 } },
         scales: {
           x: {
             display: true,
@@ -51,8 +51,7 @@ window.Charts = {
               font: { size: 9 },
               maxRotation: 0,
               padding: 2,
-              autoSkip: true,
-              maxTicksLimit: 3,
+              autoSkip: false,
             },
             border: { display: false },
           },

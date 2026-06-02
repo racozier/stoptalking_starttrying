@@ -155,6 +155,7 @@ window.Dashboard = {
     const dayStudy = weekDates.map((d) => allStudy.filter((s) => s.date.startsWith(d)).reduce((t, s) => t + s.durationMinutes, 0) / 60);
     Charts.createMiniBarChart('week-workout-mini-chart', dayWorkouts, '#7C3AED');
     Charts.createMiniBarChart('week-run-mini-chart', dayKm, '#0EA5E9');
+    Charts.createMiniBarChart('week-study-mini-chart', dayStudy, '#A78BFA');
   },
 
   async renderTimeline() {

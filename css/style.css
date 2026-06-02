@@ -542,12 +542,13 @@ h3 { font-size: 1rem; font-weight: 600; }
   grid-template-columns: 36px 46px 1fr 76px 14px;
 }
 .timeline-mini-map {
-  width: 68px;
-  height: 46px;
+  width: 66px;
+  height: 40px;
   border-radius: 7px;
   overflow: hidden;
   align-self: center;
-  justify-self: center;
+  justify-self: start;
+  margin-left: 4px;
 }
 .timeline-time  { font-size: 0.65rem; color: var(--subtext); white-space: nowrap; line-height: 1; }
 .timeline-body  { min-width: 0; }
