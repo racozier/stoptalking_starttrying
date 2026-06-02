@@ -183,7 +183,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 /* ── Dashboard Grid ───────────────────────────────────────────────────────── */
 .dashboard-top {
   display: grid;
-  grid-template-columns: 65fr 35fr;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 8px;
   align-items: stretch;
@@ -205,14 +205,22 @@ h3 { font-size: 1rem; font-weight: 600; }
   min-height: 0;
 }
 
+/* Right column cards get tighter padding */
+.dashboard-right-col .card {
+  padding: 9px 10px;
+}
+
 /* Individual card accents */
 .weight-card {
   background: #1C1A3A;
   border-color: rgba(139,92,246,0.25);
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
-.weight-card .weight-sparkline-wrap { flex: 1; }
+.weight-card .weight-sparkline-wrap { flex: 1; overflow: hidden; }
+#weight-sparkline { width: 100% !important; height: 100% !important; max-width: 100%; }
 .streak-card {
   background: #2A1A08;
   border-color: rgba(249,115,22,0.25);
@@ -248,11 +256,15 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 .card-label {
   flex: 1;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
   color: var(--subtext);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 .card-menu-btn {
   background: none;
@@ -276,22 +288,22 @@ h3 { font-size: 1rem; font-weight: 600; }
 .trend-up { color: var(--danger); }
 .weight-sparkline-wrap { height: 85px; position: relative; min-height: 0; }
 
-.streak-card { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
-.streak-number { font-size: 2.6rem; font-weight: 800; color: #F97316; line-height: 1; }
-.streak-label { font-size: 0.72rem; font-weight: 600; }
-.streak-tagline { font-size: 0.65rem; color: var(--subtext); margin-bottom: 4px; }
-.streak-dots { display: flex; gap: 2px; margin-top: auto; flex-wrap: nowrap; overflow: hidden; }
-.streak-dot-item { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; flex: 1; }
+.streak-card { display: flex; flex-direction: column; gap: 2px; overflow: hidden; min-width: 0; }
+.streak-number { font-size: 2.2rem; font-weight: 800; color: #F97316; line-height: 1; }
+.streak-label { font-size: 0.68rem; font-weight: 600; }
+.streak-tagline { font-size: 0.62rem; color: var(--subtext); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.streak-dots { display: flex; gap: 0px; margin-top: auto; flex-wrap: nowrap; width: 100%; }
+.streak-dot-item { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; min-width: 0; }
 .streak-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: rgba(249,115,22,0.2);
   transition: background 0.2s;
 }
 .streak-dot.active { background: #F97316; }
 .streak-dot.today { box-shadow: 0 0 0 2px #F97316; }
-.streak-day-label { font-size: 0.52rem; color: var(--subtext); }
+.streak-day-label { font-size: 0.48rem; color: var(--subtext); }
 
 .card-link {
   display: flex;
@@ -336,14 +348,14 @@ h3 { font-size: 1rem; font-weight: 600; }
 .view-all-stats-btn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 0.76rem;
+  justify-content: flex-start;
+  font-size: 0.65rem;
   color: var(--accent2);
   cursor: pointer;
   background: none;
   border: none;
   width: 100%;
-  padding-top: 7px;
+  padding-top: 5px;
   margin-top: 6px;
   border-top: 1px solid var(--border);
   font-family: inherit;
