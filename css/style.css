@@ -1575,3 +1575,72 @@ h3 { font-size: 1rem; font-weight: 600; }
   text-align: left;
 }
 .tl-note-edit-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+/* ── Timeline detail edit button (pencil) ────────────────────────────────── */
+.tl-edit-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.28);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+.tl-edit-btn:hover { color: rgba(255,255,255,0.65); }
+.tl-edit-btn svg { stroke: currentColor; }
+
+.tl-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.tl-edit-actions .btn { flex: 1; }
+
+/* ── Note card icon action buttons ──────────────────────────────────────── */
+.tl-icon-action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  color: var(--subtext);
+  transition: color 0.15s, background 0.15s;
+}
+.tl-icon-action:hover { background: rgba(255,255,255,0.08); color: var(--accent2); }
+.tl-icon-action.danger:hover { color: var(--danger); }
+.tl-icon-action svg { stroke: currentColor; }
+
+/* ── Swipe-to-delete note ────────────────────────────────────────────────── */
+.tl-note-swipe-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.tl-note-card {
+  position: relative;
+  z-index: 1;
+  will-change: transform;
+  border-radius: 10px;
+}
+.tl-note-delete-reveal {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 55px;
+  background: var(--danger);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 0;
+  border-radius: 0 10px 10px 0;
+}
+.tl-note-delete-reveal svg { stroke: #fff; }

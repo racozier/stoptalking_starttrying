@@ -534,23 +534,63 @@ document.addEventListener('DOMContentLoaded', () => {
 let _tlDetailType = '', _tlDetailId = 0;
 let _tlCurrentNotes = '';
 
+const _pencilSvg = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+const _trashSvg  = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+
 function renderTlNoteSection() {
   const section = document.getElementById('tl-notes-section');
   if (!section) return;
   if (_tlCurrentNotes) {
     section.innerHTML = `
-      <div class="tl-note-card">
-        <div class="tl-note-card-text">${App.escapeHtml(_tlCurrentNotes)}</div>
-        <div class="tl-note-card-actions">
-          <button class="link-btn" onclick="tlEditNote()">Edit</button>
-          <button class="link-btn danger" onclick="tlDeleteNote()">Delete note</button>
+      <div class="tl-note-swipe-wrap">
+        <div class="tl-note-card" id="tl-note-card-inner">
+          <div class="tl-note-card-text">${App.escapeHtml(_tlCurrentNotes)}</div>
+          <div class="tl-note-card-actions">
+            <button class="tl-icon-action" onclick="tlEditNote()" title="Edit note">${_pencilSvg}</button>
+            <button class="tl-icon-action danger" onclick="tlDeleteNote()" title="Delete note">${_trashSvg}</button>
+          </div>
         </div>
+        <button class="tl-note-delete-reveal" onclick="tlDeleteNote()" aria-label="Delete note">${_trashSvg}</button>
       </div>`;
+    initNoteSwipe();
   } else {
     section.innerHTML = `<button class="tl-add-note-btn" onclick="tlEditNote()">+ Add note</button>`;
   }
 }
 window.renderTlNoteSection = renderTlNoteSection;
+
+function initNoteSwipe() {
+  const wrap = document.querySelector('.tl-note-swipe-wrap');
+  const card = document.getElementById('tl-note-card-inner');
+  if (!wrap || !card) return;
+  let startX = 0, dragging = false, revealed = false;
+  const THRESHOLD = 55;
+
+  card.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    dragging = true;
+    card.style.transition = 'none';
+  }, { passive: true });
+
+  card.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const dx = startX - e.touches[0].clientX;
+    if (dx > 0) card.style.transform = `translateX(-${Math.min(dx, THRESHOLD + 10)}px)`;
+  }, { passive: true });
+
+  card.addEventListener('touchend', (e) => {
+    dragging = false;
+    card.style.transition = 'transform 0.2s ease';
+    const dx = startX - e.changedTouches[0].clientX;
+    if (dx > THRESHOLD / 2) {
+      card.style.transform = `translateX(-${THRESHOLD}px)`;
+      revealed = true;
+    } else {
+      card.style.transform = '';
+      revealed = false;
+    }
+  }, { passive: true });
+}
 
 async function openTlDetail(type, id) {
   _tlDetailType = type;
@@ -609,6 +649,132 @@ async function openTlDetail(type, id) {
   renderTlNoteSection();
 }
 window.openTlDetail = openTlDetail;
+
+// ─── Timeline edit mode ───────────────────────────────────────────────────────
+
+async function tlEnterEditMode() {
+  const type = _tlDetailType, id = _tlDetailId;
+  const statsEl = document.getElementById('tl-detail-stats');
+  const editBtn = document.getElementById('tl-edit-btn');
+  if (!statsEl) return;
+
+  if (type === 'workout') {
+    // Open the full workout modal pre-populated for editing
+    App.closeAllModals();
+    await Fitness.openEditWorkoutModal(id);
+    return;
+  }
+
+  if (editBtn) editBtn.style.display = 'none';
+
+  if (type === 'run') {
+    const r = await window.db.runs.get(id);
+    if (!r) return;
+    const totalSecs = r.durationSeconds || 0;
+    const mm = Math.floor(totalSecs / 60);
+    const ss = String(totalSecs % 60).padStart(2, '0');
+    statsEl.innerHTML = `
+      <div class="form-group">
+        <label>Run Name</label>
+        <input type="text" class="form-input" id="tl-edit-name" value="${App.escapeHtml(r.name || '')}" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Distance (km)</label>
+          <input type="number" class="form-input" id="tl-edit-distance" value="${r.distance}" step="0.01" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Time (MM:SS)</label>
+          <input type="text" class="form-input" id="tl-edit-time" value="${mm}:${ss}" placeholder="29:14" />
+        </div>
+      </div>
+      <div class="tl-edit-actions">
+        <button class="btn btn-secondary" onclick="tlCancelEdit()">Cancel</button>
+        <button class="btn btn-primary" onclick="tlSaveEdit()">Save</button>
+      </div>`;
+  } else if (type === 'study') {
+    const s = await window.db.study.get(id);
+    if (!s) return;
+    const startDate = new Date(s.date);
+    const endDate = new Date(startDate.getTime() + s.durationMinutes * 60000);
+    const toInput = (d) => { const pad=(n)=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+    statsEl.innerHTML = `
+      <div class="form-group">
+        <label>Subject</label>
+        <input type="text" class="form-input" id="tl-edit-subject" value="${App.escapeHtml(s.subject || '')}" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Start</label>
+          <input type="datetime-local" class="form-input" id="tl-edit-start" value="${toInput(startDate)}" />
+        </div>
+        <div class="form-group">
+          <label>End</label>
+          <input type="datetime-local" class="form-input" id="tl-edit-end" value="${toInput(endDate)}" />
+        </div>
+      </div>
+      <div class="tl-edit-actions">
+        <button class="btn btn-secondary" onclick="tlCancelEdit()">Cancel</button>
+        <button class="btn btn-primary" onclick="tlSaveEdit()">Save</button>
+      </div>`;
+  } else if (type === 'weight') {
+    const w = await window.db.weight.get(id);
+    if (!w) return;
+    statsEl.innerHTML = `
+      <div class="form-group">
+        <label>Weight (kg)</label>
+        <input type="number" class="form-input" id="tl-edit-value" value="${w.value}" step="0.1" min="0" style="font-size:1.4rem;font-weight:700;text-align:center" />
+      </div>
+      <div class="tl-edit-actions">
+        <button class="btn btn-secondary" onclick="tlCancelEdit()">Cancel</button>
+        <button class="btn btn-primary" onclick="tlSaveEdit()">Save</button>
+      </div>`;
+  }
+}
+window.tlEnterEditMode = tlEnterEditMode;
+
+function tlCancelEdit() {
+  // Re-open detail to restore read-only view
+  openTlDetail(_tlDetailType, _tlDetailId);
+}
+window.tlCancelEdit = tlCancelEdit;
+
+async function tlSaveEdit() {
+  const type = _tlDetailType, id = _tlDetailId;
+  if (!id) return;
+
+  if (type === 'run') {
+    const r = await window.db.runs.get(id);
+    if (!r) return;
+    const name = document.getElementById('tl-edit-name')?.value.trim() || r.name;
+    const dist = parseFloat(document.getElementById('tl-edit-distance')?.value) || r.distance;
+    const timeStr = document.getElementById('tl-edit-time')?.value || '';
+    const [mm, ss] = timeStr.split(':').map(Number);
+    const totalSecs = (mm || 0) * 60 + (ss || 0) || r.durationSeconds;
+    const paceSecsPerKm = totalSecs / dist;
+    const pm = Math.floor(paceSecsPerKm / 60);
+    const ps = Math.round(paceSecsPerKm % 60);
+    await window.db.runs.update({ ...r, name, distance: dist, durationSeconds: totalSecs, paceSecsPerKm, paceFormatted: `${pm}:${String(ps).padStart(2,'0')}` });
+  } else if (type === 'study') {
+    const s = await window.db.study.get(id);
+    if (!s) return;
+    const subject = document.getElementById('tl-edit-subject')?.value.trim() || s.subject;
+    const start = new Date(document.getElementById('tl-edit-start')?.value);
+    const end = new Date(document.getElementById('tl-edit-end')?.value);
+    const durationMinutes = (end - start > 0) ? Math.round((end - start) / 60000) : s.durationMinutes;
+    await window.db.study.update({ ...s, subject, date: start.toISOString(), durationMinutes });
+  } else if (type === 'weight') {
+    const w = await window.db.weight.get(id);
+    if (!w) return;
+    const value = parseFloat(document.getElementById('tl-edit-value')?.value) || w.value;
+    await window.db.weight.update({ ...w, value });
+  }
+
+  App.showToast('Saved!', 'success');
+  if (App.currentTab === 'dashboard') await Dashboard.render();
+  openTlDetail(type, id); // refresh detail view
+}
+window.tlSaveEdit = tlSaveEdit;
 
 function tlEditNote() {
   const section = document.getElementById('tl-notes-section');

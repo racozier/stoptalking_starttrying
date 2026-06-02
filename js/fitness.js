@@ -212,6 +212,10 @@ window.Fitness = {
   async openLogWorkoutModal() {
     const modal = document.getElementById('modal-log-workout');
     if (!modal) return;
+    this._editWorkoutId = null;
+    // Reset title in case it was changed by edit mode
+    const h3 = modal.querySelector('.modal-header h3');
+    if (h3) h3.textContent = 'Log Workout';
 
     // Populate quick-add exercise chips from history
     const allWorkouts = await window.db.workouts.getAll();
@@ -241,6 +245,47 @@ window.Fitness = {
     this.addExerciseRow();
 
     App.openModal('modal-log-workout');
+  },
+
+  _editWorkoutId: null,
+
+  async openEditWorkoutModal(id) {
+    const w = await window.db.workouts.get(id);
+    if (!w) return;
+    await this.openLogWorkoutModal(); // sets up chips, clears form, opens modal
+    // Now pre-fill with existing data
+    this._editWorkoutId = id;
+    const modal = document.getElementById('modal-log-workout');
+    if (!modal) return;
+    modal.querySelector('#workout-name-input').value = w.name || '';
+    modal.querySelector('#workout-date-input').value = new Date(w.date).toISOString().slice(0, 16);
+    modal.querySelector('#workout-notes-input').value = w.notes || '';
+    // Replace the empty exercise row with existing exercises
+    modal.querySelector('#workout-exercises-list').innerHTML = '';
+    (w.exercises || []).forEach((ex) => {
+      this.addExerciseRow(ex.name);
+      // Fill in the sets that were added (last exercise entry)
+      const entries = modal.querySelectorAll('#workout-exercises-list .exercise-entry');
+      const entry = entries[entries.length - 1];
+      const eid = entry?.dataset.eid;
+      if (!eid) return;
+      // Remove the default empty set row
+      entry.querySelectorAll('.set-row').forEach((r) => r.remove());
+      (ex.sets || []).forEach((set) => {
+        this.addSetRow(Number(eid));
+        const setsList = document.getElementById(`sets-list-${eid}`);
+        if (!setsList) return;
+        const rows = setsList.querySelectorAll('.set-row');
+        const lastRow = rows[rows.length - 1];
+        if (lastRow) {
+          lastRow.querySelector('.set-weight').value = set.weight;
+          lastRow.querySelector('.set-reps').value = set.reps;
+        }
+      });
+    });
+    // Update modal title to show editing
+    const h3 = modal.querySelector('.modal-header h3');
+    if (h3) h3.textContent = 'Edit Workout';
   },
 
   _exerciseCounter: 0,
@@ -312,19 +357,23 @@ window.Fitness = {
     const totalVolume = exercises.reduce((sum, ex) => sum + ex.sets.reduce((s2, set) => s2 + set.weight * set.reps, 0), 0);
     const setCount = exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
 
-    await window.db.workouts.add({
-      date: dateVal ? new Date(dateVal).toISOString() : new Date().toISOString(),
-      name,
-      exercises,
-      totalVolume,
-      setCount,
-      exerciseCount: exercises.length,
-      durationMinutes: null,
-      notes,
-    });
-
-    App.closeAllModals();
-    App.showToast('Workout saved!', 'success');
+    if (this._editWorkoutId) {
+      const existing = await window.db.workouts.get(this._editWorkoutId);
+      if (existing) {
+        await window.db.workouts.update({ ...existing, name, exercises, totalVolume, setCount, exerciseCount: exercises.length, notes, date: dateVal ? new Date(dateVal).toISOString() : existing.date });
+      }
+      this._editWorkoutId = null;
+      App.closeAllModals();
+      App.showToast('Workout updated!', 'success');
+    } else {
+      await window.db.workouts.add({
+        date: dateVal ? new Date(dateVal).toISOString() : new Date().toISOString(),
+        name, exercises, totalVolume, setCount, exerciseCount: exercises.length,
+        durationMinutes: null, notes,
+      });
+      App.closeAllModals();
+      App.showToast('Workout saved!', 'success');
+    }
     if (App.currentTab === 'fitness') await Fitness.render();
     else if (App.currentTab === 'dashboard') await Dashboard.render();
   },
