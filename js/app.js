@@ -110,6 +110,18 @@ window.App = {
     if (dateEl) {
       dateEl.textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
     }
+
+    // Flip greeting → motto after 3s, then cycle every 4s
+    if (!this._greetingFlipStarted) {
+      this._greetingFlipStarted = true;
+      setTimeout(() => {
+        const card = document.getElementById('greeting-flip');
+        if (card) {
+          card.classList.add('flipped');
+          setInterval(() => card.classList.toggle('flipped'), 4000);
+        }
+      }, 3000);
+    }
   },
 
   closeAllModals() {
