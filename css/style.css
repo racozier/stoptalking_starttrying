@@ -48,6 +48,9 @@
   --danger: #DC2626;
   --shadow: 0 4px 24px rgba(0,0,0,0.08);
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --card-weight-bg: #F3F0FF;
+  --card-streak-bg: #FFF7ED;
+  --card-week-bg: #F0FDF4;
 }
 
 [data-theme="midnight"] {
@@ -213,7 +216,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 /* Individual card accents */
 .weight-card {
-  background: #0F0E1D;
+  background: var(--card-weight-bg, #0F0E1D);
   border-color: rgba(120,80,240,0.14);
   min-width: 0;
   overflow: hidden;
@@ -234,11 +237,11 @@ h3 { font-size: 1rem; font-weight: 600; }
   inset: 0;
 }
 .streak-card {
-  background: #180F05;
+  background: var(--card-streak-bg, #180F05);
   border-color: rgba(240,120,20,0.14);
 }
 .this-week-card {
-  background: #091510;
+  background: var(--card-week-bg, #091510);
   border-color: rgba(34,160,80,0.14);
   margin-bottom: 0;
 }

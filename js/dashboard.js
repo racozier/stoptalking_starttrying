@@ -268,12 +268,11 @@ window.Dashboard = {
     const today = new Date().toISOString().split('T')[0];
     const dateStr = window._tlDate || today;
 
-    const [weights, workouts, runs, study, notes] = await Promise.all([
+    const [weights, workouts, runs, study] = await Promise.all([
       window.db.weight.getAll(),
       window.db.workouts.getAll(),
       window.db.runs.getAll(),
       window.db.study.getAll(),
-      window.db.notes.getAll(),
     ]);
 
     const events = [];
@@ -291,9 +290,7 @@ window.Dashboard = {
       const isPolish = s.subject === 'Polish Language';
       events.push({ time: s.date, lucide: isPolish ? null : 'book-open', iconClass: isPolish ? 'icon-polish' : 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id, hasNotes: !!(s.notes && s.notes.trim()), isPolish });
     });
-    notes.filter((n) => n.created.startsWith(today)).forEach((n) => {
-      events.push({ time: n.created, lucide: 'notebook-pen', iconClass: 'icon-note', title: 'Note Added', sub: n.title, type: 'note', id: n.id });
-    });
+
 
     events.sort((a, b) => new Date(a.time) - new Date(b.time));
 
