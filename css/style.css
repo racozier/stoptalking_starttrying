@@ -410,6 +410,83 @@ h3 { font-size: 1rem; font-weight: 600; }
   font-family: inherit;
 }
 
+/* ── This Week swipeable card ─────────────────────────────────────────────── */
+.this-week-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.week-card-slider {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+.week-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94);
+  will-change: transform;
+}
+/* panel 0 visible by default, panel 1 starts off-screen right */
+.week-panel:nth-child(2) { transform: translateX(100%); }
+
+.week-swipe-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 0 2px;
+  flex-shrink: 0;
+}
+.week-swipe-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transition: background 0.2s;
+}
+.week-swipe-dot.active { background: var(--accent2); }
+
+/* Today's checklist rows */
+.today-act-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.today-act-row:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.06); }
+.today-act-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.today-act-icon svg { width: 12px; height: 12px; stroke: currentColor; fill: none; }
+.today-act-label { flex: 1; font-size: 0.78rem; font-weight: 500; color: var(--text); }
+.today-act-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  color: transparent;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.today-act-check.done {
+  background: rgba(34,197,94,0.2);
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+
 /* Week stats list (new row layout) */
 .week-stats-list { display: flex; flex-direction: column; }
 .week-stat-row {
@@ -465,9 +542,9 @@ h3 { font-size: 1rem; font-weight: 600; }
 .action-btn:active { transform: scale(0.95); opacity: 0.85; }
 .action-btn svg { width: 24px; height: 24px; stroke: #fff; fill: none; stroke-width: 2; flex-shrink: 0; }
 .action-workout { background: #7C3AED; }
-.action-run { background: #0EA5E9; }
-.action-weight { background: #22C55E; }
-.action-note { background: #F59E0B; }
+.action-run     { background: #0EA5E9; }
+.action-study   { background: #0D9488; }
+.action-polish  { background: #DC2626; }
 
 /* ── Timeline ─────────────────────────────────────────────────────────────── */
 .timeline-card { margin-bottom: 8px; }
@@ -508,25 +585,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   position: relative;
   z-index: 1;
 }
-/* Vertical dotted connector — full height, centred behind the icon */
-.timeline-connector {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 2px;
-  transform: translateX(-50%);
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.16) 0px,
-    rgba(255,255,255,0.16) 3px,
-    transparent 3px,
-    transparent 7px
-  );
-}
-/* Trim the line so it runs from the first icon centre to the last icon centre */
-.timeline-item:first-child .timeline-connector { top: 50%; }
-.timeline-item:last-child .timeline-connector { bottom: 50%; }
+.timeline-connector { display: none; }
 
 .icon-weight  { background: rgba(139,92,246,0.25); color: #A78BFA; }
 .icon-run     { background: rgba(34,197,94,0.25);  color: #4ADE80; }
@@ -1306,7 +1365,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.75);
-  z-index: 300;
+  z-index: 1000;
   display: flex;
   align-items: flex-end;
   opacity: 0;

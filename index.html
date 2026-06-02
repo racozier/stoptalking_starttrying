@@ -90,49 +90,67 @@
             <div class="streak-dots" id="dash-streak-dots"></div>
           </div>
 
-          <!-- This Week Card -->
-          <div class="card this-week-card">
-            <div class="card-header-row">
-              <div class="card-icon-wrap icon-green">
-                <i data-lucide="trending-up" style="width:13px;height:13px"></i>
+          <!-- This Week Card — two swipeable panels -->
+          <div class="card this-week-card" id="this-week-card">
+            <div class="week-card-slider">
+              <!-- Panel 0: Today's checklist -->
+              <div class="week-panel">
+                <div class="card-header-row">
+                  <div class="card-icon-wrap icon-green">
+                    <i data-lucide="circle-check-big" style="width:13px;height:13px"></i>
+                  </div>
+                  <span class="card-label">Today</span>
+                </div>
+                <div id="today-activity-list"></div>
               </div>
-              <span class="card-label">This Week</span>
+              <!-- Panel 1: This week stats -->
+              <div class="week-panel">
+                <div class="card-header-row">
+                  <div class="card-icon-wrap icon-green">
+                    <i data-lucide="trending-up" style="width:13px;height:13px"></i>
+                  </div>
+                  <span class="card-label">This Week</span>
+                </div>
+                <div class="week-stats-list">
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-green">
+                      <i data-lucide="dumbbell" style="width:13px;height:13px"></i>
+                    </div>
+                    <div class="week-stat-content">
+                      <div id="week-workouts" class="week-stat-num">--</div>
+                      <div class="week-stat-label">Workouts</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="week-workout-mini-chart"></canvas>
+                  </div>
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-blue">
+                      <i data-lucide="footprints" style="width:13px;height:13px"></i>
+                    </div>
+                    <div class="week-stat-content">
+                      <div id="week-km" class="week-stat-num">--</div>
+                      <div class="week-stat-label">km Run</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="week-run-mini-chart"></canvas>
+                  </div>
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-purple">
+                      <i data-lucide="book-open" style="width:13px;height:13px"></i>
+                    </div>
+                    <div class="week-stat-content">
+                      <div id="week-study" class="week-stat-num">--</div>
+                      <div class="week-stat-label">Study Hrs</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="week-study-mini-chart"></canvas>
+                  </div>
+                </div>
+                <button class="view-all-stats-btn" onclick="App.switchTab('fitness')">View All Stats ›</button>
+              </div>
             </div>
-            <div class="week-stats-list">
-              <div class="week-stat-row">
-                <div class="week-stat-icon icon-green">
-                  <i data-lucide="dumbbell" style="width:13px;height:13px"></i>
-                </div>
-                <div class="week-stat-content">
-                  <div id="week-workouts" class="week-stat-num">--</div>
-                  <div class="week-stat-label">Workouts</div>
-                </div>
-                <div id="week-workouts-delta" class="week-stat-delta"></div>
-                <canvas class="week-mini-chart" id="week-workout-mini-chart"></canvas>
-              </div>
-              <div class="week-stat-row">
-                <div class="week-stat-icon icon-blue">
-                  <i data-lucide="footprints" style="width:13px;height:13px"></i>
-                </div>
-                <div class="week-stat-content">
-                  <div id="week-km" class="week-stat-num">--</div>
-                  <div class="week-stat-label">km Run</div>
-                </div>
-                <div id="week-km-delta" class="week-stat-delta"></div>
-                <canvas class="week-mini-chart" id="week-run-mini-chart"></canvas>
-              </div>
-              <div class="week-stat-row">
-                <div class="week-stat-icon icon-purple">
-                  <i data-lucide="book-open" style="width:13px;height:13px"></i>
-                </div>
-                <div class="week-stat-content">
-                  <div id="week-study" class="week-stat-num">--</div>
-                  <div class="week-stat-label">Study Hrs</div>
-                </div>
-                <canvas class="week-mini-chart" id="week-study-mini-chart"></canvas>
-              </div>
+            <!-- Swipe indicator -->
+            <div class="week-swipe-dots">
+              <span class="week-swipe-dot active"></span>
+              <span class="week-swipe-dot"></span>
             </div>
-            <button class="view-all-stats-btn" onclick="App.switchTab('fitness')">View All Stats ›</button>
           </div>
 
         </div><!-- /dashboard-right-col -->
@@ -143,19 +161,19 @@
         <div class="quick-actions-grid">
           <button class="action-btn action-workout" data-action="log-workout">
             <i data-lucide="dumbbell"></i>
-            <span>Log Workout</span>
+            <span>Workout</span>
           </button>
           <button class="action-btn action-run" data-action="log-run">
             <i data-lucide="footprints"></i>
-            <span>Log Run</span>
+            <span>Run</span>
           </button>
-          <button class="action-btn action-weight" data-action="log-weight">
-            <i data-lucide="scale"></i>
-            <span>Log Weight</span>
+          <button class="action-btn action-study" data-action="log-study">
+            <i data-lucide="book-open"></i>
+            <span>Study Time</span>
           </button>
-          <button class="action-btn action-note" data-action="new-note">
-            <i data-lucide="notebook-pen"></i>
-            <span>New Note</span>
+          <button class="action-btn action-polish" data-action="log-polish">
+            <i data-lucide="languages"></i>
+            <span>Polish</span>
           </button>
         </div>
       </div>

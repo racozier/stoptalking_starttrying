@@ -1,5 +1,7 @@
 window.Dashboard = {
-  async init() {},
+  async init() {
+    initWeekCardSwipe();
+  },
 
   async render() {
     App.updateGreeting();
@@ -156,6 +158,24 @@ window.Dashboard = {
     Charts.createMiniBarChart('week-workout-mini-chart', dayWorkouts, '#7C3AED');
     Charts.createMiniBarChart('week-run-mini-chart', dayKm, '#0EA5E9');
     Charts.createMiniBarChart('week-study-mini-chart', dayStudy, '#A78BFA');
+
+    // Today's activity checklist (panel 0)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const checkList = document.getElementById('today-activity-list');
+    if (checkList) {
+      const items = [
+        { label: 'Workout', done: allWorkouts.some((w) => w.date.startsWith(todayStr)), icon: 'dumbbell',   cls: 'icon-workout' },
+        { label: 'Run',     done: allRuns.some((r) => r.date.startsWith(todayStr)),     icon: 'footprints', cls: 'icon-run' },
+        { label: 'Study',   done: allStudy.some((s) => s.date.startsWith(todayStr)),    icon: 'book-open',  cls: 'icon-study' },
+      ];
+      checkList.innerHTML = items.map((it) => `
+        <div class="today-act-row">
+          <div class="today-act-icon ${it.cls}"><i data-lucide="${it.icon}" style="width:12px;height:12px"></i></div>
+          <span class="today-act-label">${it.label}</span>
+          <div class="today-act-check${it.done ? ' done' : ''}">✓</div>
+        </div>`).join('');
+      if (window.lucide) lucide.createIcons();
+    }
   },
 
   async renderTimeline() {
@@ -304,7 +324,40 @@ document.addEventListener('click', (e) => {
   else if (action === 'log-run') Fitness.openLogRunModal();
   else if (action === 'log-weight') openLogWeightModal();
   else if (action === 'new-note') Notes.openEditor(null);
+  else if (action === 'log-study') App.switchTab('study');
+  else if (action === 'log-polish') {
+    App.switchTab('study');
+    // Pre-select Polish if the study tab supports it
+    setTimeout(() => {
+      const subjectInput = document.getElementById('study-subject-input');
+      if (subjectInput) { subjectInput.value = 'Polish Language'; subjectInput.dispatchEvent(new Event('input')); }
+    }, 150);
+  }
 });
+
+function initWeekCardSwipe() {
+  const card = document.getElementById('this-week-card');
+  if (!card) return;
+  const panels = card.querySelectorAll('.week-panel');
+  if (panels.length < 2) return;
+
+  let startX = 0;
+  let currentView = 0;
+
+  function goTo(n) {
+    currentView = n;
+    panels[0].style.transform = n === 0 ? 'translateX(0)'    : 'translateX(-100%)';
+    panels[1].style.transform = n === 0 ? 'translateX(100%)' : 'translateX(0)';
+    card.querySelectorAll('.week-swipe-dot').forEach((d, i) => d.classList.toggle('active', i === n));
+  }
+
+  card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  card.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx < -35) goTo(1);
+    else if (dx > 35) goTo(0);
+  }, { passive: true });
+}
 
 function openLogWeightModal() {
   const modal = document.getElementById('modal-log-weight');
