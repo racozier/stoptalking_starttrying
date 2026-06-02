@@ -1,27 +1,35 @@
 window.Charts = {
-  // Tiny sparkline for the weight card
+  // Sparkline for the weight card — month labels on X, one value on Y
   createWeightSparkline(canvasId, data) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (canvas._chart) canvas._chart.destroy();
-    const vals = [...data].reverse().map((d) => d.value);
+    const sorted = [...data].reverse();
+    const vals = sorted.map((d) => d.value);
+    // Deduplicate month labels — only show when month changes
+    let lastMonth = '';
+    const labels = sorted.map((d) => {
+      const m = new Date(d.date).toLocaleDateString('en-GB', { month: 'short' });
+      if (m !== lastMonth) { lastMonth = m; return m; }
+      return '';
+    });
     canvas._chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: vals.map((_, i) => i),
+        labels,
         datasets: [{
           data: vals,
-          borderColor: 'rgba(124, 58, 237, 0.9)',
-          borderWidth: 2,
-          pointRadius: vals.map((_, i) => (i === vals.length - 1 ? 4 : 0)),
-          pointBackgroundColor: 'rgba(124, 58, 237, 1)',
-          tension: 0.4,
+          borderColor: 'rgba(139, 92, 246, 0.85)',
+          borderWidth: 1.5,
+          pointRadius: vals.map((_, i) => (i === vals.length - 1 ? 3 : 0)),
+          pointBackgroundColor: 'rgba(139, 92, 246, 1)',
+          tension: 0.35,
           fill: true,
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(124, 58, 237, 0.25)');
-            g.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
+            g.addColorStop(0, 'rgba(139, 92, 246, 0.18)');
+            g.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
             return g;
           },
         }],
@@ -31,12 +39,29 @@ window.Charts = {
         maintainAspectRatio: false,
         animation: false,
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        layout: { padding: { right: 4 } },
         scales: {
-          x: { display: false },
+          x: {
+            display: true,
+            grid: { display: false },
+            ticks: {
+              color: 'rgba(255,255,255,0.28)',
+              font: { size: 8 },
+              maxRotation: 0,
+              autoSkip: false,
+            },
+            border: { display: false },
+          },
           y: {
             display: true,
+            position: 'left',
             grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-            ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 }, maxTicksLimit: 3 },
+            ticks: {
+              color: 'rgba(255,255,255,0.28)',
+              font: { size: 8 },
+              maxTicksLimit: 2,
+              padding: 2,
+            },
             border: { display: false },
           },
         },
