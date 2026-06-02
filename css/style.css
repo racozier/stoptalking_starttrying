@@ -113,6 +113,11 @@ main {
 }
 .tab-content.active { display: block; }
 
+/* Tabs without the app header get safe-area top padding */
+.no-app-header .tab-content.active {
+  padding-top: max(14px, env(safe-area-inset-top));
+}
+
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -178,7 +183,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   padding: 10px 14px 4px;
   gap: 10px;
 }
-.app-logo { font-size: 1.25rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+.app-logo { font-size: 2rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; line-height: 1; }
 .header-greeting { flex: 1; }
 .greeting-text { font-size: 1.05rem; font-weight: 700; }
 .greeting-date { font-size: 0.76rem; color: var(--subtext); margin-top: 1px; }
@@ -727,7 +732,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .stat-col span { font-size: 0.65rem; color: var(--subtext); }
 .stat-divider { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
 
-/* Run stats — flat, no background, above the map */
+/* Run + Workout flat stats — no background, centered columns */
 .run-stats-row {
   display: flex;
   gap: 0;
@@ -737,38 +742,157 @@ h3 { font-size: 1rem; font-weight: 600; }
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  font-size: 0.9rem;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.82rem;
   font-weight: 500;
   color: var(--text);
 }
 .run-stat-col span {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 400;
   color: var(--subtext);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-.exercise-preview, .workout-detail { display: flex; flex-direction: column; gap: 6px; }
-.workout-detail { display: none; }
-.workout-detail.open { display: flex; }
+/* Exercise list — single container, divider-separated rows */
+.exercise-list {
+  background: var(--surface2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.exercise-list-more { display: none; margin-top: 4px; }
+.exercise-list-more.open { display: block; }
 
 .exercise-row {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
-  align-items: start;
-  padding: 8px;
-  background: var(--surface2);
-  border-radius: 8px;
+  align-items: center;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
 }
-.exercise-name { font-size: 0.85rem; font-weight: 600; }
-.exercise-sets { font-size: 0.75rem; color: var(--subtext); line-height: 1.6; text-align: right; }
+.exercise-row:last-child { border-bottom: none; }
+.exercise-name { font-size: 0.84rem; font-weight: 500; }
+.exercise-sets { font-size: 0.74rem; color: var(--subtext); text-align: right; }
 
 .workout-expand-btn {
-  margin-top: 10px;
+  margin-top: 6px;
   font-size: 0.8rem;
   color: var(--accent);
   text-align: left;
+}
+
+/* Card-level notes */
+.card-notes-section {
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+  padding-top: 6px;
+}
+.card-notes-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  color: var(--subtext);
+}
+.card-notes-chevron {
+  font-size: 1rem;
+  color: var(--subtext);
+  transition: transform 0.2s;
+  display: inline-block;
+}
+.card-notes-body {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+}
+.card-notes-body.open { display: flex; }
+.card-note-text {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.card-note-textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  color: var(--text);
+  resize: none;
+}
+.card-note-actions {
+  display: flex;
+  gap: 8px;
+}
+.card-note-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  color: var(--subtext);
+  cursor: pointer;
+}
+.card-note-btn.danger { color: var(--danger); border-color: var(--danger); }
+
+/* Activity action sheet */
+.action-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.action-sheet-backdrop.open { opacity: 1; }
+.action-sheet {
+  width: 100%;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transform: translateY(20px);
+  transition: transform 0.2s;
+}
+.action-sheet-backdrop.open .action-sheet { transform: translateY(0); }
+.action-sheet-item, .action-sheet-cancel {
+  background: none;
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  padding: 14px 0;
+  cursor: pointer;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.action-sheet-item:last-of-type { border-bottom: none; }
+.action-sheet-danger { color: var(--danger) !important; }
+.action-sheet-cancel {
+  margin-top: 6px;
+  border: none;
+  color: var(--subtext);
+  font-weight: 600;
+  text-align: center;
 }
 
 .run-map {

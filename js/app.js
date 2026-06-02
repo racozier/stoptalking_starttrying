@@ -61,6 +61,12 @@ window.App = {
     document.querySelectorAll('.tab-content').forEach((el) => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach((el) => el.classList.remove('active'));
 
+    // Show/hide the app header — only on dashboard and settings
+    const showHeader = tab === 'dashboard' || tab === 'settings';
+    const appHeader = document.getElementById('app-header');
+    if (appHeader) appHeader.style.display = showHeader ? '' : 'none';
+    document.getElementById('app').classList.toggle('no-app-header', !showHeader);
+
     // Show target tab
     const tabEl = document.getElementById(`tab-${tab}`);
     const navEl = document.querySelector(`.nav-item[data-tab="${tab}"]`);

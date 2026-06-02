@@ -90,21 +90,18 @@ window.Fitness = {
         if (detail) {
           const open = detail.classList.toggle('open');
           btn.textContent = open ? 'View Less ‹' : 'View Full Workout ›';
-          this._expandedWorkouts[open ? 'add' : 'delete'](id);
         }
       });
     });
   },
 
   renderWorkoutCard(w) {
-    const date = new Date(w.date);
     const dateLabel = App.formatDate(w.date, { relative: true });
     const timeLabel = App.formatTime(w.date);
     const durH = Math.floor((w.durationMinutes || 0) / 60);
     const durM = (w.durationMinutes || 0) % 60;
     const durStr = durH > 0 ? `${durH}:${String(durM).padStart(2, '0')}:00` : `${durM}m`;
-
-    const previewExercises = (w.exercises || []).slice(0, 3);
+    const allEx = w.exercises || [];
 
     return `
     <div class="activity-card workout-card" data-id="${w.id}">
@@ -112,38 +109,59 @@ window.Fitness = {
         <div class="activity-icon-wrap icon-workout"><i data-lucide="dumbbell" style="width:18px;height:18px;stroke:#C084FC;fill:none"></i></div>
         <div class="activity-meta">
           <div class="activity-date-label">${dateLabel} · ${timeLabel}</div>
-          <div class="activity-title">${App.escapeHtml(w.name)}</div>
+          <div class="activity-title run-title">${App.escapeHtml(w.name)}</div>
         </div>
-        <div class="activity-menu" onclick="Fitness.showWorkoutMenu(${w.id})">···</div>
+        <div class="activity-menu" onclick="Fitness.showActivityMenu('workout', ${w.id})">···</div>
       </div>
-      <div class="workout-stats-row">
-        <div class="stat-col"><strong>${w.setCount || 0}</strong><span>Sets</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat-col"><strong>${w.exerciseCount || 0}</strong><span>Exercises</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat-col"><strong>${durStr}</strong><span>Duration</span></div>
+      <div class="run-stats-row">
+        <div class="run-stat-col">${w.setCount || 0}<span>Sets</span></div>
+        <div class="run-stat-col">${w.exerciseCount || 0}<span>Exercises</span></div>
+        <div class="run-stat-col">${durStr}<span>Duration</span></div>
       </div>
-      <div class="exercise-preview">
-        ${previewExercises.map((ex) => this.renderExerciseRow(ex)).join('')}
+      ${allEx.length > 0 ? `
+      <div class="exercise-list">
+        ${allEx.slice(0, 3).map((ex) => this.renderExerciseRow(ex)).join('')}
       </div>
-      <div class="workout-detail" id="workout-detail-${w.id}">
-        ${(w.exercises || []).slice(3).map((ex) => this.renderExerciseRow(ex)).join('')}
-      </div>
-      ${(w.exercises || []).length > 3 ? `
+      ${allEx.length > 3 ? `
+        <div class="exercise-list exercise-list-more" id="workout-detail-${w.id}">
+          ${allEx.slice(3).map((ex) => this.renderExerciseRow(ex)).join('')}
+        </div>
         <button class="workout-expand-btn link-btn" data-id="${w.id}">View Full Workout ›</button>
-      ` : ''}
+      ` : ''}` : ''}
+      ${this.renderCardNotes('workout', w.id, w.notes)}
     </div>`;
   },
 
   renderExerciseRow(ex) {
     const sets = (ex.sets || []).map((s) =>
       s.weight > 0 ? `${s.weight} kg × ${s.reps}` : `BW × ${s.reps}`
-    ).join('<br>');
+    ).join('  ·  ');
 
     return `
     <div class="exercise-row">
       <div class="exercise-name">${App.escapeHtml(ex.name)}</div>
       <div class="exercise-sets">${sets}</div>
+    </div>`;
+  },
+
+  renderCardNotes(type, id, notes) {
+    const hasNote = notes && notes.trim();
+    return `
+    <div class="card-notes-section" id="card-notes-${type}-${id}">
+      <button class="card-notes-toggle" onclick="Fitness.toggleCardNotes('${type}', ${id})">
+        <span class="card-notes-label">${hasNote ? 'Notes' : 'Add note'}</span>
+        <span class="card-notes-chevron">${hasNote ? '›' : '+'}</span>
+      </button>
+      <div class="card-notes-body" id="card-notes-body-${type}-${id}">
+        ${hasNote
+          ? `<div class="card-note-text" id="card-note-text-${type}-${id}">${App.escapeHtml(notes)}</div>
+             <div class="card-note-actions">
+               <button class="card-note-btn" onclick="Fitness.editCardNote('${type}', ${id})">Edit</button>
+               <button class="card-note-btn danger" onclick="Fitness.deleteCardNote('${type}', ${id})">Delete</button>
+             </div>`
+          : `<button class="link-btn" onclick="Fitness.editCardNote('${type}', ${id})">+ Add note</button>`
+        }
+      </div>
     </div>`;
   },
 
@@ -160,7 +178,7 @@ window.Fitness = {
           <div class="activity-date-label">${dateLabel} · ${timeLabel}${r.temp ? ` · ${r.temp}°C` : ''}</div>
           <div class="activity-title run-title">${App.escapeHtml(r.name)}</div>
         </div>
-        <div class="activity-menu" onclick="Fitness.showRunMenu(${r.id})">···</div>
+        <div class="activity-menu" onclick="Fitness.showActivityMenu('run', ${r.id})">···</div>
       </div>
       <div class="run-stats-row">
         <div class="run-stat-col">${r.distance} km<span>Distance</span></div>
@@ -176,7 +194,7 @@ window.Fitness = {
         ${r.elevation ? `<span>↑ ${r.elevation} m elev</span>` : ''}
         ${r.avgHR ? `<span>❤ ${r.avgHR} bpm avg</span>` : ''}
       </div>` : ''}
-      ${r.notes ? `<div class="activity-notes">${App.escapeHtml(r.notes)}</div>` : ''}
+      ${this.renderCardNotes('run', r.id, r.notes)}
     </div>`;
   },
 
@@ -191,8 +209,146 @@ window.Fitness = {
     this._leafletMaps[run.id] = map;
   },
 
-  showWorkoutMenu(id) { /* TODO: edit/delete */ App.showToast('Edit coming soon.', 'info'); },
-  showRunMenu(id) { App.showToast('Edit coming soon.', 'info'); },
+  // ─── Activity action sheet ──────────────────────────────────────────────
+  showActivityMenu(type, id) {
+    document.getElementById('activity-action-sheet')?.remove();
+    const sheet = document.createElement('div');
+    sheet.id = 'activity-action-sheet';
+    sheet.className = 'action-sheet-backdrop';
+    sheet.innerHTML = `
+      <div class="action-sheet">
+        <button class="action-sheet-item" onclick="Fitness._menuAct('edit','${type}',${id})">Edit</button>
+        <button class="action-sheet-item" onclick="Fitness._menuAct('note','${type}',${id})">Add Note</button>
+        <button class="action-sheet-item action-sheet-danger" onclick="Fitness._menuAct('delete','${type}',${id})">Delete</button>
+        <button class="action-sheet-cancel" onclick="document.getElementById('activity-action-sheet').remove()">Cancel</button>
+      </div>`;
+    sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.remove(); });
+    document.body.appendChild(sheet);
+    requestAnimationFrame(() => sheet.classList.add('open'));
+  },
+
+  async _menuAct(action, type, id) {
+    document.getElementById('activity-action-sheet')?.remove();
+    if (action === 'edit') {
+      if (type === 'workout') await this.openEditWorkoutModal(id);
+      else await this.openEditRunModal(id);
+    } else if (action === 'note') {
+      this.openCardNoteFromMenu(type, id);
+    } else if (action === 'delete') {
+      if (!confirm(`Delete this ${type}?`)) return;
+      if (type === 'workout') await window.db.workouts.delete(id);
+      else await window.db.runs.delete(id);
+      App.showToast(`${type === 'workout' ? 'Workout' : 'Run'} deleted.`, 'success');
+      await this.render();
+    }
+  },
+
+  openCardNoteFromMenu(type, id) {
+    const body = document.getElementById(`card-notes-body-${type}-${id}`);
+    if (!body) return;
+    body.classList.add('open');
+    const section = document.getElementById(`card-notes-${type}-${id}`);
+    const chevron = section?.querySelector('.card-notes-chevron');
+    if (chevron) chevron.style.transform = 'rotate(90deg)';
+    if (!document.getElementById(`card-note-text-${type}-${id}`)) {
+      this.editCardNote(type, id);
+    }
+  },
+
+  // ─── Card-level notes ──────────────────────────────────────────────────
+  toggleCardNotes(type, id) {
+    const body = document.getElementById(`card-notes-body-${type}-${id}`);
+    const section = document.getElementById(`card-notes-${type}-${id}`);
+    if (!body) return;
+    const isOpen = body.classList.toggle('open');
+    const chevron = section?.querySelector('.card-notes-chevron');
+    if (chevron) chevron.style.transform = isOpen ? 'rotate(90deg)' : '';
+  },
+
+  editCardNote(type, id) {
+    const body = document.getElementById(`card-notes-body-${type}-${id}`);
+    if (!body) return;
+    body.classList.add('open');
+    const existing = document.getElementById(`card-note-text-${type}-${id}`)?.textContent || '';
+    body.dataset.origNote = existing;
+    body.innerHTML = `
+      <textarea class="card-note-textarea" id="card-note-input-${type}-${id}" rows="3" placeholder="Add a note...">${App.escapeHtml(existing)}</textarea>
+      <div class="card-note-actions">
+        <button class="card-note-btn" onclick="Fitness.saveCardNote('${type}', ${id})">Save</button>
+        <button class="card-note-btn" onclick="Fitness.cancelCardNote('${type}', ${id})">Cancel</button>
+      </div>`;
+    setTimeout(() => document.getElementById(`card-note-input-${type}-${id}`)?.focus(), 50);
+  },
+
+  async saveCardNote(type, id) {
+    const input = document.getElementById(`card-note-input-${type}-${id}`);
+    if (!input) return;
+    const notes = input.value.trim();
+    const db = type === 'workout' ? window.db.workouts : window.db.runs;
+    const existing = await db.get(id);
+    if (existing) await db.update({ ...existing, notes });
+    this._refreshNoteSection(type, id, notes);
+    App.showToast('Note saved.', 'success');
+  },
+
+  async deleteCardNote(type, id) {
+    const db = type === 'workout' ? window.db.workouts : window.db.runs;
+    const existing = await db.get(id);
+    if (existing) await db.update({ ...existing, notes: '' });
+    this._refreshNoteSection(type, id, '');
+    App.showToast('Note deleted.', 'success');
+  },
+
+  cancelCardNote(type, id) {
+    const body = document.getElementById(`card-notes-body-${type}-${id}`);
+    if (!body) return;
+    const orig = body.dataset.origNote || '';
+    this._refreshNoteSection(type, id, orig);
+  },
+
+  _refreshNoteSection(type, id, notes) {
+    const body = document.getElementById(`card-notes-body-${type}-${id}`);
+    const section = document.getElementById(`card-notes-${type}-${id}`);
+    if (!body) return;
+    const hasNote = notes && notes.trim();
+    body.classList.add('open');
+    body.innerHTML = hasNote
+      ? `<div class="card-note-text" id="card-note-text-${type}-${id}">${App.escapeHtml(notes)}</div>
+         <div class="card-note-actions">
+           <button class="card-note-btn" onclick="Fitness.editCardNote('${type}', ${id})">Edit</button>
+           <button class="card-note-btn danger" onclick="Fitness.deleteCardNote('${type}', ${id})">Delete</button>
+         </div>`
+      : `<button class="link-btn" onclick="Fitness.editCardNote('${type}', ${id})">+ Add note</button>`;
+    if (section) {
+      const label = section.querySelector('.card-notes-label');
+      const chevron = section.querySelector('.card-notes-chevron');
+      if (label) label.textContent = hasNote ? 'Notes' : 'Add note';
+      if (chevron) { chevron.textContent = hasNote ? '›' : '+'; chevron.style.transform = 'rotate(90deg)'; }
+    }
+  },
+
+  // ─── Edit Run Modal ─────────────────────────────────────────────────────
+  _editRunId: null,
+
+  async openEditRunModal(id) {
+    const r = await window.db.runs.get(id);
+    if (!r) return;
+    this._editRunId = id;
+    await this.openLogRunModal();
+    this.switchRunTab('manual');
+    const modal = document.getElementById('modal-log-run');
+    if (!modal) return;
+    modal.querySelector('#run-date-input').value = new Date(r.date).toISOString().slice(0, 16);
+    modal.querySelector('#run-distance-input').value = r.distance;
+    const mins = Math.floor(r.durationSeconds / 60);
+    const secs = r.durationSeconds % 60;
+    modal.querySelector('#run-time-input').value = `${mins}:${String(secs).padStart(2, '0')}`;
+    if (modal.querySelector('#run-calories-input')) modal.querySelector('#run-calories-input').value = r.calories || '';
+    if (modal.querySelector('#run-elevation-input')) modal.querySelector('#run-elevation-input').value = r.elevation || '';
+    modal.querySelector('#run-name-input').value = r.name || '';
+    const h3 = modal.querySelector('.modal-header h3');
+    if (h3) h3.textContent = 'Edit Run';
+  },
 
   // ─── Log Workout Modal ──────────────────────────────────────────────────
 
@@ -370,6 +526,9 @@ window.Fitness = {
   async openLogRunModal() {
     const modal = document.getElementById('modal-log-run');
     if (!modal) return;
+    this._editRunId = null;
+    const h3 = modal.querySelector('.modal-header h3');
+    if (h3) h3.textContent = 'Log Run';
     // Default to manual tab
     this.switchRunTab('manual');
     modal.querySelector('#run-date-input').value = new Date().toISOString().slice(0, 16);
@@ -440,23 +599,24 @@ window.Fitness = {
     const paceMin = Math.floor(paceSecsPerKm / 60);
     const paceSec = Math.round(paceSecsPerKm % 60);
 
-    await window.db.runs.add({
+    const runData = {
       date: dateVal ? new Date(dateVal).toISOString() : new Date().toISOString(),
-      name,
-      distance: dist,
-      durationSeconds: totalSecs,
-      paceSecsPerKm,
-      paceFormatted: `${paceMin}:${String(paceSec).padStart(2, '0')}`,
-      calories: cal,
-      elevation: elev,
-      avgHR: null,
-      polyline: null,
-      source: 'manual',
-      notes,
-    });
+      name, distance: dist, durationSeconds: totalSecs,
+      paceSecsPerKm, paceFormatted: `${paceMin}:${String(paceSec).padStart(2, '0')}`,
+      calories: cal, elevation: elev, avgHR: null, polyline: null, source: 'manual', notes,
+    };
+
+    if (this._editRunId) {
+      const existing = await window.db.runs.get(this._editRunId);
+      if (existing) await window.db.runs.update({ ...existing, ...runData });
+      this._editRunId = null;
+      App.showToast('Run updated!', 'success');
+    } else {
+      await window.db.runs.add(runData);
+      App.showToast('Run logged!', 'success');
+    }
 
     App.closeAllModals();
-    App.showToast('Run logged!', 'success');
     if (App.currentTab === 'fitness') await Fitness.render();
     else if (App.currentTab === 'dashboard') await Dashboard.render();
   },
