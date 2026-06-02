@@ -709,9 +709,11 @@ h3 { font-size: 1rem; font-weight: 600; }
 .activity-meta { flex: 1; min-width: 0; }
 .activity-date-label { font-size: 0.72rem; color: var(--subtext); }
 .activity-title { font-size: 1.05rem; font-weight: 700; }
+.activity-title.run-title { font-weight: 500; }
 .activity-menu { color: var(--subtext); cursor: pointer; font-size: 1.1rem; padding: 4px; }
 
-.workout-stats-row, .run-stats-row {
+/* Workout stats — boxed background */
+.workout-stats-row {
   display: flex;
   align-items: center;
   gap: 0;
@@ -724,6 +726,27 @@ h3 { font-size: 1rem; font-weight: 600; }
 .stat-col strong { font-size: 0.95rem; font-weight: 700; }
 .stat-col span { font-size: 0.65rem; color: var(--subtext); }
 .stat-divider { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+
+/* Run stats — flat, no background, above the map */
+.run-stats-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 10px;
+}
+.run-stat-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+.run-stat-col span {
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: var(--subtext);
+}
 
 .exercise-preview, .workout-detail { display: flex; flex-direction: column; gap: 6px; }
 .workout-detail { display: none; }
@@ -749,10 +772,10 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 
 .run-map {
-  height: 200px;
-  border-radius: 12px;
+  height: 100px;
+  border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   background: var(--surface2);
 }
 .run-map-placeholder {

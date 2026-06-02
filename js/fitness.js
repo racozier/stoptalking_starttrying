@@ -158,23 +158,20 @@ window.Fitness = {
         <div class="activity-icon-wrap icon-run"><i data-lucide="footprints" style="width:18px;height:18px;stroke:#38BDF8;fill:none"></i></div>
         <div class="activity-meta">
           <div class="activity-date-label">${dateLabel} · ${timeLabel}${r.temp ? ` · ${r.temp}°C` : ''}</div>
-          <div class="activity-title">${App.escapeHtml(r.name)}</div>
+          <div class="activity-title run-title">${App.escapeHtml(r.name)}</div>
         </div>
         <div class="activity-menu" onclick="Fitness.showRunMenu(${r.id})">···</div>
+      </div>
+      <div class="run-stats-row">
+        <div class="run-stat-col">${r.distance} km<span>Distance</span></div>
+        <div class="run-stat-col">${App.formatDuration(r.durationSeconds)}<span>Time</span></div>
+        <div class="run-stat-col">${r.paceFormatted} /km<span>Avg Pace</span></div>
+        <div class="run-stat-col">${r.calories || '--'}<span>Calories</span></div>
       </div>
       ${hasMap
         ? `<div class="run-map" id="run-map-${r.id}"></div>`
         : `<div class="run-map-placeholder"><span>No route data</span></div>`
       }
-      <div class="run-stats-row">
-        <div class="stat-col"><strong>${r.distance} km</strong><span>Distance</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat-col"><strong>${App.formatDuration(r.durationSeconds)}</strong><span>Time</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat-col"><strong>${r.paceFormatted} /km</strong><span>Avg Pace</span></div>
-        <div class="stat-divider"></div>
-        <div class="stat-col"><strong>${r.calories || '--'}</strong><span>Calories</span></div>
-      </div>
       ${(r.elevation || r.avgHR) ? `<div class="run-map-stats">
         ${r.elevation ? `<span>↑ ${r.elevation} m elev</span>` : ''}
         ${r.avgHR ? `<span>❤ ${r.avgHR} bpm avg</span>` : ''}
