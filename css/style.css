@@ -1542,12 +1542,6 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 
 /* ── Timeline posted note card ───────────────────────────────────────────── */
-.tl-note-card {
-  background: var(--surface2);
-  border-radius: 10px;
-  padding: 10px 12px;
-  border-left: 3px solid var(--accent2);
-}
 .tl-note-card-text {
   font-size: 0.85rem;
   line-height: 1.5;
@@ -1555,13 +1549,6 @@ h3 { font-size: 1rem; font-weight: 600; }
   white-space: pre-wrap;
   word-break: break-word;
 }
-.tl-note-card-actions {
-  display: flex;
-  gap: 14px;
-  margin-top: 8px;
-}
-.tl-note-card-actions .link-btn { font-size: 0.78rem; color: var(--accent2); }
-.tl-note-card-actions .link-btn.danger { color: var(--danger); }
 .tl-add-note-btn {
   background: none;
   border: 1px dashed rgba(255,255,255,0.15);
@@ -1600,34 +1587,21 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .tl-edit-actions .btn { flex: 1; }
 
-/* ── Note card icon action buttons ──────────────────────────────────────── */
-.tl-icon-action {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  color: var(--subtext);
-  transition: color 0.15s, background 0.15s;
-}
-.tl-icon-action:hover { background: rgba(255,255,255,0.08); color: var(--accent2); }
-.tl-icon-action.danger:hover { color: var(--danger); }
-.tl-icon-action svg { stroke: currentColor; }
-
-/* ── Swipe-to-delete note ────────────────────────────────────────────────── */
+/* ── Swipe note: left = delete, right = edit ─────────────────────────────── */
 .tl-note-swipe-wrap {
   position: relative;
   overflow: hidden;
   border-radius: 10px;
 }
 .tl-note-card {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 10px 12px;
   position: relative;
   z-index: 1;
   will-change: transform;
-  border-radius: 10px;
 }
+/* Red delete zone — revealed by swiping LEFT */
 .tl-note-delete-reveal {
   position: absolute;
   right: 0;
@@ -1644,3 +1618,20 @@ h3 { font-size: 1rem; font-weight: 600; }
   border-radius: 0 10px 10px 0;
 }
 .tl-note-delete-reveal svg { stroke: #fff; }
+/* Blue edit zone — revealed by swiping RIGHT */
+.tl-note-edit-reveal {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 55px;
+  background: var(--accent);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 0;
+  border-radius: 10px 0 0 10px;
+}
+.tl-note-edit-reveal svg { stroke: #fff; }

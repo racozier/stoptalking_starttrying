@@ -543,12 +543,11 @@ function renderTlNoteSection() {
   if (_tlCurrentNotes) {
     section.innerHTML = `
       <div class="tl-note-swipe-wrap">
+        <button class="tl-note-edit-reveal" onclick="tlEditNote()" aria-label="Edit note">
+          ${_pencilSvg}
+        </button>
         <div class="tl-note-card" id="tl-note-card-inner">
           <div class="tl-note-card-text">${App.escapeHtml(_tlCurrentNotes)}</div>
-          <div class="tl-note-card-actions">
-            <button class="tl-icon-action" onclick="tlEditNote()" title="Edit note">${_pencilSvg}</button>
-            <button class="tl-icon-action danger" onclick="tlDeleteNote()" title="Delete note">${_trashSvg}</button>
-          </div>
         </div>
         <button class="tl-note-delete-reveal" onclick="tlDeleteNote()" aria-label="Delete note">${_trashSvg}</button>
       </div>`;
@@ -563,7 +562,7 @@ function initNoteSwipe() {
   const wrap = document.querySelector('.tl-note-swipe-wrap');
   const card = document.getElementById('tl-note-card-inner');
   if (!wrap || !card) return;
-  let startX = 0, dragging = false, revealed = false;
+  let startX = 0, dragging = false;
   const THRESHOLD = 55;
 
   card.addEventListener('touchstart', (e) => {
@@ -574,20 +573,27 @@ function initNoteSwipe() {
 
   card.addEventListener('touchmove', (e) => {
     if (!dragging) return;
-    const dx = startX - e.touches[0].clientX;
-    if (dx > 0) card.style.transform = `translateX(-${Math.min(dx, THRESHOLD + 10)}px)`;
+    const dx = e.touches[0].clientX - startX; // positive = right, negative = left
+    if (dx < 0) {
+      card.style.transform = `translateX(${Math.max(dx, -(THRESHOLD + 10))}px)`;
+    } else if (dx > 0) {
+      card.style.transform = `translateX(${Math.min(dx, THRESHOLD + 10)}px)`;
+    }
   }, { passive: true });
 
   card.addEventListener('touchend', (e) => {
     dragging = false;
     card.style.transition = 'transform 0.2s ease';
-    const dx = startX - e.changedTouches[0].clientX;
-    if (dx > THRESHOLD / 2) {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx < -(THRESHOLD / 2)) {
+      // Snapped left → delete
       card.style.transform = `translateX(-${THRESHOLD}px)`;
-      revealed = true;
+    } else if (dx > THRESHOLD / 2) {
+      // Swiped right past threshold → edit
+      card.style.transform = '';
+      tlEditNote();
     } else {
       card.style.transform = '';
-      revealed = false;
     }
   }, { passive: true });
 }
@@ -600,6 +606,8 @@ async function openTlDetail(type, id) {
 
   const statsEl = modal.querySelector('#tl-detail-stats');
   const titleEl = modal.querySelector('#tl-detail-title');
+  const editBtn = modal.querySelector('#tl-edit-btn');
+  if (editBtn) editBtn.style.display = '';
   statsEl.innerHTML = '<p style="color:var(--subtext);font-size:0.85rem">Loading…</p>';
   App.openModal('modal-tl-detail');
 
