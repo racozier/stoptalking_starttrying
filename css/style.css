@@ -722,13 +722,6 @@ h3 { font-size: 1rem; font-weight: 600; }
   color: #fff;
 }
 
-.weekly-summary-strip {
-  font-size: 0.82rem;
-  color: var(--subtext);
-  margin-bottom: 14px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-}
 
 /* ── Activity Cards ───────────────────────────────────────────────────────── */
 .activity-feed { display: flex; flex-direction: column; gap: 14px; padding-bottom: 16px; }

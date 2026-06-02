@@ -16,7 +16,6 @@ window.Fitness = {
   },
 
   async render() {
-    await this.renderWeeklySummary();
     await this.renderFeed();
   },
 
