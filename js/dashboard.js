@@ -200,16 +200,16 @@ window.Dashboard = {
     const events = [];
 
     weights.filter((w) => w.date.startsWith(today)).forEach((w) => {
-      events.push({ time: w.date, lucide: 'scale', iconClass: 'icon-weight', title: 'Weight Logged', sub: `${w.value} kg`, type: 'weight', id: w.id });
+      events.push({ time: w.date, lucide: 'scale', iconClass: 'icon-weight', title: 'Weight Logged', sub: `${w.value} kg`, type: 'weight', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
     });
     runs.filter((r) => r.date.startsWith(today)).forEach((r) => {
-      events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id, polyline: r.polyline });
+      events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id, polyline: r.polyline, hasNotes: !!(r.notes && r.notes.trim()) });
     });
     workouts.filter((w) => w.date.startsWith(today)).forEach((w) => {
-      events.push({ time: w.date, lucide: 'dumbbell', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id });
+      events.push({ time: w.date, lucide: 'dumbbell', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
     });
     study.filter((s) => s.date.startsWith(today)).forEach((s) => {
-      events.push({ time: s.date, lucide: 'book-open', iconClass: 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id });
+      events.push({ time: s.date, lucide: 'book-open', iconClass: 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id, hasNotes: !!(s.notes && s.notes.trim()) });
     });
     notes.filter((n) => n.created.startsWith(today)).forEach((n) => {
       events.push({ time: n.created, lucide: 'notebook-pen', iconClass: 'icon-note', title: 'Note Added', sub: n.title, type: 'note', id: n.id });
@@ -232,7 +232,7 @@ window.Dashboard = {
         </div>
         <div class="timeline-time">${App.formatTime(e.time)}</div>
         <div class="timeline-body">
-          <div class="timeline-title">${App.escapeHtml(e.title)}</div>
+          <div class="timeline-title">${App.escapeHtml(e.title)}${e.hasNotes ? '<span class="tl-note-dot" title="Has notes">·</span>' : ''}</div>
           <div class="timeline-sub">${App.escapeHtml(e.sub)}</div>
         </div>
         ${hasMap ? `<div class="timeline-mini-map" id="tl-map-${e.id}"></div>` : ''}
@@ -347,42 +347,88 @@ window.quickLog = quickLog;
 // ─── Quick Study / Polish Modal ───────────────────────────────────────────────
 let _quickStudySubject = '';
 
-function openQuickStudyModal(subject) {
+async function openQuickStudyModal(subject) {
   _quickStudySubject = subject;
   const modal = document.getElementById('modal-quick-study');
   if (!modal) return;
   modal.querySelector('#qs-subject-label').textContent = subject;
-  modal.querySelector('#qs-duration-input').value = '';
   modal.querySelector('#qs-notes-input').value = '';
-  modal.querySelector('#qs-datetime-input').value = new Date().toISOString().slice(0, 16);
-  // Reset chip selection to 60 min default
-  modal.querySelectorAll('.qs-chip').forEach((c) => c.classList.toggle('active', c.dataset.min === '60'));
+
+  // Default start = now, end = now + 1h
+  const now = new Date();
+  const later = new Date(now.getTime() + 60 * 60 * 1000);
+  modal.querySelector('#qs-start-input').value = toLocalDatetimeInput(now);
+  modal.querySelector('#qs-end-input').value = toLocalDatetimeInput(later);
+  qsUpdateElapsed();
+
+  // Populate class dropdown (only shown for Study, not Polish)
+  const classGroup = modal.querySelector('#qs-class-group');
+  if (subject === 'Polish Language') {
+    if (classGroup) classGroup.style.display = 'none';
+  } else {
+    if (classGroup) classGroup.style.display = '';
+    const classes = await window.db.classes.getAll();
+    const select = modal.querySelector('#qs-class-select');
+    if (select) {
+      select.innerHTML = '<option value="">General / no class</option>' +
+        classes.map((c) => `<option value="${c.id}">${App.escapeHtml(c.code + ' ' + c.name)}</option>`).join('');
+    }
+  }
+
   App.openModal('modal-quick-study');
 }
 window.openQuickStudyModal = openQuickStudyModal;
 
-function qsSelectChip(min) {
-  const modal = document.getElementById('modal-quick-study');
-  if (!modal) return;
-  modal.querySelectorAll('.qs-chip').forEach((c) => c.classList.toggle('active', c.dataset.min === String(min)));
-  modal.querySelector('#qs-duration-input').value = '';
+function toLocalDatetimeInput(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
-window.qsSelectChip = qsSelectChip;
+
+function qsUpdateElapsed() {
+  const startEl = document.getElementById('qs-start-input');
+  const endEl = document.getElementById('qs-end-input');
+  const row = document.getElementById('qs-elapsed-row');
+  const val = document.getElementById('qs-elapsed-val');
+  if (!startEl || !endEl || !row || !val) return;
+  const start = new Date(startEl.value);
+  const end = new Date(endEl.value);
+  const diffMs = end - start;
+  if (!isNaN(diffMs) && diffMs > 0) {
+    const totalMin = Math.round(diffMs / 60000);
+    row.style.display = 'flex';
+    val.textContent = App.formatMinutes(totalMin);
+  } else {
+    row.style.display = 'none';
+  }
+}
+window.qsUpdateElapsed = qsUpdateElapsed;
 
 async function saveQuickStudy() {
   const modal = document.getElementById('modal-quick-study');
   if (!modal) return;
-  const activeChip = modal.querySelector('.qs-chip.active');
-  const customVal = modal.querySelector('#qs-duration-input').value;
-  const duration = customVal ? parseInt(customVal, 10) : (activeChip ? parseInt(activeChip.dataset.min, 10) : 60);
-  if (!duration || duration < 1) { App.showToast('Enter a valid duration.', 'error'); return; }
+  const startVal = modal.querySelector('#qs-start-input').value;
+  const endVal = modal.querySelector('#qs-end-input').value;
+  const start = new Date(startVal);
+  const end = new Date(endVal);
+  const diffMs = end - start;
+  if (!startVal || !endVal || isNaN(diffMs) || diffMs <= 0) {
+    App.showToast('Set a valid start and end time.', 'error'); return;
+  }
+  const durationMinutes = Math.round(diffMs / 60000);
   const notes = modal.querySelector('#qs-notes-input').value.trim();
-  const dateVal = modal.querySelector('#qs-datetime-input').value;
+
+  const select = modal.querySelector('#qs-class-select');
+  const classId = select?.value ? Number(select.value) : null;
+  let subject = _quickStudySubject;
+  if (classId && select) {
+    subject = select.options[select.selectedIndex]?.text || subject;
+  }
+
   await window.db.study.add({
-    date: dateVal ? new Date(dateVal).toISOString() : new Date().toISOString(),
-    classId: null,
-    subject: _quickStudySubject,
-    durationMinutes: duration,
+    date: start.toISOString(),
+    classId,
+    subject,
+    durationMinutes,
     notes,
   });
   App.closeAllModals();

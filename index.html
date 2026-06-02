@@ -456,6 +456,24 @@
             <input class="settings-input" id="settings-term-end" type="date" />
           </div>
           <div class="settings-row">
+            <div class="settings-row-label">Timezone</div>
+            <select class="settings-input" id="settings-timezone" style="max-width:180px">
+              <option value="Europe/Warsaw">Warsaw (GMT+2)</option>
+              <option value="Europe/Berlin">Berlin (GMT+2)</option>
+              <option value="Europe/Paris">Paris (GMT+2)</option>
+              <option value="Europe/London">London (GMT+1)</option>
+              <option value="UTC">UTC (GMT+0)</option>
+              <option value="America/New_York">New York (GMT-5)</option>
+              <option value="America/Chicago">Chicago (GMT-6)</option>
+              <option value="America/Denver">Denver (GMT-7)</option>
+              <option value="America/Los_Angeles">Los Angeles (GMT-8)</option>
+              <option value="Asia/Dubai">Dubai (GMT+4)</option>
+              <option value="Asia/Kolkata">India (GMT+5:30)</option>
+              <option value="Asia/Tokyo">Tokyo (GMT+9)</option>
+              <option value="Australia/Sydney">Sydney (GMT+10)</option>
+            </select>
+          </div>
+          <div class="settings-row">
             <button class="btn btn-primary" onclick="SettingsSave()">Save Changes</button>
           </div>
         </div>
@@ -692,17 +710,9 @@
           </div>
         </div>
         <div class="pace-preview" id="run-pace-preview">--:-- /km</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
-          <div class="form-group">
-            <label>Calories (optional)</label>
-            <input type="number" class="form-input" id="run-calories-input" min="0" placeholder="412" />
-          </div>
-          <div class="form-group">
-            <label>Elevation m (opt.)</label>
-            <input type="number" class="form-input" id="run-elevation-input" min="0" placeholder="64" />
-          </div>
-        </div>
-        <div class="form-group">
+        <input type="hidden" id="run-calories-input" />
+        <input type="hidden" id="run-elevation-input" />
+        <div class="form-group" style="margin-top:12px">
           <label>Notes</label>
           <textarea class="form-textarea" id="run-notes-input" rows="2" placeholder="Optional…"></textarea>
         </div>
@@ -802,19 +812,25 @@
       <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label>Date &amp; Time</label>
-        <input type="datetime-local" class="form-input" id="qs-datetime-input" />
+      <div class="form-group" id="qs-class-group">
+        <label>Class (optional)</label>
+        <select class="form-select" id="qs-class-select">
+          <option value="">General / no class</option>
+        </select>
       </div>
-      <div class="form-group">
-        <label>Duration</label>
-        <div class="qs-chips">
-          <button class="qs-chip" data-min="30" onclick="qsSelectChip(30)">30 min</button>
-          <button class="qs-chip active" data-min="60" onclick="qsSelectChip(60)">1 hr</button>
-          <button class="qs-chip" data-min="90" onclick="qsSelectChip(90)">1.5 hr</button>
-          <button class="qs-chip" data-min="120" onclick="qsSelectChip(120)">2 hr</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="datetime-local" class="form-input" id="qs-start-input" oninput="qsUpdateElapsed()" />
         </div>
-        <input type="number" class="form-input" id="qs-duration-input" min="1" max="600" placeholder="Or enter custom minutes…" style="margin-top:8px" />
+        <div class="form-group">
+          <label>End Time</label>
+          <input type="datetime-local" class="form-input" id="qs-end-input" oninput="qsUpdateElapsed()" />
+        </div>
+      </div>
+      <div class="qs-elapsed-row" id="qs-elapsed-row" style="display:none">
+        <span class="qs-elapsed-label">Duration:</span>
+        <span class="qs-elapsed-val" id="qs-elapsed-val">—</span>
       </div>
       <div class="form-group">
         <label>Notes</label>

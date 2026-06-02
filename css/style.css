@@ -469,6 +469,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: transparent !important;
 }
 .today-act-icon svg { width: 12px; height: 12px; stroke: currentColor; fill: none; }
 .today-act-label { flex: 1; font-size: 0.78rem; font-weight: 500; color: var(--text); }
@@ -548,7 +549,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .action-workout { background: #7C3AED; }
 .action-run     { background: #0EA5E9; }
 .action-study   { background: #0D9488; }
-.action-polish  { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.15); }
+.action-polish  { background: #92400E; }
 /* Wrapper gives the flag the same 24px vertical footprint as Lucide icons */
 .flag-pl-wrap {
   width: 28px;
@@ -1512,3 +1513,29 @@ h3 { font-size: 1rem; font-weight: 600; }
 .tl-ex-name { font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 80px; }
 .tl-ex-sets { font-size: 0.78rem; color: var(--subtext); }
 .tl-no-data { font-size: 0.8rem; color: var(--subtext); margin: 6px 0 0; }
+
+/* ── Quick Study elapsed display ─────────────────────────────────────────── */
+.qs-elapsed-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface2);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+.qs-elapsed-label { font-size: 0.78rem; color: var(--subtext); }
+.qs-elapsed-val { font-size: 0.9rem; font-weight: 700; color: var(--accent2); }
+
+/* ── Timeline note indicator ─────────────────────────────────────────────── */
+.tl-note-dot {
+  display: inline-block;
+  margin-left: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent2);
+  vertical-align: middle;
+  font-size: 0;
+  line-height: 0;
+}

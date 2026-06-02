@@ -10,9 +10,10 @@ window.App = {
       history.replaceState({}, '', window.location.pathname);
     }
 
-    // Load and apply saved theme
+    // Load and apply saved theme + timezone
     const theme = await window.db.settings.get('theme', 'dark');
     this.applyTheme(theme);
+    this._timezone = await window.db.settings.get('timezone', 'Europe/Warsaw');
 
     // Register tab modules
     this._tabModules = {
@@ -165,11 +166,13 @@ window.App = {
       if (diffDays === 1) return 'Yesterday';
       if (diffDays < 7) return `${diffDays} days ago`;
     }
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: diffDays > 365 ? 'numeric' : undefined });
+    const tz = this._timezone || 'Europe/Warsaw';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: diffDays > 365 ? 'numeric' : undefined, timeZone: tz });
   },
 
   formatTime(isoStr) {
-    return new Date(isoStr).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const tz = this._timezone || 'Europe/Warsaw';
+    return new Date(isoStr).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: tz });
   },
 
   // Returns Mon–Sun dates for the current week

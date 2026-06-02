@@ -15,6 +15,7 @@ window.SettingsModule = {
     set('settings-degree-credits', settings.degreeCreditHours || 120);
     set('settings-term-name', settings.currentTermName || '');
     set('settings-term-end', settings.currentTermEnd || '');
+    set('settings-timezone', settings.timezone || 'Europe/Warsaw');
 
     // Highlight active theme swatch
     const theme = settings.theme || 'dark';
@@ -34,6 +35,9 @@ window.SettingsModule = {
     await window.db.settings.set('degreeCreditHours', parseInt(get('settings-degree-credits')) || 120);
     await window.db.settings.set('currentTermName', get('settings-term-name'));
     await window.db.settings.set('currentTermEnd', get('settings-term-end'));
+    const tz = get('settings-timezone') || 'Europe/Warsaw';
+    await window.db.settings.set('timezone', tz);
+    App._timezone = tz;
     App.showToast('Settings saved!', 'success');
     App.updateGreeting();
     if (App.currentTab === 'study') await Study.render();
