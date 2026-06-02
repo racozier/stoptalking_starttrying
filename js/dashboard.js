@@ -196,8 +196,10 @@ window.Dashboard = {
       return;
     }
 
-    container.innerHTML = events.map((e) => `
-      <div class="timeline-item" data-type="${e.type}" data-id="${e.id}">
+    container.innerHTML = events.map((e) => {
+      const hasMap = e.polyline && e.polyline.length;
+      return `
+      <div class="timeline-item${hasMap ? ' has-map' : ''}" data-type="${e.type}" data-id="${e.id}">
         <div class="timeline-icon-col">
           <div class="timeline-connector"></div>
           <div class="timeline-icon ${e.iconClass}"><i data-lucide="${e.lucide}"></i></div>
@@ -207,10 +209,10 @@ window.Dashboard = {
           <div class="timeline-title">${App.escapeHtml(e.title)}</div>
           <div class="timeline-sub">${App.escapeHtml(e.sub)}</div>
         </div>
+        ${hasMap ? `<div class="timeline-mini-map" id="tl-map-${e.id}"></div>` : ''}
         <div class="timeline-arrow">›</div>
-        ${e.polyline && e.polyline.length ? `<div class="timeline-mini-map" id="tl-map-${e.id}"></div>` : ''}
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
     if (window.lucide) lucide.createIcons();
 
     // Initialise Leaflet mini-maps for run events that have GPS polylines
