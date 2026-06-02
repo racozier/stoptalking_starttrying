@@ -171,7 +171,7 @@ window.Fitness = {
     return `
     <div class="activity-card run-card" data-id="${r.id}">
       <div class="activity-card-header">
-        <div class="activity-icon-wrap icon-run"><i data-lucide="footprints" style="width:18px;height:18px;stroke:#38BDF8;fill:none"></i></div>
+        <div class="activity-icon-wrap icon-run"><i data-lucide="person-running" style="width:18px;height:18px;stroke:#38BDF8;fill:none"></i></div>
         <div class="activity-meta">
           <div class="activity-date-label">${dateLabel} · ${timeLabel}${r.temp ? ` · ${r.temp}°C` : ''}</div>
           <div class="activity-title run-title">${App.escapeHtml(r.name)}</div>
