@@ -53,6 +53,10 @@ window.Fitness = {
     const container = document.getElementById('fitness-feed');
     if (!container) return;
 
+    // Destroy existing Leaflet maps so they re-initialise after innerHTML is replaced
+    Object.values(this._leafletMaps).forEach((m) => { try { m.remove(); } catch (e) {} });
+    this._leafletMaps = {};
+
     const [workouts, runs] = await Promise.all([
       window.db.workouts.getAll(),
       window.db.runs.getAll(),
@@ -123,9 +127,9 @@ window.Fitness = {
       </div>
       ${allEx.length > 0 ? `
       <div class="exercise-list" id="workout-detail-${w.id}">
-        ${allEx.map((ex, i) => this.renderExerciseRow(ex, i >= 3)).join('')}
+        ${allEx.map((ex, i) => this.renderExerciseRow(ex, i >= 2)).join('')}
       </div>
-      ${allEx.length > 3 ? `
+      ${allEx.length > 2 ? `
         <button class="workout-expand-btn link-btn" data-id="${w.id}">View Full Workout ›</button>
       ` : ''}` : ''}
       ${this.renderCardNotes('workout', w.id, w.notes)}

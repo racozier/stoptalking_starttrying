@@ -988,7 +988,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 90;
+  z-index: 500;
   transition: transform 0.2s;
 }
 .fab:active { transform: scale(0.9); }
@@ -1001,7 +1001,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   flex-direction: column;
   gap: 10px;
   align-items: flex-end;
-  z-index: 89;
+  z-index: 499;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s;
