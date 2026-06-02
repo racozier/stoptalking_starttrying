@@ -225,7 +225,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .weight-sparkline-wrap {
   flex: 1;
   min-height: 60px;
-  max-height: 110px;
+  max-height: 154px;
   position: relative;
   margin-top: 4px;
 }
@@ -351,6 +351,27 @@ h3 { font-size: 1rem; font-weight: 600; }
   width: 100%;
   font-family: inherit;
 }
+
+/* Log Weight quick-link at bottom of weight card */
+.weight-log-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.18);
+  border-radius: 8px;
+  width: 100%;
+  padding: 6px 0;
+  margin-top: 8px;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.weight-log-btn:active { background: rgba(139,92,246,0.2); }
 
 /* Global delta colours */
 .delta-up      { color: var(--accent2); }
@@ -518,15 +539,15 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 /* Mini Leaflet map thumbnail — sits inline in col 4 when .has-map is present */
 .timeline-item.has-map {
-  grid-template-columns: 36px 46px 1fr 70px 14px;
+  grid-template-columns: 36px 46px 1fr 76px 14px;
 }
 .timeline-mini-map {
-  width: 70px;
+  width: 68px;
   height: 46px;
   border-radius: 7px;
   overflow: hidden;
   align-self: center;
-  flex-shrink: 0;
+  justify-self: center;
 }
 .timeline-time  { font-size: 0.65rem; color: var(--subtext); white-space: nowrap; line-height: 1; }
 .timeline-body  { min-width: 0; }
