@@ -202,8 +202,8 @@ window.Dashboard = {
           <div class="timeline-icon ${e.iconClass}"><i data-lucide="${e.lucide}"></i></div>
           ${idx < events.length - 1 ? '<div class="timeline-connector"></div>' : ''}
         </div>
-        <div class="timeline-content">
-          <div class="timeline-time">${App.formatTime(e.time)}</div>
+        <div class="timeline-time">${App.formatTime(e.time)}</div>
+        <div class="timeline-body">
           <div class="timeline-title">${App.escapeHtml(e.title)}</div>
           <div class="timeline-sub">${App.escapeHtml(e.sub)}</div>
         </div>
@@ -247,11 +247,10 @@ async function renderWeightExpandChart(period) {
   const sorted = [...allWeights].sort((a, b) => new Date(a.date) - new Date(b.date));
   const now = new Date();
   let cutoff = null;
-  if (period === '1W') cutoff = new Date(now - 7 * 864e5);
+  if (period === '3D') cutoff = new Date(now - 3 * 864e5);
+  else if (period === '1W') cutoff = new Date(now - 7 * 864e5);
   else if (period === '1M') cutoff = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
   else if (period === '3M') cutoff = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-  else if (period === '6M') cutoff = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-  else if (period === 'YTD') cutoff = new Date(now.getFullYear(), 0, 1);
   const data = cutoff ? sorted.filter((w) => new Date(w.date) >= cutoff) : sorted;
   Charts.createWeightHistory('weight-expand-chart', data);
 }

@@ -5,6 +5,11 @@ window.Charts = {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (canvas._chart) canvas._chart.destroy();
+    // Fix ResizeObserver loop: read parent size ONCE and fix the canvas dimensions.
+    // responsive: false below means Chart.js never re-reads the container.
+    const parent = canvas.parentElement;
+    canvas.width = parent.clientWidth || 200;
+    canvas.height = parent.clientHeight || 100;
     const sorted = [...data].reverse();
     const vals = sorted.map((d) => d.value);
     // Deduplicate month labels — only show when month changes
@@ -35,11 +40,11 @@ window.Charts = {
         }],
       },
       options: {
-        responsive: true,
+        responsive: false,
         maintainAspectRatio: false,
         animation: false,
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
-        layout: { padding: { right: 4 } },
+        layout: { padding: { right: 4, top: 2, bottom: 2 } },
         scales: {
           x: {
             display: true,
@@ -48,7 +53,7 @@ window.Charts = {
               color: 'rgba(255,255,255,0.28)',
               font: { size: 8 },
               maxRotation: 0,
-              autoSkip: false,
+              maxTicksLimit: 4,
             },
             border: { display: false },
           },

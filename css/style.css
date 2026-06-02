@@ -219,11 +219,10 @@ h3 { font-size: 1rem; font-weight: 600; }
   display: flex;
   flex-direction: column;
 }
-/* flex: 1 fills remaining card height; max-height caps it to stop Chart.js resize loop */
+/* flex: 1 fills remaining card height; responsive: false in JS prevents resize loop */
 .weight-sparkline-wrap {
   flex: 1;
-  min-height: 70px;
-  max-height: 160px;
+  min-height: 80px;
   position: relative;
   overflow: hidden;
 }
@@ -260,6 +259,9 @@ h3 { font-size: 1rem; font-weight: 600; }
 .icon-blue   { background: rgba(59,130,246,0.2);  color: #60A5FA; }
 .icon-amber  { background: rgba(245,158,11,0.2);  color: #FCD34D; }
 .card-icon-wrap svg { width: 13px; height: 13px; stroke: currentColor; fill: none; }
+/* Card header icons and week-stat icons: no background square, just the icon colour */
+.card-icon-wrap,
+.week-stat-icon { background: transparent !important; }
 
 .card-label {
   flex: 1;
@@ -404,7 +406,8 @@ h3 { font-size: 1rem; font-weight: 600; }
 .week-stat-num { font-size: 0.85rem; font-weight: 700; line-height: 1.1; white-space: nowrap; }
 .week-stat-label { font-size: 0.58rem; color: var(--subtext); margin-top: 1px; white-space: nowrap; }
 .week-stat-delta { display: none; }
-.week-mini-chart { display: none; }
+/* Mini bar charts visible in the week card */
+.week-mini-chart { display: block; width: 42px; height: 22px; flex-shrink: 0; }
 
 /* ── Quick Actions ────────────────────────────────────────────────────────── */
 .quick-actions-section { margin-bottom: 8px; }
@@ -446,11 +449,12 @@ h3 { font-size: 1rem; font-weight: 600; }
 .view-all-link { font-size: 0.75rem; color: var(--accent); cursor: pointer; background: none; border: none; font-family: inherit; }
 .timeline-list { display: flex; flex-direction: column; }
 
+/* Timeline: icon-col | time | title+sub | arrow */
 .timeline-item {
   display: grid;
-  grid-template-columns: 32px 1fr 16px;
-  gap: 8px;
-  align-items: start;
+  grid-template-columns: 36px auto 1fr 14px;
+  gap: 0 8px;
+  align-items: center;
   padding: 7px 0;
   cursor: pointer;
 }
@@ -496,9 +500,9 @@ h3 { font-size: 1rem; font-weight: 600; }
 /* Lucide SVG icons inside timeline circles */
 .timeline-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-.timeline-content { min-width: 0; padding-top: 2px; }
-.timeline-time  { font-size: 0.68rem; color: var(--subtext); line-height: 1; margin-bottom: 2px; }
-.timeline-title { font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+.timeline-time  { font-size: 0.65rem; color: var(--subtext); white-space: nowrap; line-height: 1; }
+.timeline-body  { min-width: 0; }
+.timeline-title { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
 .timeline-sub   { font-size: 0.72rem; color: var(--subtext); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .timeline-arrow { color: var(--subtext); font-size: 1rem; padding-top: 10px; }
 
@@ -1267,13 +1271,17 @@ h3 { font-size: 1rem; font-weight: 600; }
   background: #0F0E1D;
   border: 1px solid rgba(120,80,240,0.2);
   border-radius: 20px 20px 0 0;
-  padding: 20px 16px 32px;
+  padding: 16px 16px 28px;
   width: 100%;
   max-width: 430px;
+  max-height: 58vh;
   margin: 0 auto;
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  display: flex;
+  flex-direction: column;
 }
+.weight-expand-chart-wrap { flex: 1; min-height: 120px; position: relative; }
 .weight-expand-backdrop.open .weight-expand-card {
   transform: translateY(0);
 }
@@ -1335,8 +1343,4 @@ h3 { font-size: 1rem; font-weight: 600; }
   border-color: var(--accent);
   color: #fff;
 }
-.weight-expand-chart-wrap {
-  height: 220px;
-  position: relative;
-}
-#weight-expand-chart { width: 100% !important; }
+#weight-expand-chart { width: 100% !important; height: 100% !important; }

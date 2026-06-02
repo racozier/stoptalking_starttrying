@@ -285,7 +285,7 @@ window.db = {
 // ─── Sample Data Seeder ───────────────────────────────────────────────────────
 
 async function seedSampleData() {
-  const already = await window.db.settings.get('sampleDataLoaded');
+  const already = await window.db.settings.get('sampleDataV2');
   if (already) return;
 
   const today = new Date('2026-06-01');
@@ -473,22 +473,46 @@ async function seedSampleData() {
     notes: '',
   });
 
-  // ── Runs: 12+ sessions ────────────────────────────────────────────────────
+  // ── GPS routes (Brisbane South Bank / river loop area) ────────────────────
+  const route5km = [
+    [-27.4698,153.0251],[-27.4695,153.0244],[-27.4690,153.0238],[-27.4685,153.0233],
+    [-27.4679,153.0230],[-27.4673,153.0232],[-27.4668,153.0238],[-27.4664,153.0246],
+    [-27.4661,153.0255],[-27.4659,153.0264],[-27.4657,153.0273],[-27.4655,153.0281],
+    [-27.4652,153.0288],[-27.4648,153.0294],[-27.4643,153.0297],[-27.4638,153.0294],
+    [-27.4634,153.0287],[-27.4632,153.0279],[-27.4633,153.0271],[-27.4637,153.0264],
+    [-27.4642,153.0259],[-27.4648,153.0256],[-27.4654,153.0256],[-27.4660,153.0258],
+    [-27.4666,153.0261],[-27.4672,153.0259],[-27.4678,153.0255],[-27.4684,153.0252],
+    [-27.4690,153.0251],[-27.4694,153.0251],[-27.4698,153.0251],
+  ];
+  const route8km = [
+    [-27.4698,153.0251],[-27.4692,153.0242],[-27.4685,153.0235],[-27.4677,153.0229],
+    [-27.4669,153.0226],[-27.4661,153.0228],[-27.4654,153.0234],[-27.4649,153.0243],
+    [-27.4645,153.0253],[-27.4643,153.0263],[-27.4641,153.0273],[-27.4640,153.0284],
+    [-27.4638,153.0294],[-27.4635,153.0304],[-27.4631,153.0312],[-27.4626,153.0318],
+    [-27.4621,153.0321],[-27.4615,153.0321],[-27.4610,153.0318],[-27.4607,153.0311],
+    [-27.4606,153.0303],[-27.4608,153.0295],[-27.4612,153.0288],[-27.4618,153.0283],
+    [-27.4625,153.0280],[-27.4632,153.0279],[-27.4638,153.0275],[-27.4645,153.0270],
+    [-27.4652,153.0265],[-27.4659,153.0262],[-27.4665,153.0261],[-27.4671,153.0261],
+    [-27.4677,153.0258],[-27.4683,153.0255],[-27.4689,153.0253],[-27.4695,153.0252],
+    [-27.4698,153.0251],
+  ];
+
+  // ── Runs: 14 sessions, most recent ones have GPS routes ───────────────────
   const runData = [
-    { ago: 0, name: 'Morning Run', dist: 5.21, timeStr: '29:14', cal: 412, elev: 64, hr: 156, notes: '' },
-    { ago: 2, name: 'Easy Run', dist: 8.12, timeStr: '45:21', cal: 612, elev: 72, hr: 148, notes: 'Felt good' },
-    { ago: 5, name: 'Tempo Run', dist: 6.5, timeStr: '33:45', cal: 510, elev: 45, hr: 172, notes: '' },
-    { ago: 9, name: 'Long Run', dist: 10.2, timeStr: '58:30', cal: 780, elev: 95, hr: 155, notes: 'New distance PB' },
-    { ago: 14, name: 'Morning Run', dist: 5.0, timeStr: '28:05', cal: 380, elev: 30, hr: 158, notes: '' },
-    { ago: 18, name: 'Easy Run', dist: 7.5, timeStr: '42:00', cal: 565, elev: 60, hr: 145, notes: '' },
-    { ago: 23, name: 'Interval Run', dist: 5.5, timeStr: '28:30', cal: 440, elev: 20, hr: 178, notes: '5×1km intervals' },
-    { ago: 29, name: 'Morning Run', dist: 6.0, timeStr: '33:10', cal: 455, elev: 55, hr: 160, notes: '' },
-    { ago: 35, name: 'Long Run', dist: 9.5, timeStr: '54:20', cal: 720, elev: 88, hr: 152, notes: '' },
-    { ago: 42, name: 'Easy Run', dist: 7.0, timeStr: '39:45', cal: 530, elev: 48, hr: 147, notes: '' },
-    { ago: 50, name: 'Morning Run', dist: 5.5, timeStr: '31:20', cal: 420, elev: 38, hr: 162, notes: '' },
-    { ago: 58, name: 'Easy Run', dist: 6.5, timeStr: '37:15', cal: 490, elev: 52, hr: 149, notes: '' },
-    { ago: 66, name: 'Morning Run', dist: 5.0, timeStr: '29:45', cal: 380, elev: 25, hr: 156, notes: '' },
-    { ago: 75, name: 'First Run Back', dist: 4.5, timeStr: '28:00', cal: 345, elev: 20, hr: 168, notes: 'Getting back into it' },
+    { ago: -1, name: 'Morning Run', dist: 5.21, timeStr: '29:14', cal: 412, elev: 64, hr: 156, notes: '', pl: route5km },
+    { ago: 0,  name: 'Easy Run',    dist: 8.12, timeStr: '45:21', cal: 612, elev: 72, hr: 148, notes: 'Felt good', pl: route8km },
+    { ago: 2,  name: 'Tempo Run',   dist: 6.5,  timeStr: '33:45', cal: 510, elev: 45, hr: 172, notes: '', pl: route5km },
+    { ago: 5,  name: 'Long Run',    dist: 10.2, timeStr: '58:30', cal: 780, elev: 95, hr: 155, notes: 'New distance PB', pl: route8km },
+    { ago: 9,  name: 'Morning Run', dist: 5.0,  timeStr: '28:05', cal: 380, elev: 30, hr: 158, notes: '', pl: route5km },
+    { ago: 14, name: 'Easy Run',    dist: 7.5,  timeStr: '42:00', cal: 565, elev: 60, hr: 145, notes: '', pl: route8km },
+    { ago: 18, name: 'Interval Run',dist: 5.5,  timeStr: '28:30', cal: 440, elev: 20, hr: 178, notes: '5×1km intervals', pl: route5km },
+    { ago: 23, name: 'Morning Run', dist: 6.0,  timeStr: '33:10', cal: 455, elev: 55, hr: 160, notes: '', pl: null },
+    { ago: 29, name: 'Long Run',    dist: 9.5,  timeStr: '54:20', cal: 720, elev: 88, hr: 152, notes: '', pl: null },
+    { ago: 35, name: 'Easy Run',    dist: 7.0,  timeStr: '39:45', cal: 530, elev: 48, hr: 147, notes: '', pl: null },
+    { ago: 42, name: 'Morning Run', dist: 5.5,  timeStr: '31:20', cal: 420, elev: 38, hr: 162, notes: '', pl: null },
+    { ago: 50, name: 'Easy Run',    dist: 6.5,  timeStr: '37:15', cal: 490, elev: 52, hr: 149, notes: '', pl: null },
+    { ago: 66, name: 'Morning Run', dist: 5.0,  timeStr: '29:45', cal: 380, elev: 25, hr: 156, notes: '', pl: null },
+    { ago: 75, name: 'First Run Back',dist:4.5, timeStr: '28:00', cal: 345, elev: 20, hr: 168, notes: 'Getting back into it', pl: null },
   ];
 
   for (const r of runData) {
@@ -507,11 +531,43 @@ async function seedSampleData() {
       calories: r.cal,
       elevation: r.elev,
       avgHR: r.hr,
-      polyline: null,
+      polyline: r.pl,
       source: 'manual',
       notes: r.notes,
     });
   }
+
+  // ── This week workouts (Mon & Tue of current week) ────────────────────────
+  const thisWeekWorkouts = [
+    { ago: 0,  name: 'Pull Day', exercises: [
+      { name: 'Deadlift', sets: [{ weight: 122.5, reps: 5 }, { weight: 122.5, reps: 5 }, { weight: 112.5, reps: 6 }] },
+      { name: 'Barbell Rows', sets: [{ weight: 82.5, reps: 8 }, { weight: 82.5, reps: 8 }, { weight: 77.5, reps: 10 }] },
+      { name: 'Pull-ups', sets: [{ weight: 0, reps: 9 }, { weight: 0, reps: 8 }, { weight: 0, reps: 7 }] },
+      { name: 'Dumbbell Curls', sets: [{ weight: 17.5, reps: 12 }, { weight: 17.5, reps: 12 }, { weight: 15, reps: 15 }] },
+    ], vol: 9120, sets: 12 },
+    { ago: -1, name: 'Push Day', exercises: [
+      { name: 'Bench Press', sets: [{ weight: 82.5, reps: 8 }, { weight: 82.5, reps: 8 }, { weight: 77.5, reps: 10 }] },
+      { name: 'Shoulder Press', sets: [{ weight: 42.5, reps: 8 }, { weight: 42.5, reps: 8 }, { weight: 42.5, reps: 6 }] },
+      { name: 'Lateral Raises', sets: [{ weight: 12.5, reps: 15 }, { weight: 12.5, reps: 15 }, { weight: 12.5, reps: 12 }] },
+      { name: 'Tricep Pushdowns', sets: [{ weight: 22.5, reps: 12 }, { weight: 22.5, reps: 12 }, { weight: 20, reps: 15 }] },
+    ], vol: 8650, sets: 12 },
+  ];
+  for (const w of thisWeekWorkouts) {
+    await window.db.workouts.add({
+      date: iso(daysAgo(w.ago), 18, 30),
+      name: w.name,
+      exercises: w.exercises,
+      totalVolume: w.vol,
+      setCount: w.sets,
+      exerciseCount: w.exercises.length,
+      durationMinutes: 68,
+      notes: '',
+    });
+  }
+
+  // ── This week study sessions ───────────────────────────────────────────────
+  await window.db.study.add({ date: iso(daysAgo(0), 19, 15), classId: c176id, subject: 'C176 Business of IT', durationMinutes: 95, notes: 'Principles of Management session' });
+  await window.db.study.add({ date: iso(daysAgo(-1), 20, 0), classId: c176id, subject: 'C176 Business of IT', durationMinutes: 110, notes: 'IT governance deep dive' });
 
   // ── Notes: 8 notes ────────────────────────────────────────────────────────
   const notesData = [
@@ -601,7 +657,7 @@ async function seedSampleData() {
   await window.db.settings.set('degreeCreditHours', 120);
   await window.db.settings.set('currentTermName', 'Term 1 2026');
   await window.db.settings.set('currentTermEnd', '2026-08-31');
-  await window.db.settings.set('sampleDataLoaded', true);
+  await window.db.settings.set('sampleDataV2', true);
 }
 
 // Run seeder on load
