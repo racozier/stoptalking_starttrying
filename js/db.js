@@ -51,6 +51,10 @@ window.db = {
       const d = await getDB();
       return d.add('weight', { ...entry, date: entry.date || new Date().toISOString() });
     },
+    async get(id) {
+      const d = await getDB();
+      return d.get('weight', id);
+    },
     async getAll() {
       const d = await getDB();
       const all = await d.getAllFromIndex('weight', 'date');
@@ -74,6 +78,10 @@ window.db = {
     async add(workout) {
       const d = await getDB();
       return d.add('workouts', { ...workout, date: workout.date || new Date().toISOString() });
+    },
+    async get(id) {
+      const d = await getDB();
+      return d.get('workouts', id);
     },
     async getAll() {
       const d = await getDB();
@@ -103,6 +111,10 @@ window.db = {
       const d = await getDB();
       return d.add('runs', { ...run, date: run.date || new Date().toISOString() });
     },
+    async get(id) {
+      const d = await getDB();
+      return d.get('runs', id);
+    },
     async getAll() {
       const d = await getDB();
       const all = await d.getAllFromIndex('runs', 'date');
@@ -130,6 +142,10 @@ window.db = {
     async add(session) {
       const d = await getDB();
       return d.add('study_sessions', { ...session, date: session.date || new Date().toISOString() });
+    },
+    async get(id) {
+      const d = await getDB();
+      return d.get('study_sessions', id);
     },
     async getAll() {
       const d = await getDB();

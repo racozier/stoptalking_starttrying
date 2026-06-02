@@ -1468,3 +1468,47 @@ h3 { font-size: 1rem; font-weight: 600; }
   color: #fff;
 }
 #weight-expand-chart { width: 100% !important; height: 100% !important; }
+
+/* ── Quick Study chips ────────────────────────────────────────────────────── */
+.qs-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.qs-chip {
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: var(--surface2);
+  color: var(--subtext);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.qs-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── Timeline detail sheet ────────────────────────────────────────────────── */
+.tl-detail-stats { background: var(--surface2); border-radius: 10px; padding: 12px 14px; }
+.tl-detail-stat-row {
+  display: flex;
+  gap: 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  flex-wrap: wrap;
+}
+.tl-detail-stat-row span { color: var(--accent2); }
+.tl-big-val { font-size: 1.5rem; font-weight: 700; }
+.tl-exercise-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.tl-exercise-row:last-child { border-bottom: none; }
+.tl-ex-name { font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 80px; }
+.tl-ex-sets { font-size: 0.78rem; color: var(--subtext); }
+.tl-no-data { font-size: 0.8rem; color: var(--subtext); margin: 6px 0 0; }

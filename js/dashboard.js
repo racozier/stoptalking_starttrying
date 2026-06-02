@@ -320,50 +320,184 @@ window.openWeightExpand = openWeightExpand;
 window.closeWeightExpand = closeWeightExpand;
 window.closeWeightExpandBackdrop = closeWeightExpandBackdrop;
 
-// ─── Quick Actions — instant timeline logging ─────────────────────────────────
+// ─── Quick Actions — open proper modals ──────────────────────────────────────
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
   quickLog(btn.dataset.action);
 });
 
-async function quickLog(action) {
-  const now = new Date().toISOString();
+function quickLog(action) {
   if (action === 'log-workout') {
-    await window.db.workouts.add({
-      date: now, name: 'Gym Session',
-      exercises: [], totalVolume: 0, setCount: 0, exerciseCount: 0,
-      durationMinutes: 0, notes: '',
-    });
-    App.showToast('Workout logged!', 'success');
+    Fitness.openLogWorkoutModal();
   } else if (action === 'log-run') {
-    await window.db.runs.add({
-      date: now, name: 'Run',
-      distance: 0, durationSeconds: 0, paceSecsPerKm: 0,
-      paceFormatted: '--:--', calories: 0, elevation: 0,
-      avgHR: 0, polyline: null, source: 'quick', notes: '',
-    });
-    App.showToast('Run logged!', 'success');
+    Fitness.openLogRunModal();
   } else if (action === 'log-study') {
-    await window.db.study.add({
-      date: now, classId: null,
-      subject: 'Study Session', durationMinutes: 60, notes: '',
-    });
-    App.showToast('Study logged!', 'success');
+    openQuickStudyModal('Study Session');
   } else if (action === 'log-polish') {
-    await window.db.study.add({
-      date: now, classId: null,
-      subject: 'Polish Language', durationMinutes: 60, notes: '',
-    });
-    App.showToast('Polish logged!', 'success');
+    openQuickStudyModal('Polish Language');
   } else if (action === 'log-weight') {
-    openLogWeightModal(); return;
+    openLogWeightModal();
   } else if (action === 'new-note') {
-    Notes.openEditor(null); return;
-  } else { return; }
-  if (App.currentTab === 'dashboard') await Dashboard.render();
+    Notes.openEditor(null);
+  }
 }
 window.quickLog = quickLog;
+
+// ─── Quick Study / Polish Modal ───────────────────────────────────────────────
+let _quickStudySubject = '';
+
+function openQuickStudyModal(subject) {
+  _quickStudySubject = subject;
+  const modal = document.getElementById('modal-quick-study');
+  if (!modal) return;
+  modal.querySelector('#qs-subject-label').textContent = subject;
+  modal.querySelector('#qs-duration-input').value = '';
+  modal.querySelector('#qs-notes-input').value = '';
+  modal.querySelector('#qs-datetime-input').value = new Date().toISOString().slice(0, 16);
+  // Reset chip selection to 60 min default
+  modal.querySelectorAll('.qs-chip').forEach((c) => c.classList.toggle('active', c.dataset.min === '60'));
+  App.openModal('modal-quick-study');
+}
+window.openQuickStudyModal = openQuickStudyModal;
+
+function qsSelectChip(min) {
+  const modal = document.getElementById('modal-quick-study');
+  if (!modal) return;
+  modal.querySelectorAll('.qs-chip').forEach((c) => c.classList.toggle('active', c.dataset.min === String(min)));
+  modal.querySelector('#qs-duration-input').value = '';
+}
+window.qsSelectChip = qsSelectChip;
+
+async function saveQuickStudy() {
+  const modal = document.getElementById('modal-quick-study');
+  if (!modal) return;
+  const activeChip = modal.querySelector('.qs-chip.active');
+  const customVal = modal.querySelector('#qs-duration-input').value;
+  const duration = customVal ? parseInt(customVal, 10) : (activeChip ? parseInt(activeChip.dataset.min, 10) : 60);
+  if (!duration || duration < 1) { App.showToast('Enter a valid duration.', 'error'); return; }
+  const notes = modal.querySelector('#qs-notes-input').value.trim();
+  const dateVal = modal.querySelector('#qs-datetime-input').value;
+  await window.db.study.add({
+    date: dateVal ? new Date(dateVal).toISOString() : new Date().toISOString(),
+    classId: null,
+    subject: _quickStudySubject,
+    durationMinutes: duration,
+    notes,
+  });
+  App.closeAllModals();
+  App.showToast(`${_quickStudySubject} logged!`, 'success');
+  if (App.currentTab === 'dashboard') await Dashboard.render();
+}
+window.saveQuickStudy = saveQuickStudy;
+
+// ─── Timeline item tap → detail/edit sheet ───────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const tl = document.getElementById('timeline-list');
+  if (tl) {
+    tl.addEventListener('click', (e) => {
+      const item = e.target.closest('.timeline-item');
+      if (!item) return;
+      openTlDetail(item.dataset.type, parseInt(item.dataset.id, 10));
+    });
+  }
+});
+
+let _tlDetailType = '', _tlDetailId = 0;
+
+async function openTlDetail(type, id) {
+  _tlDetailType = type;
+  _tlDetailId = id;
+  const modal = document.getElementById('modal-tl-detail');
+  if (!modal) return;
+
+  const statsEl = modal.querySelector('#tl-detail-stats');
+  const notesEl = modal.querySelector('#tl-detail-notes');
+  const titleEl = modal.querySelector('#tl-detail-title');
+  statsEl.innerHTML = '<p style="color:var(--subtext);font-size:0.85rem">Loading…</p>';
+  notesEl.value = '';
+  App.openModal('modal-tl-detail');
+
+  if (type === 'workout') {
+    const w = await window.db.workouts.get(id);
+    if (!w) return;
+    titleEl.textContent = w.name || 'Workout';
+    notesEl.value = w.notes || '';
+    const exList = (w.exercises || []).map((ex) => `
+      <div class="tl-exercise-row">
+        <div class="tl-ex-name">${App.escapeHtml(ex.name)}</div>
+        <div class="tl-ex-sets">${(ex.sets || []).map((s) => `${s.reps}×${s.weight}kg`).join('  ')}</div>
+      </div>`).join('');
+    statsEl.innerHTML = `
+      <div class="tl-detail-stat-row"><span>${w.setCount || 0} sets</span><span>${w.exerciseCount || 0} exercises</span><span>${w.totalVolume || 0} kg vol</span></div>
+      ${exList || '<p class="tl-no-data">No exercises recorded.</p>'}`;
+  } else if (type === 'run') {
+    const r = await window.db.runs.get(id);
+    if (!r) return;
+    titleEl.textContent = r.name || 'Run';
+    notesEl.value = r.notes || '';
+    statsEl.innerHTML = `
+      <div class="tl-detail-stat-row">
+        <span>${r.distance} km</span>
+        <span>${r.paceFormatted} /km</span>
+        <span>${App.formatSeconds ? App.formatSeconds(r.durationSeconds) : Math.round(r.durationSeconds / 60) + ' min'}</span>
+      </div>`;
+  } else if (type === 'study') {
+    const s = await window.db.study.get(id);
+    if (!s) return;
+    titleEl.textContent = s.subject || 'Study';
+    notesEl.value = s.notes || '';
+    statsEl.innerHTML = `
+      <div class="tl-detail-stat-row"><span>${App.formatMinutes(s.durationMinutes)}</span></div>`;
+  } else if (type === 'weight') {
+    const w = await window.db.weight.get(id);
+    if (!w) return;
+    titleEl.textContent = 'Weight Entry';
+    notesEl.value = w.notes || '';
+    statsEl.innerHTML = `
+      <div class="tl-detail-stat-row"><span class="tl-big-val">${w.value} kg</span></div>`;
+  } else {
+    titleEl.textContent = 'Entry';
+    statsEl.innerHTML = '';
+  }
+}
+window.openTlDetail = openTlDetail;
+
+async function saveTlDetail() {
+  const notes = document.getElementById('tl-detail-notes')?.value.trim() || '';
+  const type = _tlDetailType, id = _tlDetailId;
+  if (!id) return;
+  if (type === 'workout') {
+    const w = await window.db.workouts.get(id);
+    if (w) await window.db.workouts.update({ ...w, notes });
+  } else if (type === 'run') {
+    const r = await window.db.runs.get(id);
+    if (r) await window.db.runs.update({ ...r, notes });
+  } else if (type === 'study') {
+    const s = await window.db.study.get(id);
+    if (s) await window.db.study.update({ ...s, notes });
+  } else if (type === 'weight') {
+    const w = await window.db.weight.get(id);
+    if (w) await window.db.weight.update({ ...w, notes });
+  }
+  App.closeAllModals();
+  App.showToast('Saved!', 'success');
+  if (App.currentTab === 'dashboard') await Dashboard.render();
+}
+window.saveTlDetail = saveTlDetail;
+
+async function deleteTlEntry() {
+  const type = _tlDetailType, id = _tlDetailId;
+  if (!id) return;
+  if (type === 'workout') await window.db.workouts.delete(id);
+  else if (type === 'run') await window.db.runs.delete(id);
+  else if (type === 'study') await window.db.study.delete(id);
+  else if (type === 'weight') await window.db.weight.delete(id);
+  App.closeAllModals();
+  App.showToast('Entry deleted.', 'success');
+  if (App.currentTab === 'dashboard') await Dashboard.render();
+}
+window.deleteTlEntry = deleteTlEntry;
 
 function initWeekCardSwipe() {
   const card = document.getElementById('this-week-card');

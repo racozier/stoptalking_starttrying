@@ -793,6 +793,66 @@
   </div>
 </div>
 
+<!-- ── Quick Study / Polish Modal ──────────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-quick-study">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3 id="qs-subject-label">Study Session</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Date &amp; Time</label>
+        <input type="datetime-local" class="form-input" id="qs-datetime-input" />
+      </div>
+      <div class="form-group">
+        <label>Duration</label>
+        <div class="qs-chips">
+          <button class="qs-chip" data-min="30" onclick="qsSelectChip(30)">30 min</button>
+          <button class="qs-chip active" data-min="60" onclick="qsSelectChip(60)">1 hr</button>
+          <button class="qs-chip" data-min="90" onclick="qsSelectChip(90)">1.5 hr</button>
+          <button class="qs-chip" data-min="120" onclick="qsSelectChip(120)">2 hr</button>
+        </div>
+        <input type="number" class="form-input" id="qs-duration-input" min="1" max="600" placeholder="Or enter custom minutes…" style="margin-top:8px" />
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea class="form-textarea" id="qs-notes-input" rows="2" placeholder="What did you work on?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveQuickStudy()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Timeline Entry Detail / Edit Sheet ──────────────────────────────── -->
+<div class="modal-backdrop" id="modal-tl-detail">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3 id="tl-detail-title">Entry</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="tl-detail-stats" class="tl-detail-stats"></div>
+      <div class="form-group" style="margin-top:16px">
+        <label>Notes</label>
+        <textarea class="form-textarea" id="tl-detail-notes" rows="3" placeholder="Add notes…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-danger" onclick="deleteTlEntry()">Delete</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTlDetail()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── Note Editor Modal (full-screen) ────────────────────────────────── -->
 <div class="modal-backdrop modal-fullscreen" id="modal-note-editor">
   <div class="modal-sheet" style="border-radius:0;height:100dvh;display:flex;flex-direction:column">
