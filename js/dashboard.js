@@ -1,6 +1,7 @@
 window.Dashboard = {
   async init() {
     initWeekCardSwipe();
+    renderTlHeader();
   },
 
   async render() {
@@ -265,6 +266,7 @@ window.Dashboard = {
     if (!container) return;
 
     const today = new Date().toISOString().split('T')[0];
+    const dateStr = window._tlDate || today;
 
     const [weights, workouts, runs, study, notes] = await Promise.all([
       window.db.weight.getAll(),
@@ -276,16 +278,16 @@ window.Dashboard = {
 
     const events = [];
 
-    weights.filter((w) => w.date.startsWith(today)).forEach((w) => {
+    weights.filter((w) => w.date.startsWith(dateStr)).forEach((w) => {
       events.push({ time: w.date, lucide: 'scale', iconClass: 'icon-weight', title: 'Weight Logged', sub: `${w.value} kg`, type: 'weight', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
     });
-    runs.filter((r) => r.date.startsWith(today)).forEach((r) => {
+    runs.filter((r) => r.date.startsWith(dateStr)).forEach((r) => {
       events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id, polyline: r.polyline, hasNotes: !!(r.notes && r.notes.trim()) });
     });
-    workouts.filter((w) => w.date.startsWith(today)).forEach((w) => {
+    workouts.filter((w) => w.date.startsWith(dateStr)).forEach((w) => {
       events.push({ time: w.date, lucide: 'dumbbell', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
     });
-    study.filter((s) => s.date.startsWith(today)).forEach((s) => {
+    study.filter((s) => s.date.startsWith(dateStr)).forEach((s) => {
       const isPolish = s.subject === 'Polish Language';
       events.push({ time: s.date, lucide: isPolish ? null : 'book-open', iconClass: isPolish ? 'icon-polish' : 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id, hasNotes: !!(s.notes && s.notes.trim()), isPolish });
     });
@@ -296,7 +298,10 @@ window.Dashboard = {
     events.sort((a, b) => new Date(a.time) - new Date(b.time));
 
     if (events.length === 0) {
-      container.innerHTML = '<div class="empty-state"><p>Nothing logged today yet.</p><p class="sub">Use the Quick Actions above to get started.</p></div>';
+      const isToday = dateStr === today;
+      container.innerHTML = isToday
+        ? '<div class="empty-state"><p>Nothing logged today yet.</p><p class="sub">Use the Quick Actions above to get started.</p></div>'
+        : '<div class="empty-state"><p>Nothing logged on this day.</p></div>';
       return;
     }
 
@@ -530,6 +535,129 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// ─── Timeline date navigation ──────────────────────────────────────────────────
+window._tlDate = new Date().toISOString().split('T')[0];
+
+function renderTlHeader() {
+  const today = new Date().toISOString().split('T')[0];
+  const d = window._tlDate;
+  const isToday = d === today;
+  const label = document.getElementById('tl-date-label');
+  const nextBtn = document.getElementById('tl-next-btn');
+  if (label) {
+    if (isToday) {
+      label.textContent = 'Today';
+    } else {
+      const dt = new Date(d + 'T12:00:00');
+      label.textContent = dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    }
+  }
+  if (nextBtn) nextBtn.style.visibility = isToday ? 'hidden' : 'visible';
+}
+window.renderTlHeader = renderTlHeader;
+
+function tlNavDay(delta) {
+  const today = new Date().toISOString().split('T')[0];
+  const d = new Date(window._tlDate + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  const newDate = d.toISOString().split('T')[0];
+  if (newDate > today) return;
+  window._tlDate = newDate;
+  renderTlHeader();
+  Dashboard.renderTimeline();
+}
+window.tlNavDay = tlNavDay;
+
+// ─── Calendar modal ────────────────────────────────────────────────────────────
+let _calYear = new Date().getFullYear();
+let _calMonth = new Date().getMonth();
+
+const _rotateCcwSvg = `<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>`;
+
+async function openCalendarModal() {
+  _calYear = new Date(window._tlDate + 'T12:00:00').getFullYear();
+  _calMonth = new Date(window._tlDate + 'T12:00:00').getMonth();
+  App.openModal('modal-calendar');
+  await renderCalendar();
+}
+window.openCalendarModal = openCalendarModal;
+
+async function renderCalendar() {
+  const year = _calYear, month = _calMonth;
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+  const today = new Date().toISOString().split('T')[0];
+
+  const [workouts, runs, study] = await Promise.all([
+    window.db.workouts.getAll(),
+    window.db.runs.getAll(),
+    window.db.study.getAll(),
+  ]);
+
+  const actMap = {};
+  const mark = (dateStr, type) => {
+    if (!actMap[dateStr]) actMap[dateStr] = {};
+    actMap[dateStr][type] = true;
+  };
+  workouts.filter((w) => w.date.startsWith(monthPrefix)).forEach((w) => mark(w.date.slice(0, 10), 'workout'));
+  runs.filter((r) => r.date.startsWith(monthPrefix)).forEach((r) => mark(r.date.slice(0, 10), 'run'));
+  study.filter((s) => s.date.startsWith(monthPrefix) && s.subject !== 'Polish Language').forEach((s) => mark(s.date.slice(0, 10), 'wgu'));
+  study.filter((s) => s.date.startsWith(monthPrefix) && s.subject === 'Polish Language').forEach((s) => mark(s.date.slice(0, 10), 'polish'));
+
+  const label = document.getElementById('cal-month-label');
+  if (label) label.textContent = new Date(year, month, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const selectedDate = window._tlDate;
+
+  let html = '';
+  for (let i = 0; i < firstDow; i++) html += `<div class="cal-cell cal-empty"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const acts = actMap[ds] || {};
+    const isToday = ds === today;
+    const isPast = ds < today;
+    const isFuture = ds > today;
+    const isSel = ds === selectedDate;
+    const clickable = !isFuture;
+
+    const dots = [
+      acts.workout ? `<span class="cal-dot dot-workout"></span>` : '',
+      acts.run ? `<span class="cal-dot dot-run"></span>` : '',
+      acts.wgu ? `<span class="cal-dot dot-wgu"></span>` : '',
+      acts.polish ? `<span class="cal-dot dot-polish"></span>` : '',
+    ].filter(Boolean).join('');
+
+    html += `<div class="cal-cell${isToday ? ' cal-today' : ''}${isPast ? ' cal-past' : ''}${isFuture ? ' cal-future' : ''}${isSel ? ' cal-selected' : ''}"
+      ${clickable ? `onclick="calGotoDay('${ds}')"` : ''}>
+      <span class="cal-day-num">${d}</span>
+      ${isPast ? `<span class="cal-return-icon">${_rotateCcwSvg}</span>` : ''}
+      ${dots ? `<div class="cal-dots">${dots}</div>` : ''}
+    </div>`;
+  }
+
+  const grid = document.getElementById('cal-grid');
+  if (grid) grid.innerHTML = html;
+}
+window.renderCalendar = renderCalendar;
+
+function calNavMonth(delta) {
+  _calMonth += delta;
+  if (_calMonth < 0) { _calMonth = 11; _calYear--; }
+  if (_calMonth > 11) { _calMonth = 0; _calYear++; }
+  renderCalendar();
+}
+window.calNavMonth = calNavMonth;
+
+function calGotoDay(dateStr) {
+  window._tlDate = dateStr;
+  App.closeAllModals();
+  renderTlHeader();
+  Dashboard.renderTimeline();
+}
+window.calGotoDay = calGotoDay;
 
 let _tlDetailType = '', _tlDetailId = 0;
 let _tlCurrentNotes = '';
