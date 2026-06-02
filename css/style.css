@@ -1540,3 +1540,38 @@ h3 { font-size: 1rem; font-weight: 600; }
   font-size: 0;
   line-height: 0;
 }
+
+/* ── Timeline posted note card ───────────────────────────────────────────── */
+.tl-note-card {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--accent2);
+}
+.tl-note-card-text {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tl-note-card-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+}
+.tl-note-card-actions .link-btn { font-size: 0.78rem; color: var(--accent2); }
+.tl-note-card-actions .link-btn.danger { color: var(--danger); }
+.tl-add-note-btn {
+  background: none;
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: var(--subtext);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+.tl-note-edit-actions { display: flex; gap: 8px; margin-top: 8px; }

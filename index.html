@@ -157,10 +157,102 @@
                   </div>
                 </div>
               </div>
+              <!-- Panel 2: This month stats -->
+              <div class="week-panel">
+                <div class="card-header-row">
+                  <div class="card-icon-wrap icon-blue">
+                    <i data-lucide="calendar" style="width:13px;height:13px"></i>
+                  </div>
+                  <span class="card-label">This Month</span>
+                </div>
+                <div class="week-stats-list">
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-green"><i data-lucide="dumbbell" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-content">
+                      <div id="month-workouts" class="week-stat-num">--</div>
+                      <div class="week-stat-label">Workouts</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="month-workout-mini-chart"></canvas>
+                  </div>
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-blue"><i data-lucide="footprints" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-content">
+                      <div id="month-km" class="week-stat-num">--</div>
+                      <div class="week-stat-label">km Run</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="month-run-mini-chart"></canvas>
+                  </div>
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-purple"><i data-lucide="book-open" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-content">
+                      <div id="month-study" class="week-stat-num">--</div>
+                      <div class="week-stat-label">WGU Studies</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="month-study-mini-chart"></canvas>
+                  </div>
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon" style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                      <svg viewBox="0 0 20 14" width="20" height="14" style="border-radius:2px;display:block"><rect width="20" height="7" style="fill:#FFFFFF;stroke:none"/><rect y="7" width="20" height="7" style="fill:#DC143C;stroke:none"/></svg>
+                    </div>
+                    <div class="week-stat-content">
+                      <div id="month-polish" class="week-stat-num">--</div>
+                      <div class="week-stat-label">Polish hrs</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="month-polish-mini-chart"></canvas>
+                  </div>
+                </div>
+              </div>
+              <!-- Panel 3: All time stats -->
+              <div class="week-panel">
+                <div class="card-header-row">
+                  <div class="card-icon-wrap icon-amber">
+                    <i data-lucide="star" style="width:13px;height:13px"></i>
+                  </div>
+                  <span class="card-label">All Time</span>
+                </div>
+                <div class="week-stats-list">
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-green"><i data-lucide="dumbbell" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-content">
+                      <div id="alltime-workouts" class="week-stat-num">--</div>
+                      <div class="week-stat-label">Workouts</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="alltime-workout-mini-chart"></canvas>
+                  </div>
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-blue"><i data-lucide="footprints" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-content">
+                      <div id="alltime-km" class="week-stat-num">--</div>
+                      <div class="week-stat-label">km Run</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="alltime-run-mini-chart"></canvas>
+                  </div>
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon icon-purple"><i data-lucide="book-open" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-content">
+                      <div id="alltime-study" class="week-stat-num">--</div>
+                      <div class="week-stat-label">WGU Studies</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="alltime-study-mini-chart"></canvas>
+                  </div>
+                  <div class="week-stat-row">
+                    <div class="week-stat-icon" style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                      <svg viewBox="0 0 20 14" width="20" height="14" style="border-radius:2px;display:block"><rect width="20" height="7" style="fill:#FFFFFF;stroke:none"/><rect y="7" width="20" height="7" style="fill:#DC143C;stroke:none"/></svg>
+                    </div>
+                    <div class="week-stat-content">
+                      <div id="alltime-polish" class="week-stat-num">--</div>
+                      <div class="week-stat-label">Polish hrs</div>
+                    </div>
+                    <canvas class="week-mini-chart" id="alltime-polish-mini-chart"></canvas>
+                  </div>
+                </div>
+              </div>
             </div>
             <!-- Swipe indicator -->
             <div class="week-swipe-dots">
               <span class="week-swipe-dot active"></span>
+              <span class="week-swipe-dot"></span>
+              <span class="week-swipe-dot"></span>
               <span class="week-swipe-dot"></span>
             </div>
           </div>
@@ -866,17 +958,11 @@
     </div>
     <div class="modal-body">
       <div id="tl-detail-stats" class="tl-detail-stats"></div>
-      <div class="form-group" style="margin-top:16px">
-        <label>Notes</label>
-        <textarea class="form-textarea" id="tl-detail-notes" rows="3" placeholder="Add notes…"></textarea>
-      </div>
+      <div id="tl-notes-section" style="margin-top:14px"></div>
     </div>
     <div class="modal-footer" style="justify-content:space-between">
-      <button class="btn btn-danger" onclick="deleteTlEntry()">Delete</button>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveTlDetail()">Save</button>
-      </div>
+      <button class="btn btn-danger" onclick="deleteTlEntry()">Delete entry</button>
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Close</button>
     </div>
   </div>
 </div>

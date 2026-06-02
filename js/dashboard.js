@@ -171,6 +171,69 @@ window.Dashboard = {
     Charts.createMiniBarChart('week-study-mini-chart', dayStudy, '#A78BFA');
     Charts.createMiniBarChart('week-polish-mini-chart', dayPolish, '#CA8A04');
 
+    // ── Month stats ──────────────────────────────────────────────────────────
+    const monthPrefix = new Date().toISOString().slice(0, 7); // "2026-06"
+    const monthWorkouts = allWorkouts.filter((w) => w.date.startsWith(monthPrefix));
+    const monthRuns = allRuns.filter((r) => r.date.startsWith(monthPrefix));
+    const monthStudy = allStudy.filter((s) => s.date.startsWith(monthPrefix) && s.subject !== 'Polish Language');
+    const monthPolish = allStudy.filter((s) => s.date.startsWith(monthPrefix) && s.subject === 'Polish Language');
+    const monthDist = monthRuns.reduce((s, r) => s + r.distance, 0);
+    const monthStudyHours = Math.round(monthStudy.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
+    const monthPolishHours = Math.round(monthPolish.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
+
+    set('month-workouts', `<strong>${monthWorkouts.length}</strong>`);
+    set('month-km', `<strong>${monthDist.toFixed(1)}</strong>`);
+    set('month-study', `<strong>${monthStudyHours}h</strong>`);
+    set('month-polish', `<strong>${monthPolishHours}h</strong>`);
+
+    // Month mini charts: one bar per week of current month
+    const now = new Date();
+    const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const weeksInMonth = [];
+    let weekStart = new Date(firstOfMonth);
+    while (weekStart.getMonth() === now.getMonth()) {
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      weeksInMonth.push({ start: weekStart.toISOString().split('T')[0], end: weekEnd.toISOString().split('T')[0] });
+      weekStart = new Date(weekStart);
+      weekStart.setDate(weekStart.getDate() + 7);
+    }
+    const mWorkoutBars = weeksInMonth.map(({ start, end }) => allWorkouts.filter((w) => w.date >= start && w.date <= end + 'T').length);
+    const mRunBars = weeksInMonth.map(({ start, end }) => allRuns.filter((r) => r.date >= start && r.date <= end + 'T').reduce((s, r) => s + r.distance, 0));
+    const mStudyBars = weeksInMonth.map(({ start, end }) => allStudy.filter((s) => s.date >= start && s.date <= end + 'T' && s.subject !== 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
+    const mPolishBars = weeksInMonth.map(({ start, end }) => allStudy.filter((s) => s.date >= start && s.date <= end + 'T' && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
+    Charts.createMiniBarChart('month-workout-mini-chart', mWorkoutBars, '#7C3AED');
+    Charts.createMiniBarChart('month-run-mini-chart', mRunBars, '#0EA5E9');
+    Charts.createMiniBarChart('month-study-mini-chart', mStudyBars, '#A78BFA');
+    Charts.createMiniBarChart('month-polish-mini-chart', mPolishBars, '#CA8A04');
+
+    // ── All Time stats ────────────────────────────────────────────────────────
+    const atStudy = allStudy.filter((s) => s.subject !== 'Polish Language');
+    const atPolish = allStudy.filter((s) => s.subject === 'Polish Language');
+    const atDist = allRuns.reduce((s, r) => s + r.distance, 0);
+    const atStudyHours = Math.round(atStudy.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
+    const atPolishHours = Math.round(atPolish.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
+
+    set('alltime-workouts', `<strong>${allWorkouts.length}</strong>`);
+    set('alltime-km', `<strong>${atDist.toFixed(1)}</strong>`);
+    set('alltime-study', `<strong>${atStudyHours}h</strong>`);
+    set('alltime-polish', `<strong>${atPolishHours}h</strong>`);
+
+    // All time mini charts: last 6 months
+    const last6Months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      last6Months.push(d.toISOString().slice(0, 7));
+    }
+    const atWorkoutBars = last6Months.map((m) => allWorkouts.filter((w) => w.date.startsWith(m)).length);
+    const atRunBars = last6Months.map((m) => allRuns.filter((r) => r.date.startsWith(m)).reduce((s, r) => s + r.distance, 0));
+    const atStudyBars = last6Months.map((m) => allStudy.filter((s) => s.date.startsWith(m) && s.subject !== 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
+    const atPolishBars = last6Months.map((m) => allStudy.filter((s) => s.date.startsWith(m) && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
+    Charts.createMiniBarChart('alltime-workout-mini-chart', atWorkoutBars, '#7C3AED');
+    Charts.createMiniBarChart('alltime-run-mini-chart', atRunBars, '#0EA5E9');
+    Charts.createMiniBarChart('alltime-study-mini-chart', atStudyBars, '#A78BFA');
+    Charts.createMiniBarChart('alltime-polish-mini-chart', atPolishBars, '#CA8A04');
+
     // Today's activity checklist (panel 0)
     const todayStr = new Date().toISOString().split('T')[0];
     const checkList = document.getElementById('today-activity-list');
@@ -469,6 +532,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 let _tlDetailType = '', _tlDetailId = 0;
+let _tlCurrentNotes = '';
+
+function renderTlNoteSection() {
+  const section = document.getElementById('tl-notes-section');
+  if (!section) return;
+  if (_tlCurrentNotes) {
+    section.innerHTML = `
+      <div class="tl-note-card">
+        <div class="tl-note-card-text">${App.escapeHtml(_tlCurrentNotes)}</div>
+        <div class="tl-note-card-actions">
+          <button class="link-btn" onclick="tlEditNote()">Edit</button>
+          <button class="link-btn danger" onclick="tlDeleteNote()">Delete note</button>
+        </div>
+      </div>`;
+  } else {
+    section.innerHTML = `<button class="tl-add-note-btn" onclick="tlEditNote()">+ Add note</button>`;
+  }
+}
+window.renderTlNoteSection = renderTlNoteSection;
 
 async function openTlDetail(type, id) {
   _tlDetailType = type;
@@ -477,79 +559,136 @@ async function openTlDetail(type, id) {
   if (!modal) return;
 
   const statsEl = modal.querySelector('#tl-detail-stats');
-  const notesEl = modal.querySelector('#tl-detail-notes');
   const titleEl = modal.querySelector('#tl-detail-title');
   statsEl.innerHTML = '<p style="color:var(--subtext);font-size:0.85rem">Loading…</p>';
-  notesEl.value = '';
   App.openModal('modal-tl-detail');
 
   if (type === 'workout') {
     const w = await window.db.workouts.get(id);
     if (!w) return;
     titleEl.textContent = w.name || 'Workout';
-    notesEl.value = w.notes || '';
     const exList = (w.exercises || []).map((ex) => `
       <div class="tl-exercise-row">
         <div class="tl-ex-name">${App.escapeHtml(ex.name)}</div>
         <div class="tl-ex-sets">${(ex.sets || []).map((s) => `${s.reps}×${s.weight}kg`).join('  ')}</div>
       </div>`).join('');
     statsEl.innerHTML = `
-      <div class="tl-detail-stat-row"><span>${w.setCount || 0} sets</span><span>${w.exerciseCount || 0} exercises</span><span>${w.totalVolume || 0} kg vol</span></div>
+      <div class="tl-detail-stat-row"><span>${w.setCount || 0} sets</span><span>${w.exerciseCount || 0} exercises</span></div>
       ${exList || '<p class="tl-no-data">No exercises recorded.</p>'}`;
+    _tlCurrentNotes = w.notes || '';
   } else if (type === 'run') {
     const r = await window.db.runs.get(id);
     if (!r) return;
     titleEl.textContent = r.name || 'Run';
-    notesEl.value = r.notes || '';
     statsEl.innerHTML = `
       <div class="tl-detail-stat-row">
         <span>${r.distance} km</span>
         <span>${r.paceFormatted} /km</span>
         <span>${App.formatSeconds ? App.formatSeconds(r.durationSeconds) : Math.round(r.durationSeconds / 60) + ' min'}</span>
       </div>`;
+    _tlCurrentNotes = r.notes || '';
   } else if (type === 'study') {
     const s = await window.db.study.get(id);
     if (!s) return;
     titleEl.textContent = s.subject || 'Study';
-    notesEl.value = s.notes || '';
     statsEl.innerHTML = `
       <div class="tl-detail-stat-row"><span>${App.formatMinutes(s.durationMinutes)}</span></div>`;
+    _tlCurrentNotes = s.notes || '';
   } else if (type === 'weight') {
     const w = await window.db.weight.get(id);
     if (!w) return;
     titleEl.textContent = 'Weight Entry';
-    notesEl.value = w.notes || '';
     statsEl.innerHTML = `
       <div class="tl-detail-stat-row"><span class="tl-big-val">${w.value} kg</span></div>`;
+    _tlCurrentNotes = w.notes || '';
   } else {
     titleEl.textContent = 'Entry';
     statsEl.innerHTML = '';
+    _tlCurrentNotes = '';
   }
+  renderTlNoteSection();
 }
 window.openTlDetail = openTlDetail;
 
-async function saveTlDetail() {
-  const notes = document.getElementById('tl-detail-notes')?.value.trim() || '';
+function tlEditNote() {
+  const section = document.getElementById('tl-notes-section');
+  if (!section) return;
+  section.innerHTML = `
+    <textarea class="form-textarea" id="tl-detail-notes" rows="3" placeholder="Add notes…">${App.escapeHtml(_tlCurrentNotes)}</textarea>
+    <div class="tl-note-edit-actions">
+      <button class="btn btn-primary btn-sm" onclick="tlSaveNote()">Save Note</button>
+      <button class="btn btn-secondary btn-sm" onclick="tlCancelNoteEdit()">Cancel</button>
+    </div>`;
+}
+window.tlEditNote = tlEditNote;
+
+function tlCancelNoteEdit() {
+  renderTlNoteSection();
+}
+window.tlCancelNoteEdit = tlCancelNoteEdit;
+
+async function tlSaveNote() {
+  const newNotes = document.getElementById('tl-detail-notes')?.value.trim() || '';
   const type = _tlDetailType, id = _tlDetailId;
   if (!id) return;
   if (type === 'workout') {
     const w = await window.db.workouts.get(id);
-    if (w) await window.db.workouts.update({ ...w, notes });
+    if (w) await window.db.workouts.update({ ...w, notes: newNotes });
   } else if (type === 'run') {
     const r = await window.db.runs.get(id);
-    if (r) await window.db.runs.update({ ...r, notes });
+    if (r) await window.db.runs.update({ ...r, notes: newNotes });
   } else if (type === 'study') {
     const s = await window.db.study.get(id);
-    if (s) await window.db.study.update({ ...s, notes });
+    if (s) await window.db.study.update({ ...s, notes: newNotes });
   } else if (type === 'weight') {
     const w = await window.db.weight.get(id);
-    if (w) await window.db.weight.update({ ...w, notes });
+    if (w) await window.db.weight.update({ ...w, notes: newNotes });
   }
-  App.closeAllModals();
-  App.showToast('Saved!', 'success');
-  if (App.currentTab === 'dashboard') await Dashboard.render();
+  _tlCurrentNotes = newNotes;
+  renderTlNoteSection();
+  App.showToast('Note saved!', 'success');
+  // Update note dot on timeline row if on dashboard tab
+  if (App.currentTab === 'dashboard') {
+    const row = document.querySelector(`.timeline-item[data-id="${id}"]`);
+    if (row) {
+      let dot = row.querySelector('.tl-note-dot');
+      if (newNotes && !dot) {
+        const label = row.querySelector('.tl-item-label');
+        if (label) { dot = document.createElement('span'); dot.className = 'tl-note-dot'; label.appendChild(dot); }
+      } else if (!newNotes && dot) {
+        dot.remove();
+      }
+    }
+  }
 }
-window.saveTlDetail = saveTlDetail;
+window.tlSaveNote = tlSaveNote;
+
+async function tlDeleteNote() {
+  const type = _tlDetailType, id = _tlDetailId;
+  if (!id) return;
+  if (type === 'workout') {
+    const w = await window.db.workouts.get(id);
+    if (w) await window.db.workouts.update({ ...w, notes: '' });
+  } else if (type === 'run') {
+    const r = await window.db.runs.get(id);
+    if (r) await window.db.runs.update({ ...r, notes: '' });
+  } else if (type === 'study') {
+    const s = await window.db.study.get(id);
+    if (s) await window.db.study.update({ ...s, notes: '' });
+  } else if (type === 'weight') {
+    const w = await window.db.weight.get(id);
+    if (w) await window.db.weight.update({ ...w, notes: '' });
+  }
+  _tlCurrentNotes = '';
+  renderTlNoteSection();
+  App.showToast('Note deleted.', 'success');
+  // Remove note dot on timeline row
+  if (App.currentTab === 'dashboard') {
+    const row = document.querySelector(`.timeline-item[data-id="${id}"]`);
+    if (row) { const dot = row.querySelector('.tl-note-dot'); if (dot) dot.remove(); }
+  }
+}
+window.tlDeleteNote = tlDeleteNote;
 
 async function deleteTlEntry() {
   const type = _tlDetailType, id = _tlDetailId;
@@ -580,14 +719,14 @@ function initWeekCardSwipe() {
     if (!w) { setTimeout(resize, 50); return; }
     panels.forEach((p) => { p.style.width = w + 'px'; });
     slider.style.transition = 'none';
-    slider.style.transform = currentView === 0 ? '' : `translateX(-${w}px)`;
+    slider.style.transform = currentView === 0 ? '' : `translateX(-${currentView * w}px)`;
     requestAnimationFrame(() => { slider.style.transition = ''; });
   }
 
   function goTo(n) {
     currentView = n;
     const w = card.offsetWidth;
-    slider.style.transform = n === 0 ? '' : `translateX(-${w}px)`;
+    slider.style.transform = n === 0 ? '' : `translateX(-${n * w}px)`;
     card.querySelectorAll('.week-swipe-dot').forEach((d, i) => d.classList.toggle('active', i === n));
   }
 
@@ -597,8 +736,8 @@ function initWeekCardSwipe() {
   card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
   card.addEventListener('touchend', (e) => {
     const dx = e.changedTouches[0].clientX - startX;
-    if (dx < -35) goTo(1);
-    else if (dx > 35) goTo(0);
+    if (dx < -35 && currentView < panels.length - 1) goTo(currentView + 1);
+    else if (dx > 35 && currentView > 0) goTo(currentView - 1);
   }, { passive: true });
 }
 
