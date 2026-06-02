@@ -59,7 +59,9 @@
               <i data-lucide="scale" style="width:13px;height:13px"></i>
             </div>
             <span class="card-label">Current Weight</span>
-            <button class="card-menu-btn" onclick="openLogWeightModal()">···</button>
+            <button class="card-expand-btn" onclick="openWeightExpand()" title="Expand">
+              <i data-lucide="maximize-2" style="width:14px;height:14px"></i>
+            </button>
           </div>
           <div class="weight-value">
             <span id="dash-weight">--</span><span class="unit">kg</span>
@@ -68,7 +70,6 @@
           <div class="weight-sparkline-wrap">
             <canvas id="weight-sparkline"></canvas>
           </div>
-          <button class="card-link" onclick="App.switchTab('fitness')">View Progress ›</button>
         </div>
 
         <!-- Right column: Streak on top, This Week below -->
@@ -121,14 +122,12 @@
               </div>
               <div class="week-stat-row">
                 <div class="week-stat-icon icon-purple">
-                  <i data-lucide="scale" style="width:13px;height:13px"></i>
+                  <i data-lucide="book-open" style="width:13px;height:13px"></i>
                 </div>
                 <div class="week-stat-content">
-                  <div id="week-weight-delta" class="week-stat-num">-- kg</div>
-                  <div class="week-stat-label">Weight Change</div>
+                  <div id="week-study" class="week-stat-num">--</div>
+                  <div class="week-stat-label">Study Hrs</div>
                 </div>
-                <div class="week-stat-delta"></div>
-                <canvas class="week-mini-chart" id="week-weight-mini-chart"></canvas>
               </div>
             </div>
             <button class="view-all-stats-btn" onclick="App.switchTab('fitness')">View All Stats ›</button>
@@ -516,6 +515,31 @@
     </button>
   </nav>
 
+  <!-- ── Weight Expand Panel ──────────────────────────────────────────────── -->
+  <div id="weight-expand-panel" class="weight-expand-backdrop" onclick="closeWeightExpandBackdrop(event)">
+    <div class="weight-expand-card">
+      <div class="weight-expand-header">
+        <div class="weight-expand-header-left">
+          <div class="weight-expand-label">Current Weight</div>
+          <div class="weight-expand-value"><span id="we-current">--</span> <span class="we-unit">kg</span></div>
+          <div class="weight-expand-loss" id="we-loss"></div>
+        </div>
+        <button class="weight-expand-close" onclick="closeWeightExpand()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="weight-expand-periods">
+        <button class="period-btn active" data-period="1M">1M</button>
+        <button class="period-btn" data-period="3M">3M</button>
+        <button class="period-btn" data-period="6M">6M</button>
+        <button class="period-btn" data-period="YTD">YTD</button>
+        <button class="period-btn" data-period="ALL">ALL</button>
+      </div>
+      <div class="weight-expand-chart-wrap">
+        <canvas id="weight-expand-chart"></canvas>
+      </div>
+    </div>
+  </div>
 </div><!-- /app -->
 
 

@@ -12,7 +12,7 @@ window.Dashboard = {
   },
 
   async renderWeightCard() {
-    const weights = await window.db.weight.getRecent(14);
+    const weights = await window.db.weight.getRecent(90);
     const el = document.getElementById('dash-weight');
     const lossEl = document.getElementById('dash-weight-loss');
     if (!el) return;
@@ -147,13 +147,7 @@ window.Dashboard = {
     set('week-km-delta', delta(thisDist, prevDist, (v) => `${Math.abs(v).toFixed(1)}km`));
     set('week-study', `<strong>${thisStudyHours}h</strong>`);
     set('week-study-delta', delta(thisStudyHours, prevStudyHours, (v) => `${Math.abs(v).toFixed(1)}h`));
-    if (weightDelta !== null) {
-      const wStr = weightDelta > 0 ? `+${weightDelta.toFixed(1)}` : weightDelta.toFixed(1);
-      const wCls = weightDelta < 0 ? 'trend-down' : 'trend-up';
-      set('week-weight-delta', `<strong class="${wCls}">${wStr} kg</strong>`);
-    } else {
-      set('week-weight-delta', '<strong>-- kg</strong>');
-    }
+    set('week-study', `<strong>${thisStudyHours}h</strong>`);
 
     // Mini bar charts per day of week
     const dayWorkouts = weekDates.map((d) => allWorkouts.filter((w) => w.date.startsWith(d)).length);
@@ -219,6 +213,65 @@ window.Dashboard = {
     if (window.lucide) lucide.createIcons();
   },
 };
+
+// ─── Weight Expand Panel ──────────────────────────────────────────────────────
+async function openWeightExpand() {
+  const panel = document.getElementById('weight-expand-panel');
+  if (!panel) return;
+  panel.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Populate header values from the dashboard card
+  const cur = document.getElementById('dash-weight');
+  const loss = document.getElementById('dash-weight-loss');
+  const weCur = document.getElementById('we-current');
+  const weLoss = document.getElementById('we-loss');
+  if (cur && weCur) weCur.textContent = cur.textContent;
+  if (loss && weLoss) weLoss.innerHTML = loss.innerHTML;
+
+  await renderWeightExpandChart('3M');
+  if (window.lucide) lucide.createIcons();
+
+  // Period button wiring
+  panel.querySelectorAll('.period-btn').forEach((btn) => {
+    btn.onclick = async () => {
+      panel.querySelectorAll('.period-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      await renderWeightExpandChart(btn.dataset.period);
+    };
+  });
+}
+
+async function renderWeightExpandChart(period) {
+  const allWeights = await window.db.weight.getAll();
+  const sorted = [...allWeights].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const now = new Date();
+  let cutoff = null;
+  if (period === '1W') cutoff = new Date(now - 7 * 864e5);
+  else if (period === '1M') cutoff = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+  else if (period === '3M') cutoff = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+  else if (period === '6M') cutoff = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+  else if (period === 'YTD') cutoff = new Date(now.getFullYear(), 0, 1);
+  const data = cutoff ? sorted.filter((w) => new Date(w.date) >= cutoff) : sorted;
+  Charts.createWeightHistory('weight-expand-chart', data);
+}
+
+function closeWeightExpand() {
+  const panel = document.getElementById('weight-expand-panel');
+  if (!panel) return;
+  panel.classList.remove('open');
+  document.body.style.overflow = '';
+  const canvas = document.getElementById('weight-expand-chart');
+  if (canvas && canvas._chart) { canvas._chart.destroy(); canvas._chart = null; }
+}
+
+function closeWeightExpandBackdrop(e) {
+  if (e.target.classList.contains('weight-expand-backdrop')) closeWeightExpand();
+}
+
+window.openWeightExpand = openWeightExpand;
+window.closeWeightExpand = closeWeightExpand;
+window.closeWeightExpandBackdrop = closeWeightExpandBackdrop;
 
 // ─── Quick Actions ────────────────────────────────────────────────────────────
 document.addEventListener('click', (e) => {
