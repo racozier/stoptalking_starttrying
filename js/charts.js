@@ -5,14 +5,9 @@ window.Charts = {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (canvas._chart) canvas._chart.destroy();
-    // Fix ResizeObserver loop: read parent size ONCE and fix the canvas dimensions.
-    // responsive: false below means Chart.js never re-reads the container.
-    const parent = canvas.parentElement;
-    canvas.width = parent.clientWidth || 200;
-    canvas.height = parent.clientHeight || 100;
     const sorted = [...data].reverse();
     const vals = sorted.map((d) => d.value);
-    // Deduplicate month labels — only show when month changes
+    // Deduplicate month labels — only show first day of each month
     let lastMonth = '';
     const labels = sorted.map((d) => {
       const m = new Date(d.date).toLocaleDateString('en-GB', { month: 'short' });
@@ -25,34 +20,38 @@ window.Charts = {
         labels,
         datasets: [{
           data: vals,
-          borderColor: 'rgba(139, 92, 246, 0.85)',
+          borderColor: 'rgba(139, 92, 246, 0.9)',
           borderWidth: 1.5,
-          pointRadius: vals.map((_, i) => (i === vals.length - 1 ? 3 : 0)),
+          pointRadius: vals.map((_, i) => (i === vals.length - 1 ? 2.5 : 0)),
           pointBackgroundColor: 'rgba(139, 92, 246, 1)',
-          tension: 0.35,
+          tension: 0.4,
           fill: true,
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(139, 92, 246, 0.18)');
+            g.addColorStop(0, 'rgba(139, 92, 246, 0.16)');
             g.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
             return g;
           },
         }],
       },
       options: {
-        responsive: false,
+        // Canvas is position:absolute inside its wrapper, so it can never drive
+        // the card height — responsive resizing is safe and has no feedback loop.
+        responsive: true,
         maintainAspectRatio: false,
         animation: false,
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
-        layout: { padding: { right: 4, top: 2, bottom: 2 } },
+        layout: { padding: { right: 6, top: 4, bottom: 0, left: 0 } },
         scales: {
           x: {
             display: true,
-            grid: { display: false },
+            grid: { display: false, drawTicks: false },
             ticks: {
-              color: 'rgba(255,255,255,0.28)',
-              font: { size: 8 },
+              color: 'rgba(255,255,255,0.30)',
+              font: { size: 9 },
               maxRotation: 0,
+              padding: 1,
+              autoSkip: true,
               maxTicksLimit: 4,
             },
             border: { display: false },
@@ -60,12 +59,12 @@ window.Charts = {
           y: {
             display: true,
             position: 'left',
-            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+            grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
             ticks: {
-              color: 'rgba(255,255,255,0.28)',
-              font: { size: 8 },
-              maxTicksLimit: 2,
-              padding: 2,
+              color: 'rgba(255,255,255,0.30)',
+              font: { size: 9 },
+              maxTicksLimit: 3,
+              padding: 6,
             },
             border: { display: false },
           },

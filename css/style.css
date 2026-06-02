@@ -219,14 +219,18 @@ h3 { font-size: 1rem; font-weight: 600; }
   display: flex;
   flex-direction: column;
 }
-/* flex: 1 fills remaining card height; responsive: false in JS prevents resize loop */
+/* flex:1 fills leftover card height; canvas is absolute so it never drives
+   the card's height — that keeps both columns the same height (bottoms aligned). */
 .weight-sparkline-wrap {
   flex: 1;
-  min-height: 80px;
+  min-height: 60px;
   position: relative;
-  overflow: hidden;
+  margin-top: 4px;
 }
-#weight-sparkline { width: 100% !important; max-width: 100%; }
+#weight-sparkline {
+  position: absolute;
+  inset: 0;
+}
 .streak-card {
   background: #180F05;
   border-color: rgba(240,120,20,0.14);
@@ -449,22 +453,25 @@ h3 { font-size: 1rem; font-weight: 600; }
 .view-all-link { font-size: 0.75rem; color: var(--accent); cursor: pointer; background: none; border: none; font-family: inherit; }
 .timeline-list { display: flex; flex-direction: column; }
 
-/* Timeline: icon-col | time | title+sub | arrow */
+/* Timeline: icon-col | time | title+sub | arrow.
+   No vertical padding (min-height instead) so the dotted line stays unbroken. */
 .timeline-item {
   display: grid;
   grid-template-columns: 36px auto 1fr 14px;
   gap: 0 8px;
   align-items: center;
-  padding: 7px 0;
+  min-height: 50px;
   cursor: pointer;
 }
 
-/* Icon column — flex-col so connector sits below the icon */
+/* Icon column stretches the full row height; icon vertically centred,
+   dotted connector runs full height behind it (icon masks it). */
 .timeline-icon-col {
+  align-self: stretch;
+  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
 }
 .timeline-icon {
   width: 32px;
@@ -475,21 +482,28 @@ h3 { font-size: 1rem; font-weight: 600; }
   justify-content: center;
   font-size: 1rem;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
-/* Vertical connector line between items — dotted */
+/* Vertical dotted connector — full height, centred behind the icon */
 .timeline-connector {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
   width: 2px;
-  flex: 1;
-  min-height: 10px;
+  transform: translateX(-50%);
   background: repeating-linear-gradient(
     to bottom,
-    rgba(255,255,255,0.18) 0px,
-    rgba(255,255,255,0.18) 3px,
+    rgba(255,255,255,0.16) 0px,
+    rgba(255,255,255,0.16) 3px,
     transparent 3px,
     transparent 7px
   );
-  border-radius: 1px;
 }
+/* Trim the line so it runs from the first icon centre to the last icon centre */
+.timeline-item:first-child .timeline-connector { top: 50%; }
+.timeline-item:last-child .timeline-connector { bottom: 50%; }
 
 .icon-weight  { background: rgba(139,92,246,0.25); color: #A78BFA; }
 .icon-run     { background: rgba(34,197,94,0.25);  color: #4ADE80; }
@@ -502,8 +516,8 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 .timeline-time  { font-size: 0.65rem; color: var(--subtext); white-space: nowrap; line-height: 1; }
 .timeline-body  { min-width: 0; }
-.timeline-title { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-.timeline-sub   { font-size: 0.72rem; color: var(--subtext); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timeline-title { font-size: 0.82rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; }
+.timeline-sub   { font-size: 0.72rem; color: var(--subtext); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .timeline-arrow { color: var(--subtext); font-size: 1rem; padding-top: 10px; }
 
 /* ── Fitness Tab ──────────────────────────────────────────────────────────── */

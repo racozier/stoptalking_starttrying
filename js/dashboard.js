@@ -12,7 +12,7 @@ window.Dashboard = {
   },
 
   async renderWeightCard() {
-    const weights = await window.db.weight.getRecent(90);
+    const weights = await window.db.weight.getRecent(60);
     const el = document.getElementById('dash-weight');
     const lossEl = document.getElementById('dash-weight-loss');
     if (!el) return;
@@ -196,11 +196,11 @@ window.Dashboard = {
       return;
     }
 
-    container.innerHTML = events.map((e, idx) => `
+    container.innerHTML = events.map((e) => `
       <div class="timeline-item" data-type="${e.type}" data-id="${e.id}">
         <div class="timeline-icon-col">
+          <div class="timeline-connector"></div>
           <div class="timeline-icon ${e.iconClass}"><i data-lucide="${e.lucide}"></i></div>
-          ${idx < events.length - 1 ? '<div class="timeline-connector"></div>' : ''}
         </div>
         <div class="timeline-time">${App.formatTime(e.time)}</div>
         <div class="timeline-body">
