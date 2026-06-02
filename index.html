@@ -113,7 +113,7 @@
                 </div>
                 <div class="week-stats-list">
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-green">
+                    <div class="week-stat-icon icon-workout">
                       <i data-lucide="dumbbell" style="width:13px;height:13px"></i>
                     </div>
                     <div class="week-stat-content">
@@ -123,7 +123,7 @@
                     <canvas class="week-mini-chart" id="week-workout-mini-chart"></canvas>
                   </div>
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-blue">
+                    <div class="week-stat-icon icon-run">
                       <i data-lucide="footprints" style="width:13px;height:13px"></i>
                     </div>
                     <div class="week-stat-content">
@@ -133,7 +133,7 @@
                     <canvas class="week-mini-chart" id="week-run-mini-chart"></canvas>
                   </div>
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-purple">
+                    <div class="week-stat-icon icon-study">
                       <i data-lucide="book-open" style="width:13px;height:13px"></i>
                     </div>
                     <div class="week-stat-content">
@@ -167,7 +167,7 @@
                 </div>
                 <div class="week-stats-list">
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-green"><i data-lucide="dumbbell" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-icon icon-workout"><i data-lucide="dumbbell" style="width:13px;height:13px"></i></div>
                     <div class="week-stat-content">
                       <div id="month-workouts" class="week-stat-num">--</div>
                       <div class="week-stat-label">Workouts</div>
@@ -175,7 +175,7 @@
                     <canvas class="week-mini-chart" id="month-workout-mini-chart"></canvas>
                   </div>
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-blue"><i data-lucide="footprints" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-icon icon-run"><i data-lucide="footprints" style="width:13px;height:13px"></i></div>
                     <div class="week-stat-content">
                       <div id="month-km" class="week-stat-num">--</div>
                       <div class="week-stat-label">km Run</div>
@@ -183,7 +183,7 @@
                     <canvas class="week-mini-chart" id="month-run-mini-chart"></canvas>
                   </div>
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-purple"><i data-lucide="book-open" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-icon icon-study"><i data-lucide="book-open" style="width:13px;height:13px"></i></div>
                     <div class="week-stat-content">
                       <div id="month-study" class="week-stat-num">--</div>
                       <div class="week-stat-label">WGU Studies</div>
@@ -212,7 +212,7 @@
                 </div>
                 <div class="week-stats-list">
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-green"><i data-lucide="dumbbell" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-icon icon-workout"><i data-lucide="dumbbell" style="width:13px;height:13px"></i></div>
                     <div class="week-stat-content">
                       <div id="alltime-workouts" class="week-stat-num">--</div>
                       <div class="week-stat-label">Workouts</div>
@@ -220,7 +220,7 @@
                     <canvas class="week-mini-chart" id="alltime-workout-mini-chart"></canvas>
                   </div>
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-blue"><i data-lucide="footprints" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-icon icon-run"><i data-lucide="footprints" style="width:13px;height:13px"></i></div>
                     <div class="week-stat-content">
                       <div id="alltime-km" class="week-stat-num">--</div>
                       <div class="week-stat-label">km Run</div>
@@ -228,7 +228,7 @@
                     <canvas class="week-mini-chart" id="alltime-run-mini-chart"></canvas>
                   </div>
                   <div class="week-stat-row">
-                    <div class="week-stat-icon icon-purple"><i data-lucide="book-open" style="width:13px;height:13px"></i></div>
+                    <div class="week-stat-icon icon-study"><i data-lucide="book-open" style="width:13px;height:13px"></i></div>
                     <div class="week-stat-content">
                       <div id="alltime-study" class="week-stat-num">--</div>
                       <div class="week-stat-label">WGU Studies</div>
@@ -296,6 +296,9 @@
           <span class="tl-date-label" id="tl-date-label">Today</span>
           <button class="tl-nav-btn" id="tl-next-btn" onclick="tlNavDay(1)" style="visibility:hidden">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="tl-return-today-btn" id="tl-return-today-btn" onclick="tlReturnToday()" title="Return to today" style="display:none">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
           </button>
           <button class="tl-expand-cal-btn" onclick="openCalendarModal()" title="Calendar view">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>

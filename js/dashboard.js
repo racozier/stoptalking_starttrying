@@ -169,7 +169,7 @@ window.Dashboard = {
     const dayPolish = weekDates.map((d) => allStudy.filter((s) => s.date.startsWith(d) && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
     Charts.createMiniBarChart('week-workout-mini-chart', dayWorkouts, '#7C3AED');
     Charts.createMiniBarChart('week-run-mini-chart', dayKm, '#0EA5E9');
-    Charts.createMiniBarChart('week-study-mini-chart', dayStudy, '#A78BFA');
+    Charts.createMiniBarChart('week-study-mini-chart', dayStudy, '#0D9488');
     Charts.createMiniBarChart('week-polish-mini-chart', dayPolish, '#CA8A04');
 
     // ── Month stats ──────────────────────────────────────────────────────────
@@ -205,7 +205,7 @@ window.Dashboard = {
     const mPolishBars = weeksInMonth.map(({ start, end }) => allStudy.filter((s) => s.date >= start && s.date <= end + 'T' && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
     Charts.createMiniBarChart('month-workout-mini-chart', mWorkoutBars, '#7C3AED');
     Charts.createMiniBarChart('month-run-mini-chart', mRunBars, '#0EA5E9');
-    Charts.createMiniBarChart('month-study-mini-chart', mStudyBars, '#A78BFA');
+    Charts.createMiniBarChart('month-study-mini-chart', mStudyBars, '#0D9488');
     Charts.createMiniBarChart('month-polish-mini-chart', mPolishBars, '#CA8A04');
 
     // ── All Time stats ────────────────────────────────────────────────────────
@@ -232,7 +232,7 @@ window.Dashboard = {
     const atPolishBars = last6Months.map((m) => allStudy.filter((s) => s.date.startsWith(m) && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
     Charts.createMiniBarChart('alltime-workout-mini-chart', atWorkoutBars, '#7C3AED');
     Charts.createMiniBarChart('alltime-run-mini-chart', atRunBars, '#0EA5E9');
-    Charts.createMiniBarChart('alltime-study-mini-chart', atStudyBars, '#A78BFA');
+    Charts.createMiniBarChart('alltime-study-mini-chart', atStudyBars, '#0D9488');
     Charts.createMiniBarChart('alltime-polish-mini-chart', atPolishBars, '#CA8A04');
 
     // Today's activity checklist (panel 0)
@@ -543,8 +543,10 @@ function renderTlHeader() {
   const today = new Date().toISOString().split('T')[0];
   const d = window._tlDate;
   const isToday = d === today;
+  const daysAgo = Math.round((new Date(today + 'T12:00:00') - new Date(d + 'T12:00:00')) / 86400000);
   const label = document.getElementById('tl-date-label');
   const nextBtn = document.getElementById('tl-next-btn');
+  const returnBtn = document.getElementById('tl-return-today-btn');
   if (label) {
     if (isToday) {
       label.textContent = 'Today';
@@ -554,8 +556,16 @@ function renderTlHeader() {
     }
   }
   if (nextBtn) nextBtn.style.visibility = isToday ? 'hidden' : 'visible';
+  if (returnBtn) returnBtn.style.display = daysAgo > 1 ? '' : 'none';
 }
 window.renderTlHeader = renderTlHeader;
+
+function tlReturnToday() {
+  window._tlDate = new Date().toISOString().split('T')[0];
+  renderTlHeader();
+  Dashboard.renderTimeline();
+}
+window.tlReturnToday = tlReturnToday;
 
 function tlNavDay(delta) {
   const today = new Date().toISOString().split('T')[0];
@@ -633,7 +643,6 @@ async function renderCalendar() {
     html += `<div class="cal-cell${isToday ? ' cal-today' : ''}${isPast ? ' cal-past' : ''}${isFuture ? ' cal-future' : ''}${isSel ? ' cal-selected' : ''}"
       ${clickable ? `onclick="calGotoDay('${ds}')"` : ''}>
       <span class="cal-day-num">${d}</span>
-      ${isPast ? `<span class="cal-return-icon">${_rotateCcwSvg}</span>` : ''}
       ${dots ? `<div class="cal-dots">${dots}</div>` : ''}
     </div>`;
   }
