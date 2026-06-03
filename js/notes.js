@@ -242,11 +242,11 @@ window.Notes = {
 
   renderNoteCardSmall(note) {
     const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
-    const preview = note.content ? `<div class="note-card-body">${note.content}</div>` : '';
+    const hasPhoto = note.photos?.length > 0;
     return `
     <div class="note-card-small" data-id="${note.id}" style="${bgStyle}">
+      ${hasPhoto ? `<img class="note-card-small-photo" src="${note.photos[0].dataUrl}" alt="">` : ''}
       ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
-      ${preview}
       <div class="note-card-date">${App.formatDate(note.updated, { relative: true })}</div>
     </div>`;
   },
