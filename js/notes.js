@@ -475,8 +475,7 @@ window.Notes = {
   increaseFontSize() { this._fontSizeStep(1); },
   decreaseFontSize() { this._fontSizeStep(-1); },
 
-  cycleFontSize() { this._fontSizeStep(1); },  // kept for any legacy calls
-  },
+  cycleFontSize() { this._fontSizeStep(1); },
 
   // ─── Audio Recording (MediaRecorder) ─────────────────────────────────────
 
