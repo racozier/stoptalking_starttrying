@@ -153,10 +153,10 @@ window.Study = {
               <div class="term-count-label">CLASSES COMPLETED</div>
             </div>
           </div>
-          ${!isDegree ? `<div class="term-time-wrap">
+          <div class="term-time-wrap">
             <div class="term-time-bar"><div class="term-time-fill" style="width:${timePct}%"></div></div>
             <div class="term-time-label">Term ends ${termEndStr}</div>
-          </div>` : ''}
+          </div>
         </div>
         <div class="term-divider">|</div>
         <div class="term-right">${rightHtml}</div>
