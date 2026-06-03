@@ -1751,7 +1751,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .note-attachments { padding: 0 16px 12px; }
 .note-photos-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .photo-thumb-wrap { position: relative; }
-.photo-thumb { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; }
+.photo-thumb { width: 120px; height: 120px; border-radius: 10px; object-fit: cover; cursor: pointer; }
 .photo-remove { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--danger); color: #fff; border: none; font-size: 0.7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .note-tags-section { padding: 0 16px 16px; margin-top: auto; }
 .note-tags-label { font-size: 0.75rem; color: var(--subtext); margin-bottom: 6px; font-weight: 600; }

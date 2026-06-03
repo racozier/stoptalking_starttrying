@@ -291,6 +291,42 @@ window.Notes = {
 
     App.openModal('modal-note-editor');
 
+    // Checklist Enter key handler
+    if (body) {
+      body._checklistKeyHandler && body.removeEventListener('keydown', body._checklistKeyHandler);
+      body._checklistKeyHandler = (e) => {
+        if (e.key !== 'Enter') return;
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        let el = sel.getRangeAt(0).startContainer;
+        if (el.nodeType === Node.TEXT_NODE) el = el.parentElement;
+        let taskItem = null;
+        let curr = el;
+        while (curr && curr !== body) {
+          if (curr.classList?.contains('task-item')) { taskItem = curr; break; }
+          curr = curr.parentElement;
+        }
+        if (!taskItem) return;
+        e.preventDefault();
+        const textSpan = taskItem.querySelector('.task-text');
+        if (textSpan && textSpan.textContent.replace(/ /g, '').trim() === '') {
+          taskItem.remove();
+          return;
+        }
+        const newItem = document.createElement('div');
+        newItem.className = 'task-item';
+        newItem.innerHTML = '<input type="checkbox" class="task-check"><span class="task-text"> </span>';
+        taskItem.after(newItem);
+        const newText = newItem.querySelector('.task-text');
+        const range = document.createRange();
+        range.selectNodeContents(newText);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      };
+      body.addEventListener('keydown', body._checklistKeyHandler);
+    }
+
     // Auto-save every 30s
     clearInterval(this._saveTimer);
     this._saveTimer = setInterval(() => this.autoSave(), 30000);
@@ -556,10 +592,25 @@ window.Notes = {
     if (!container) return;
     container.innerHTML = this._photos.map((p, i) =>
       `<div class="photo-thumb-wrap">
-        <img class="photo-thumb" src="${p.dataUrl}" alt="${App.escapeHtml(p.name)}" />
+        <img class="photo-thumb" src="${p.dataUrl}" alt="${App.escapeHtml(p.name)}" onclick="Notes.openLightbox(${i})" />
         <button class="photo-remove" onclick="Notes.removePhoto(${i})">×</button>
       </div>`
     ).join('');
+  },
+
+  openLightbox(index) {
+    const photo = this._photos[index];
+    if (!photo) return;
+    const lb = document.getElementById('photo-lightbox');
+    const img = document.getElementById('photo-lightbox-img');
+    if (!lb || !img) return;
+    img.src = photo.dataUrl;
+    lb.style.display = 'flex';
+  },
+
+  closeLightbox() {
+    const lb = document.getElementById('photo-lightbox');
+    if (lb) lb.style.display = 'none';
   },
 
   removePhoto(index) {
