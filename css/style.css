@@ -254,6 +254,10 @@ h3 { font-size: 1rem; font-weight: 600; }
 .dashboard-right-col .card {
   padding: 9px 10px;
 }
+/* Streak card manages its own padding inside slides */
+.dashboard-right-col .card.streak-card {
+  padding: 0;
+}
 
 /* Individual card accents */
 .weight-card {
@@ -345,6 +349,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   justify-content: center;
   border-radius: 6px;
   transition: background 0.15s;
+  flex-shrink: 0;
 }
 .card-expand-btn:hover { background: rgba(255,255,255,0.08); }
 .card-expand-btn svg { stroke: currentColor; fill: none; }
