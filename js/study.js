@@ -20,15 +20,29 @@ window.Study = {
     this._subTab = tab;
     document.querySelectorAll('.study-subtab-btn').forEach((b) => b.classList.toggle('active', b.dataset.subtab === tab));
     document.querySelectorAll('.study-subtab-pane').forEach((p) => p.classList.toggle('active', p.dataset.subtabPane === tab));
-    if (tab === 'polish') document.documentElement.setAttribute('data-tab', 'polish');
-    else document.documentElement.removeAttribute('data-tab');
     this.renderSubTab(tab);
   },
 
   async renderSubTab(tab) {
+    this._applyPolishTheme(tab === 'polish');
     if (tab === 'overview') await this.renderOverview();
     else if (tab === 'classes') await this.renderClasses();
     else if (tab === 'polish') await Polish.render();
+  },
+
+  _applyPolishTheme(on) {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (on) {
+      document.documentElement.setAttribute('data-tab', 'polish');
+      if (meta) meta.content = '#DC2626';
+    } else {
+      document.documentElement.removeAttribute('data-tab');
+      if (meta) {
+        const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const colors = { dark: '#2563EB', darker: '#3B82F6', light: '#1D4ED8', midnight: '#3B82F6' };
+        meta.content = colors[theme] || '#2563EB';
+      }
+    }
   },
 
   // ─── OVERVIEW ──────────────────────────────────────────────────────────────
