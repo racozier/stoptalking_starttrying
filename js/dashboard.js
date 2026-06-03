@@ -353,7 +353,6 @@ async function openWeightExpand() {
   panel.classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // Populate header values from the dashboard card
   const cur = document.getElementById('dash-weight');
   const loss = document.getElementById('dash-weight-loss');
   const weCur = document.getElementById('we-current');
@@ -362,9 +361,9 @@ async function openWeightExpand() {
   if (loss && weLoss) weLoss.innerHTML = loss.innerHTML;
 
   await renderWeightExpandChart('3M');
+  await renderWeightHistoryLog();
   if (window.lucide) lucide.createIcons();
 
-  // Period button wiring
   panel.querySelectorAll('.period-btn').forEach((btn) => {
     btn.onclick = async () => {
       panel.querySelectorAll('.period-btn').forEach((b) => b.classList.remove('active'));
@@ -394,11 +393,86 @@ function closeWeightExpand() {
   document.body.style.overflow = '';
   const canvas = document.getElementById('weight-expand-chart');
   if (canvas && canvas._chart) { canvas._chart.destroy(); canvas._chart = null; }
+  const hist = document.getElementById('we-history');
+  if (hist) hist.innerHTML = '';
 }
 
 function closeWeightExpandBackdrop(e) {
   if (e.target.classList.contains('weight-expand-backdrop')) closeWeightExpand();
 }
+
+async function renderWeightHistoryLog() {
+  const el = document.getElementById('we-history');
+  if (!el) return;
+
+  const allWeights = await window.db.weight.getAll();
+  if (!allWeights.length) { el.innerHTML = '<div class="we-empty">No entries yet</div>'; return; }
+
+  const sorted = [...allWeights].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const startWeight = sorted[0].value;
+
+  // Map each entry to its predecessor for day-over-day delta
+  const prevMap = {};
+  for (let i = 1; i < sorted.length; i++) prevMap[sorted[i].id] = sorted[i - 1];
+
+  // Descending for display
+  const desc = [...sorted].reverse();
+
+  // Group by YYYY-MM
+  const monthMap = new Map();
+  desc.forEach((w) => {
+    const d = new Date(w.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const label = d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    if (!monthMap.has(key)) monthMap.set(key, { key, label, entries: [] });
+    monthMap.get(key).entries.push(w);
+  });
+
+  let first = true;
+  let html = '';
+  for (const { key, label, entries } of monthMap.values()) {
+    const monthId = `we-month-${key}`;
+    const openCls = first ? ' open' : '';
+    first = false;
+    html += `<div class="we-month${openCls}" id="${monthId}">
+      <div class="we-month-header" onclick="toggleWeMonth('${monthId}')">
+        <span class="we-month-label">${label}</span>
+        <span class="we-month-count">${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}</span>
+        <i data-lucide="chevron-down" class="we-chevron"></i>
+      </div>
+      <div class="we-month-body">
+        ${entries.map((w) => {
+          const pct = ((w.value - startWeight) / startWeight * 100);
+          const pctStr = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+          const pctCls = pct < 0 ? 'we-good' : pct > 0 ? 'we-bad' : '';
+          const prev = prevMap[w.id];
+          let dayStr = '';
+          if (prev) {
+            const diff = w.value - prev.value;
+            dayStr = (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' kg';
+          }
+          const dayCls = prev ? (w.value < prev.value ? 'we-good' : w.value > prev.value ? 'we-bad' : '') : '';
+          const dateStr = new Date(w.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+          return `<div class="we-entry">
+            <span class="we-entry-date">${dateStr}</span>
+            <span class="we-entry-val">${w.value.toFixed(1)} kg</span>
+            <span class="we-entry-pct ${pctCls}">${pctStr}</span>
+            <span class="we-entry-day ${dayCls}">${dayStr}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+  el.innerHTML = html;
+  if (window.lucide) lucide.createIcons();
+}
+
+function toggleWeMonth(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+window.toggleWeMonth = toggleWeMonth;
+window.renderWeightHistoryLog = renderWeightHistoryLog;
 
 window.openWeightExpand = openWeightExpand;
 window.closeWeightExpand = closeWeightExpand;

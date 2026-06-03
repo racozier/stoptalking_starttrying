@@ -20,16 +20,16 @@ window.Charts = {
         labels,
         datasets: [{
           data: vals,
-          borderColor: 'rgba(37, 99, 235, 0.9)',
+          borderColor: 'rgba(139, 92, 246, 0.9)',
           borderWidth: 2,
           pointRadius: vals.map((_, i) => (i === vals.length - 1 ? 3 : 0)),
-          pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+          pointBackgroundColor: 'rgba(139, 92, 246, 1)',
           tension: 0.5,
           fill: true,
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(37, 99, 235, 0.16)');
-            g.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+            g.addColorStop(0, 'rgba(139, 92, 246, 0.16)');
+            g.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
             return g;
           },
         }],
