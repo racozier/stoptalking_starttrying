@@ -569,7 +569,10 @@
                     <span class="polish-pos-badge" id="polish-wotd-pos">---</span>
                   </div>
                 </div>
-                <button class="polish-chevron" id="polish-chevron" onclick="event.stopPropagation();PolishToggleExpand()">▾</button>
+                <div class="polish-back-actions">
+                  <button class="polish-star-btn" id="polish-star-btn" onclick="event.stopPropagation();PolishToggleFavorite()" title="Save word">☆</button>
+                  <button class="polish-chevron" id="polish-chevron" onclick="event.stopPropagation();PolishToggleExpand()">▾</button>
+                </div>
               </div>
               <div class="polish-expand-panel" id="polish-expand-panel">
                 <div class="polish-expand-divider"></div>
@@ -578,6 +581,16 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Saved Words -->
+        <div class="polish-saved-section card" id="polish-saved-section">
+          <div class="polish-saved-header" onclick="PolishToggleSaved()">
+            <span class="polish-saved-title">Saved Words</span>
+            <span class="polish-saved-count" id="polish-saved-count">0</span>
+            <span class="polish-saved-chevron" id="polish-saved-chevron">▾</span>
+          </div>
+          <div class="polish-saved-body" id="polish-saved-body"></div>
         </div>
 
         <!-- Log Polish button -->

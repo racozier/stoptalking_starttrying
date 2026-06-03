@@ -176,6 +176,7 @@ window.Polish = {
   _flipped: false,
   _expanded: false,
   _timerInterval: null,
+  _savedOpen: false,
 
   // ── Word of the Day ────────────────────────────────────────────────────────
 
@@ -205,6 +206,7 @@ window.Polish = {
     this._displayWord(this._getWordOfDay());
     this.restoreTimer();
     await this.renderStats();
+    await this.renderFavoritesSection();
   },
 
   _displayWord(data) {
@@ -218,6 +220,79 @@ window.Polish = {
     if (posEl) posEl.textContent = data.pos;
     if (sentPlEl) sentPlEl.textContent = data.sentence_pl;
     if (sentEnEl) sentEnEl.textContent = data.sentence_en;
+    this._updateStarBtn(data.word);
+  },
+
+  async _getFavorites() {
+    return (await window.db.settings.get('polishFavorites')) || [];
+  },
+
+  async _updateStarBtn(word) {
+    const btn = document.getElementById('polish-star-btn');
+    if (!btn) return;
+    const favs = await this._getFavorites();
+    const saved = favs.includes(word);
+    btn.textContent = saved ? '★' : '☆';
+    btn.classList.toggle('starred', saved);
+  },
+
+  async toggleFavorite() {
+    const word = this._getWordOfDay().word;
+    const favs = await this._getFavorites();
+    const idx = favs.indexOf(word);
+    if (idx === -1) {
+      favs.push(word);
+      App.showToast('Word saved!', 'success');
+    } else {
+      favs.splice(idx, 1);
+      App.showToast('Word removed', 'info');
+    }
+    await window.db.settings.set('polishFavorites', favs);
+    this._updateStarBtn(word);
+    await this.renderFavoritesSection();
+  },
+
+  async renderFavoritesSection() {
+    const favs = await this._getFavorites();
+    const countEl = document.getElementById('polish-saved-count');
+    if (countEl) countEl.textContent = favs.length;
+
+    const body = document.getElementById('polish-saved-body');
+    if (!body) return;
+
+    if (favs.length === 0) {
+      body.innerHTML = '<div class="polish-saved-empty">No saved words yet — star a word to save it.</div>';
+    } else {
+      body.innerHTML = favs.map((w) => {
+        const data = POLISH_WORDS.find((x) => x.word === w);
+        if (!data) return '';
+        return `<div class="polish-saved-row">
+          <div class="polish-saved-word-info">
+            <span class="polish-saved-word">${App.escapeHtml(data.word)}</span>
+            <span class="polish-saved-trans">${App.escapeHtml(data.translation)}</span>
+            <span class="polish-pos-badge">${App.escapeHtml(data.pos)}</span>
+          </div>
+          <button class="polish-saved-remove" onclick="PolishRemoveFavorite('${App.escapeHtml(data.word)}')" title="Remove">★</button>
+        </div>`;
+      }).join('');
+    }
+  },
+
+  async removeFavorite(word) {
+    const favs = await this._getFavorites();
+    const idx = favs.indexOf(word);
+    if (idx !== -1) favs.splice(idx, 1);
+    await window.db.settings.set('polishFavorites', favs);
+    this._updateStarBtn(this._getWordOfDay().word);
+    await this.renderFavoritesSection();
+  },
+
+  toggleSavedPanel() {
+    this._savedOpen = !this._savedOpen;
+    const body = document.getElementById('polish-saved-body');
+    const chevron = document.getElementById('polish-saved-chevron');
+    if (body) body.classList.toggle('open', this._savedOpen);
+    if (chevron) chevron.classList.toggle('open', this._savedOpen);
   },
 
   flipCard() {
@@ -424,3 +499,6 @@ window.PolishStartTimerFlow = () => Polish.startTimer();
 window.PolishPauseTimer = () => Polish.pauseTimer();
 window.PolishStopTimer = () => Polish.stopTimer();
 window.PolishOpenLog = () => openQuickStudyModal('Polish Language');
+window.PolishToggleFavorite = () => Polish.toggleFavorite();
+window.PolishToggleSaved = () => Polish.toggleSavedPanel();
+window.PolishRemoveFavorite = (w) => Polish.removeFavorite(w);
