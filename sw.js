@@ -1,4 +1,4 @@
-const CACHE_NAME = 'st2-v1';
+const CACHE_NAME = 'st2-v2';
 const STRAVA_ORIGIN = 'https://www.strava.com';
 
 const STATIC_ASSETS = [
