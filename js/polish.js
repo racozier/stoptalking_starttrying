@@ -1,6 +1,73 @@
 const POLISH_WORDS = [
-  { word: "zrozumieć", translation: "to understand", pos: "verb", sentence_pl: "Staram się zrozumieć, jak działa ten system.", sentence_en: "I'm trying to understand how this system works." },
+  // ── A2 ──────────────────────────────────────────────────────────────────────
+  { word: "rozmawiać", translation: "to talk, to chat", pos: "verb", sentence_pl: "Lubię rozmawiać z tobą o wszystkim.", sentence_en: "I like talking to you about everything." },
+  { word: "zapytać", translation: "to ask", pos: "verb", sentence_pl: "Chciałem zapytać, czy możesz mi pomóc.", sentence_en: "I wanted to ask if you could help me." },
+  { word: "odpowiedzieć", translation: "to answer, to reply", pos: "verb", sentence_pl: "Proszę, odpowiedz na moje pytanie.", sentence_en: "Please answer my question." },
+  { word: "wrócić", translation: "to return, to come back", pos: "verb", sentence_pl: "Wrócę do domu o siódmej wieczór.", sentence_en: "I'll come back home at seven in the evening." },
+  { word: "zostać", translation: "to stay, to remain", pos: "verb", sentence_pl: "Chcę zostać tutaj trochę dłużej.", sentence_en: "I want to stay here a little longer." },
+  { word: "woleć", translation: "to prefer", pos: "verb", sentence_pl: "Wolę kawę od herbaty.", sentence_en: "I prefer coffee to tea." },
+  { word: "zacząć", translation: "to start, to begin", pos: "verb", sentence_pl: "Kiedy zacząłeś uczyć się polskiego?", sentence_en: "When did you start learning Polish?" },
+  { word: "skończyć", translation: "to finish, to end", pos: "verb", sentence_pl: "Muszę skończyć tę książkę do piątku.", sentence_en: "I need to finish this book by Friday." },
+  { word: "spotkać się", translation: "to meet up, to get together", pos: "verb", sentence_pl: "Możemy spotkać się jutro w kawiarni.", sentence_en: "We can meet up tomorrow at the café." },
+  { word: "pomóc", translation: "to help", pos: "verb", sentence_pl: "Czy mogę ci jakoś pomóc?", sentence_en: "Can I help you somehow?" },
+  { word: "przeprosić", translation: "to apologize", pos: "verb", sentence_pl: "Chcę cię przeprosić za moje zachowanie.", sentence_en: "I want to apologize for my behaviour." },
+  { word: "dziękować", translation: "to thank", pos: "verb", sentence_pl: "Chcę ci podziękować za wszystko.", sentence_en: "I want to thank you for everything." },
+  { word: "czekać", translation: "to wait", pos: "verb", sentence_pl: "Czekam na ciebie od godziny.", sentence_en: "I've been waiting for you for an hour." },
+  { word: "myśleć", translation: "to think", pos: "verb", sentence_pl: "Myślę, że masz rację.", sentence_en: "I think you're right." },
+  { word: "czuć się", translation: "to feel (oneself)", pos: "verb", sentence_pl: "Jak się czujesz dzisiaj?", sentence_en: "How do you feel today?" },
+  { word: "brakować", translation: "to miss, to lack", pos: "verb", sentence_pl: "Brakuje mi codziennych rozmów po polsku.", sentence_en: "I miss the daily conversations in Polish." },
+  { word: "zapomnieć", translation: "to forget", pos: "verb", sentence_pl: "Zapomniałem wziąć parasol.", sentence_en: "I forgot to take an umbrella." },
+  { word: "pamiętać", translation: "to remember", pos: "verb", sentence_pl: "Pamiętaj, żeby zadzwonić do mnie wieczorem.", sentence_en: "Remember to call me in the evening." },
+  { word: "śmiać się", translation: "to laugh", pos: "verb", sentence_pl: "Zawsze się śmieje, gdy coś idzie nie tak.", sentence_en: "He always laughs when something goes wrong." },
+  { word: "płakać", translation: "to cry", pos: "verb", sentence_pl: "Płakała ze szczęścia na swoim ślubie.", sentence_en: "She cried with happiness at her wedding." },
+  { word: "zgubić", translation: "to lose, to misplace", pos: "verb", sentence_pl: "Zgubiłem klucze — nie mogę ich znaleźć.", sentence_en: "I lost my keys — I can't find them." },
+  { word: "znaleźć", translation: "to find", pos: "verb", sentence_pl: "W końcu znalazłem to, czego szukałem.", sentence_en: "I finally found what I was looking for." },
+  { word: "kupić", translation: "to buy", pos: "verb", sentence_pl: "Chcę kupić nowe słuchawki.", sentence_en: "I want to buy new headphones." },
+  { word: "sprzedać", translation: "to sell", pos: "verb", sentence_pl: "Sprzedał swój stary telefon.", sentence_en: "He sold his old phone." },
   { word: "wytłumaczyć", translation: "to explain", pos: "verb", sentence_pl: "Czy możesz mi to wytłumaczyć wolniej?", sentence_en: "Can you explain that to me more slowly?" },
+  { word: "pokazać", translation: "to show", pos: "verb", sentence_pl: "Pokaż mi, jak to działa.", sentence_en: "Show me how it works." },
+  { word: "wysłać", translation: "to send", pos: "verb", sentence_pl: "Wyślę ci tę wiadomość zaraz.", sentence_en: "I'll send you that message right away." },
+  { word: "odebrać", translation: "to pick up, to receive", pos: "verb", sentence_pl: "Odbierz telefon — ktoś dzwoni.", sentence_en: "Pick up the phone — someone is calling." },
+  { word: "poczuć", translation: "to feel (once), to sense", pos: "verb", sentence_pl: "Poczułem ulgę, gdy skończyłem egzamin.", sentence_en: "I felt relief when I finished the exam." },
+  { word: "wyjść", translation: "to go out, to leave", pos: "verb", sentence_pl: "Wyszedł z domu bez słowa.", sentence_en: "He left the house without a word." },
+  { word: "wiadomość", translation: "message, news", pos: "noun", sentence_pl: "Dostałem wiadomość od starego znajomego.", sentence_en: "I got a message from an old acquaintance." },
+  { word: "spotkanie", translation: "meeting, get-together", pos: "noun", sentence_pl: "Mam ważne spotkanie w pracy jutro.", sentence_en: "I have an important meeting at work tomorrow." },
+  { word: "podróż", translation: "journey, trip", pos: "noun", sentence_pl: "Każda podróż uczy mnie czegoś nowego.", sentence_en: "Every trip teaches me something new." },
+  { word: "urlop", translation: "holiday, vacation, leave", pos: "noun", sentence_pl: "Jestem na urlopie przez cały przyszły tydzień.", sentence_en: "I'm on holiday all of next week." },
+  { word: "szansa", translation: "chance, opportunity", pos: "noun", sentence_pl: "To moja ostatnia szansa, żeby to naprawić.", sentence_en: "This is my last chance to fix it." },
+  { word: "pomysł", translation: "idea", pos: "noun", sentence_pl: "Mam świetny pomysł na weekend.", sentence_en: "I have a great idea for the weekend." },
+  { word: "plan", translation: "plan", pos: "noun", sentence_pl: "Jaki jest twój plan na ten rok?", sentence_en: "What is your plan for this year?" },
+  { word: "historia", translation: "history, story", pos: "noun", sentence_pl: "To jest bardzo ciekawa historia.", sentence_en: "This is a very interesting story." },
+  { word: "pogoda", translation: "weather", pos: "noun", sentence_pl: "Pogoda dzisiaj jest idealna do spaceru.", sentence_en: "The weather today is perfect for a walk." },
+  { word: "zdrowie", translation: "health", pos: "noun", sentence_pl: "Zdrowie jest najważniejsze w życiu.", sentence_en: "Health is the most important thing in life." },
+  { word: "ból", translation: "pain, ache", pos: "noun", sentence_pl: "Czuję ból w plecach po treningu.", sentence_en: "I feel pain in my back after the workout." },
+  { word: "sen", translation: "sleep, dream", pos: "noun", sentence_pl: "Potrzebuję co najmniej ośmiu godzin snu.", sentence_en: "I need at least eight hours of sleep." },
+  { word: "przyjaciel", translation: "friend (close)", pos: "noun", sentence_pl: "On jest moim najlepszym przyjacielem od dziecka.", sentence_en: "He has been my best friend since childhood." },
+  { word: "znajomy", translation: "acquaintance", pos: "noun", sentence_pl: "To tylko znajomy — nie znamy się zbyt dobrze.", sentence_en: "It's just an acquaintance — we don't know each other that well." },
+  { word: "kolega", translation: "colleague, mate", pos: "noun", sentence_pl: "Poszedłem na lunch z kolegą z pracy.", sentence_en: "I went for lunch with a colleague from work." },
+  { word: "szef", translation: "boss, manager", pos: "noun", sentence_pl: "Mój szef jest bardzo wymagający.", sentence_en: "My boss is very demanding." },
+  { word: "obiad", translation: "lunch, dinner (main meal)", pos: "noun", sentence_pl: "Zjem obiad o drugiej po południu.", sentence_en: "I'll have lunch at two in the afternoon." },
+  { word: "śniadanie", translation: "breakfast", pos: "noun", sentence_pl: "Zawsze jem śniadanie przed wyjściem z domu.", sentence_en: "I always eat breakfast before leaving the house." },
+  { word: "kolacja", translation: "dinner, supper", pos: "noun", sentence_pl: "Zapraszam cię na kolację w sobotę.", sentence_en: "I invite you to dinner on Saturday." },
+  { word: "przepis", translation: "recipe, regulation", pos: "noun", sentence_pl: "Masz dobry przepis na bigos?", sentence_en: "Do you have a good recipe for bigos?" },
+  { word: "trudny", translation: "difficult, hard", pos: "adjective", sentence_pl: "Ten egzamin był naprawdę trudny.", sentence_en: "That exam was really difficult." },
+  { word: "łatwy", translation: "easy, simple", pos: "adjective", sentence_pl: "Myślałem, że to będzie łatwe.", sentence_en: "I thought it would be easy." },
+  { word: "ważny", translation: "important", pos: "adjective", sentence_pl: "To jest bardzo ważna decyzja.", sentence_en: "This is a very important decision." },
+  { word: "ciekawy", translation: "interesting, curious", pos: "adjective", sentence_pl: "To jest ciekawy punkt widzenia.", sentence_en: "That's an interesting point of view." },
+  { word: "nudny", translation: "boring", pos: "adjective", sentence_pl: "Spotkanie było długie i nudne.", sentence_en: "The meeting was long and boring." },
+  { word: "głośny", translation: "loud, noisy", pos: "adjective", sentence_pl: "Muzyka była zbyt głośna.", sentence_en: "The music was too loud." },
+  { word: "cichy", translation: "quiet, silent", pos: "adjective", sentence_pl: "Potrzebuję cichego miejsca do pracy.", sentence_en: "I need a quiet place to work." },
+  { word: "drogi", translation: "expensive, dear", pos: "adjective", sentence_pl: "Ten hotel jest zbyt drogi.", sentence_en: "This hotel is too expensive." },
+  { word: "tani", translation: "cheap, affordable", pos: "adjective", sentence_pl: "Znalazłem tanie bilety na pociąg.", sentence_en: "I found cheap train tickets." },
+  { word: "zdrowy", translation: "healthy", pos: "adjective", sentence_pl: "Staram się jeść zdrowo i regularnie ćwiczyć.", sentence_en: "I try to eat healthily and exercise regularly." },
+  { word: "szczęśliwy", translation: "happy, lucky", pos: "adjective", sentence_pl: "Jestem szczęśliwy, że tu jestem.", sentence_en: "I'm happy to be here." },
+  { word: "smutny", translation: "sad", pos: "adjective", sentence_pl: "Był smutny po przegranym meczu.", sentence_en: "He was sad after the lost match." },
+  { word: "głodny", translation: "hungry", pos: "adjective", sentence_pl: "Jestem głodny — kiedy jemy?", sentence_en: "I'm hungry — when do we eat?" },
+  { word: "wolny", translation: "free, slow", pos: "adjective", sentence_pl: "Czy jesteś wolny w sobotę wieczorem?", sentence_en: "Are you free on Saturday evening?" },
+  { word: "zajęty", translation: "busy, occupied", pos: "adjective", sentence_pl: "Byłem bardzo zajęty przez ostatnie dwa tygodnie.", sentence_en: "I've been very busy for the last two weeks." },
+
+  // ── B1 / B2 ─────────────────────────────────────────────────────────────────
+  { word: "zrozumieć", translation: "to understand (fully)", pos: "verb", sentence_pl: "Staram się zrozumieć, jak działa ten system.", sentence_en: "I'm trying to understand how this system works." },
   { word: "przyzwyczaić się", translation: "to get used to", pos: "verb", sentence_pl: "Trzeba się przyzwyczaić do nowego rytmu życia.", sentence_en: "You have to get used to the new rhythm of life." },
   { word: "tęsknić", translation: "to miss (someone/a place)", pos: "verb", sentence_pl: "Bardzo tęsknię za rodziną.", sentence_en: "I miss my family very much." },
   { word: "martwić się", translation: "to worry", pos: "verb", sentence_pl: "Nie martw się — wszystko będzie dobrze.", sentence_en: "Don't worry — everything will be fine." },
@@ -17,8 +84,6 @@ const POLISH_WORDS = [
   { word: "dotrzeć", translation: "to reach, to arrive", pos: "verb", sentence_pl: "Wiadomość dotarła do mnie zbyt późno.", sentence_en: "The message reached me too late." },
   { word: "naprawić", translation: "to fix, to repair", pos: "verb", sentence_pl: "Czy wiesz, jak naprawić ten błąd?", sentence_en: "Do you know how to fix this error?" },
   { word: "przygotować", translation: "to prepare", pos: "verb", sentence_pl: "Muszę się dobrze przygotować do rozmowy kwalifikacyjnej.", sentence_en: "I need to prepare well for the job interview." },
-  { word: "denerwować się", translation: "to get nervous, to get annoyed", pos: "verb", sentence_pl: "Denerwuję się, gdy czekam zbyt długo.", sentence_en: "I get annoyed when I wait too long." },
-  { word: "cieszyć się", translation: "to be happy, to enjoy", pos: "verb", sentence_pl: "Cieszę się, że tu jesteś.", sentence_en: "I'm glad you're here." },
   { word: "przyznać", translation: "to admit, to award", pos: "verb", sentence_pl: "Muszę przyznać, że miałeś rację.", sentence_en: "I have to admit that you were right." },
   { word: "osiągnąć", translation: "to achieve, to reach", pos: "verb", sentence_pl: "Chcę osiągnąć płynność w ciągu roku.", sentence_en: "I want to achieve fluency within a year." },
   { word: "zrezygnować", translation: "to give up, to resign", pos: "verb", sentence_pl: "Nie poddawaj się — nie rezygnuj z marzeń.", sentence_en: "Don't give up — don't abandon your dreams." },
@@ -92,16 +157,19 @@ const POLISH_WORDS = [
   { word: "ponieważ", translation: "because, since", pos: "conjunction", sentence_pl: "Lubię polskie kino, ponieważ jest bardzo autentyczne.", sentence_en: "I like Polish cinema because it's very authentic." },
   { word: "skoro", translation: "since, given that", pos: "conjunction", sentence_pl: "Skoro to wiesz, dlaczego nic nie powiedziałeś?", sentence_en: "Since you knew this, why didn't you say anything?" },
   { word: "zamiast", translation: "instead of", pos: "preposition", sentence_pl: "Zamiast narzekać, lepiej działaj.", sentence_en: "Instead of complaining, it's better to take action." },
-  { word: "poza tym", translation: "besides, moreover, apart from that", pos: "expression", sentence_pl: "Poza tym mam jeszcze kilka innych planów.", sentence_en: "Besides that I have a few other plans." },
+  { word: "poza tym", translation: "besides, moreover", pos: "expression", sentence_pl: "Poza tym mam jeszcze kilka innych planów.", sentence_en: "Besides that I have a few other plans." },
   { word: "nastawienie", translation: "attitude, mindset", pos: "noun", sentence_pl: "Pozytywne nastawienie pomaga w trudnych momentach.", sentence_en: "A positive mindset helps in difficult moments." },
   { word: "przełom", translation: "breakthrough, turning point", pos: "noun", sentence_pl: "Ten rok był dla mnie prawdziwym przełomem.", sentence_en: "This year was a real breakthrough for me." },
   { word: "codzienność", translation: "everyday life, daily routine", pos: "noun", sentence_pl: "Polszczyzna stała się częścią mojej codzienności.", sentence_en: "Polish has become part of my everyday life." },
   { word: "umiejętność", translation: "skill, ability", pos: "noun", sentence_pl: "Każda nowa umiejętność wymaga czasu.", sentence_en: "Every new skill requires time." },
   { word: "postęp", translation: "progress", pos: "noun", sentence_pl: "Widzę realny postęp w swoim mówieniu.", sentence_en: "I can see real progress in my speaking." },
-  { word: "zaangażowanie", translation: "commitment, engagement, involvement", pos: "noun", sentence_pl: "Zaangażowanie w naukę to klucz do sukcesu.", sentence_en: "Commitment to learning is the key to success." },
-  { word: "przyzwyczajenie", translation: "habit, custom (ingrained)", pos: "noun", sentence_pl: "Stare przyzwyczajenia trudno zmienić.", sentence_en: "Old habits are hard to change." },
+  { word: "zaangażowanie", translation: "commitment, engagement", pos: "noun", sentence_pl: "Zaangażowanie w naukę to klucz do sukcesu.", sentence_en: "Commitment to learning is the key to success." },
+  { word: "przyzwyczajenie", translation: "ingrained habit, custom", pos: "noun", sentence_pl: "Stare przyzwyczajenia trudno zmienić.", sentence_en: "Old habits are hard to change." },
   { word: "równowaga", translation: "balance, equilibrium", pos: "noun", sentence_pl: "Szukam równowagi między pracą a odpoczynkiem.", sentence_en: "I'm looking for balance between work and rest." },
 ];
+
+const POLISH_DAILY_GOAL_MIN = 15;
+const POLISH_WEEKLY_GOAL_MIN = POLISH_DAILY_GOAL_MIN * 7;
 
 window.Polish = {
   _flipped: false,
@@ -124,16 +192,13 @@ window.Polish = {
     if (panel) panel.classList.remove('open');
     if (chevron) chevron.classList.remove('open');
 
-    // Date label
     const today = new Date();
     const dateEl = document.getElementById('polish-wotd-date');
     if (dateEl) {
       dateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     }
 
-    // Pre-load word onto back face silently
     this._displayWord(this._getWordOfDay());
-
     await this.renderStats();
   },
 
@@ -149,28 +214,60 @@ window.Polish = {
     const weekDates = App.getWeekDates();
     const weekSessions = polishSessions.filter((s) => weekDates.some((d) => s.date.startsWith(d)));
     const weekMin = weekSessions.reduce((sum, s) => sum + s.durationMinutes, 0);
-    const weekDaysCount = new Set(weekSessions.map((s) => s.date.split('T')[0])).size;
 
-    const todayEl = document.getElementById('polish-today-val');
+    // Today card
+    const todayEl = document.getElementById('polish-today-total');
     if (todayEl) {
       const h = Math.floor(todayMin / 60);
       const m = todayMin % 60;
       todayEl.innerHTML = h > 0
-        ? `${h}<span class="polish-stat-unit">h </span>${m}<span class="polish-stat-unit">m</span>`
-        : `${m}<span class="polish-stat-unit">m</span>`;
+        ? `<span class="study-total-h">${h}</span><span class="study-total-unit">h </span><span class="study-total-h">${m}</span><span class="study-total-unit">m</span>`
+        : `<span class="study-total-h">${m}</span><span class="study-total-unit">m</span>`;
     }
 
-    const weekEl = document.getElementById('polish-week-val');
+    const dailyRaw = Math.round((todayMin / POLISH_DAILY_GOAL_MIN) * 100);
+    const dailyOnFire = dailyRaw >= 100;
+    const dailyBar = document.getElementById('polish-daily-goal-bar');
+    if (dailyBar) {
+      dailyBar.style.width = Math.min(dailyRaw, 100) + '%';
+      dailyBar.style.background = dailyOnFire ? '#F97316' : '#78B86C';
+    }
+    const dailyPct = document.getElementById('polish-daily-goal-pct');
+    if (dailyPct) {
+      dailyPct.textContent = dailyRaw + '%' + (dailyOnFire ? ' 🔥' : '');
+      dailyPct.style.color = dailyOnFire ? '#F97316' : '#78B86C';
+    }
+    const goalLabel = document.getElementById('polish-daily-goal-label');
+    if (goalLabel) goalLabel.textContent = `${POLISH_DAILY_GOAL_MIN}m`;
+
+    // Week card
+    const weekEl = document.getElementById('polish-week-total');
     if (weekEl) {
       const h = Math.floor(weekMin / 60);
       const m = weekMin % 60;
       weekEl.innerHTML = h > 0
-        ? `${h}<span class="polish-stat-unit">h </span>${m}<span class="polish-stat-unit">m</span>`
-        : `${m}<span class="polish-stat-unit">m</span>`;
+        ? `<span class="study-week-num">${h}</span><span class="study-week-unit">h </span><span class="study-week-num">${m}</span><span class="study-week-unit">m</span>`
+        : `<span class="study-week-num">${m}</span><span class="study-week-unit">m</span>`;
     }
 
-    const subEl = document.getElementById('polish-week-sub');
-    if (subEl) subEl.textContent = `${weekDaysCount} of 7 days`;
+    const weekRaw = Math.round((weekMin / POLISH_WEEKLY_GOAL_MIN) * 100);
+    const weekOnFire = weekRaw >= 100;
+    const weekBar = document.getElementById('polish-week-goal-bar');
+    if (weekBar) {
+      weekBar.style.width = Math.min(weekRaw, 100) + '%';
+      weekBar.style.background = weekOnFire ? '#F97316' : '#78B86C';
+    }
+    const weekPct = document.getElementById('polish-week-goal-pct');
+    if (weekPct) {
+      weekPct.textContent = weekRaw + '%' + (weekOnFire ? ' 🔥' : '');
+      weekPct.style.color = weekOnFire ? '#F97316' : '#78B86C';
+    }
+
+    // Mini bar chart — Polish minutes per day this week
+    const polishPerDay = weekDates.map((d) =>
+      Math.round(polishSessions.filter((s) => s.date.startsWith(d)).reduce((t, s) => t + s.durationMinutes, 0) / 60 * 10) / 10
+    );
+    Charts.createStudyWeekBars('polish-week-chart', ['M', 'T', 'W', 'T', 'F', 'S', 'S'], polishPerDay, POLISH_DAILY_GOAL_MIN / 60);
   },
 
   _displayWord(data) {

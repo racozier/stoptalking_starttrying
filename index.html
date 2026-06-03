@@ -503,17 +503,33 @@
       <!-- ── Polish Pane ──────────────────────────────────────────────── -->
       <div class="study-subtab-pane" data-subtab-pane="polish">
 
-        <!-- Stats row: Today + This Week (Polish only) -->
-        <div class="polish-stats-row">
-          <div class="card polish-stat-card">
-            <div class="polish-stat-label">TODAY</div>
-            <div class="polish-stat-val" id="polish-today-val">0<span class="polish-stat-unit">m</span></div>
-            <div class="polish-stat-sub">Polish study</div>
+        <!-- Stats: Today + This Week -->
+        <div class="study-dual-grid">
+          <div class="card study-today-card">
+            <div class="study-card-label">TODAY'S POLISH</div>
+            <div id="polish-today-total" class="study-today-big"></div>
+            <div class="study-goal-label-row">
+              <span>Daily Goal <span id="polish-daily-goal-label">15m</span></span>
+              <span id="polish-daily-goal-pct" class="study-daily-pct"></span>
+            </div>
+            <div class="progress-bar-wrap study-goal-bar-wrap">
+              <div class="progress-bar" id="polish-daily-goal-bar" style="width:0%"></div>
+            </div>
+            <button class="link-btn study-log-link" onclick="PolishOpenLog()">+ Log Polish Time</button>
           </div>
-          <div class="card polish-stat-card">
-            <div class="polish-stat-label">THIS WEEK</div>
-            <div class="polish-stat-val" id="polish-week-val">0<span class="polish-stat-unit">m</span></div>
-            <div class="polish-stat-sub" id="polish-week-sub">0 of 7 days</div>
+          <div class="card study-week-card">
+            <div class="study-card-label">THIS WEEK</div>
+            <div id="polish-week-total" class="study-week-total-row"></div>
+            <div class="study-week-chart-wrap">
+              <canvas id="polish-week-chart"></canvas>
+            </div>
+            <div class="study-week-goal-row">
+              <span class="study-week-goal-label">Weekly Goal</span>
+              <span id="polish-week-goal-pct" class="study-week-pct">0%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar" id="polish-week-goal-bar" style="width:0%"></div>
+            </div>
           </div>
         </div>
 
