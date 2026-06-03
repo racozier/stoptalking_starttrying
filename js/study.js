@@ -39,12 +39,10 @@ window.Study = {
     if (on) {
       document.documentElement.setAttribute('data-tab', 'polish');
       document.documentElement.style.backgroundColor = '#DC2626';
-      document.body.style.backgroundColor = '#DC2626';
       if (meta) meta.content = '#DC2626';
     } else {
       document.documentElement.removeAttribute('data-tab');
       document.documentElement.style.backgroundColor = '';
-      document.body.style.backgroundColor = '';
       if (meta) {
         const theme = document.documentElement.getAttribute('data-theme') || 'dark';
         const colors = { dark: '#2563EB', darker: '#3B82F6', light: '#1D4ED8', midnight: '#3B82F6' };
