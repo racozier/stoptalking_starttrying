@@ -409,7 +409,7 @@ window.Dashboard = {
         keyboard: false,
       });
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { opacity: 0.65 }).addTo(map);
-      const line = L.polyline(e.polyline, { color: '#4ADE80', weight: 3, opacity: 0.95 }).addTo(map);
+      const line = L.polyline(e.polyline, { color: '#78B86C', weight: 3, opacity: 0.95 }).addTo(map);
       map.fitBounds(line.getBounds(), { padding: [8, 8] });
     });
   },

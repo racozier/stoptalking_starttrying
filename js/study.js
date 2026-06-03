@@ -290,12 +290,12 @@ window.Study = {
     const bar = document.getElementById('study-daily-goal-bar');
     if (bar) {
       bar.style.width = Math.min(rawPct, 100) + '%';
-      bar.style.background = isOnFire ? '#F97316' : '#22C55E';
+      bar.style.background = isOnFire ? '#F97316' : '#78B86C';
     }
     const pctEl = document.getElementById('study-daily-goal-pct');
     if (pctEl) {
       pctEl.textContent = rawPct + '%' + (isOnFire ? ' 🔥' : '');
-      pctEl.style.color = isOnFire ? '#F97316' : '#22C55E';
+      pctEl.style.color = isOnFire ? '#F97316' : '#78B86C';
     }
   },
 
@@ -324,12 +324,12 @@ window.Study = {
     const goalBar = document.getElementById('study-week-goal-bar');
     if (goalBar) {
       goalBar.style.width = Math.min(rawPct, 100) + '%';
-      goalBar.style.background = isOnFire ? '#F97316' : '#22C55E';
+      goalBar.style.background = isOnFire ? '#F97316' : '#78B86C';
     }
     const goalPct = document.getElementById('study-week-goal-pct');
     if (goalPct) {
       goalPct.textContent = rawPct + '%' + (isOnFire ? ' 🔥' : '');
-      goalPct.style.color = isOnFire ? '#F97316' : '#22C55E';
+      goalPct.style.color = isOnFire ? '#F97316' : '#78B86C';
     }
 
     const dailyGoalHours = (await window.db.settings.get('dailyStudyGoalHours', 4));
@@ -570,7 +570,7 @@ window.Study = {
     const container = document.createElement('div');
     container.className = 'confetti-container';
     document.body.appendChild(container);
-    const colors = ['#7C3AED', '#22C55E', '#F59E0B', '#EF4444', '#3B82F6'];
+    const colors = ['#7C3AED', '#78B86C', '#F59E0B', '#EF4444', '#3B82F6'];
     for (let i = 0; i < 60; i++) {
       const piece = document.createElement('div');
       piece.className = 'confetti-piece';
