@@ -8,8 +8,8 @@
   --surface: #12121A;
   --surface2: #1A1A26;
   --border: #1E1E2E;
-  --accent: #7C3AED;
-  --accent-hover: #8B47FF;
+  --accent: #2563EB;
+  --accent-hover: #3B82F6;
   --accent2: #22C55E;
   --text: #F8F8FF;
   --subtext: #8888AA;
@@ -25,8 +25,8 @@
   --surface: #0D0D0D;
   --surface2: #151515;
   --border: #1A1A1A;
-  --accent: #9D50FF;
-  --accent-hover: #AE6BFF;
+  --accent: #3B82F6;
+  --accent-hover: #60A5FA;
   --accent2: #00FF88;
   --text: #FFFFFF;
   --subtext: #666680;
@@ -40,8 +40,8 @@
   --surface: #FFFFFF;
   --surface2: #EEEEF6;
   --border: #E0E0EC;
-  --accent: #6D28D9;
-  --accent-hover: #7C3AED;
+  --accent: #1D4ED8;
+  --accent-hover: #2563EB;
   --accent2: #16A34A;
   --text: #111120;
   --subtext: #6060A0;
@@ -1475,9 +1475,9 @@ h3 { font-size: 1rem; font-weight: 600; }
   width: 12px; height: 12px;
   border-radius: 50%;
 }
-.swatch-dark .swatch-accent     { background: #7C3AED; }
-.swatch-darker .swatch-accent   { background: #9D50FF; }
-.swatch-light .swatch-accent    { background: #6D28D9; }
+.swatch-dark .swatch-accent     { background: #2563EB; }
+.swatch-darker .swatch-accent   { background: #3B82F6; }
+.swatch-light .swatch-accent    { background: #1D4ED8; }
 .swatch-midnight .swatch-accent { background: #3B82F6; }
 .swatch-label { font-size: 0.68rem; font-weight: 600; }
 

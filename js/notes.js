@@ -5,7 +5,7 @@ window.Notes = {
   _drawingCanvas: null,
   _drawingCtx: null,
   _isDrawing: false,
-  _drawingColor: '#7C3AED',
+  _drawingColor: '#2563EB',
   _drawingMode: 'pen',
   _photos: [],
   _audioBlob: null,

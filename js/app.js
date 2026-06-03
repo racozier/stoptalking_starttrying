@@ -93,7 +93,7 @@ window.App = {
 
   applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    const themeColors = { dark: '#7C3AED', darker: '#9D50FF', light: '#6D28D9', midnight: '#3B82F6' };
+    const themeColors = { dark: '#2563EB', darker: '#3B82F6', light: '#1D4ED8', midnight: '#3B82F6' };
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = themeColors[theme] || themeColors.dark;
   },

@@ -411,7 +411,7 @@ window.Study = {
     const container = document.createElement('div');
     container.className = 'confetti-container';
     document.body.appendChild(container);
-    const colors = ['#7C3AED', '#22C55E', '#F59E0B', '#EF4444', '#3B82F6'];
+    const colors = ['#2563EB', '#22C55E', '#F59E0B', '#EF4444', '#3B82F6'];
     for (let i = 0; i < 60; i++) {
       const piece = document.createElement('div');
       piece.className = 'confetti-piece';
