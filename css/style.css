@@ -70,13 +70,6 @@
 
 /* ── Polish accent theme (red) ───────────────────────────────────────────── */
 [data-tab="polish"] { --accent: #DC2626; --accent-hover: #EF4444; }
-/* Color only the safe-area-inset-top padding strip to match the red status bar */
-[data-tab="polish"] .tab-content.active {
-  background: linear-gradient(to bottom,
-    #DC2626 max(14px, env(safe-area-inset-top)),
-    transparent max(14px, env(safe-area-inset-top))
-  );
-}
 
 /* ── Reset ────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

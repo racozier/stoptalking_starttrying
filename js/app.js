@@ -60,7 +60,6 @@ window.App = {
   async switchTab(tab) {
     // Clear Polish accent and restore theme-color when leaving Study tab
     document.documentElement.removeAttribute('data-tab');
-    document.documentElement.style.backgroundColor = '';
     const theme = document.documentElement.getAttribute('data-theme') || 'dark';
     const themeColors = { dark: '#2563EB', darker: '#3B82F6', light: '#1D4ED8', midnight: '#3B82F6' };
     const meta = document.querySelector('meta[name="theme-color"]');
