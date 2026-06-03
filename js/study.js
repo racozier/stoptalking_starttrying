@@ -75,10 +75,14 @@ window.Study = {
     const circ = +(2 * Math.PI * r).toFixed(2);
     const offset = +(circ * (1 - termPct / 100)).toFixed(2);
 
+    const lastPassedDisplay = lastPassed
+      ? `${App.escapeHtml(lastPassed.name)} - ${App.escapeHtml(lastPassed.code || '')}`
+      : null;
+
     const rightHtml = lastPassed
-      ? `<div class="term-last-class">${App.escapeHtml(lastPassedName)}</div>
+      ? `<div class="term-last-class">${lastPassedDisplay}</div>
          <div class="term-passed-row">🎉 <span class="term-passed-label">Passed</span></div>
-         <div class="term-passed-date">${lastPassedDateStr}</div>
+         <div class="term-passed-date">Completed on ${lastPassedDateStr}</div>
          <button class="link-btn term-view-all" onclick="Study.switchSubTab('classes')">View All Classes ›</button>`
       : `<div class="term-no-pass">No classes passed yet</div>
          <button class="link-btn term-view-all" onclick="Study.switchSubTab('classes')">View All Classes ›</button>`;
@@ -101,7 +105,7 @@ window.Study = {
             </svg>
             <div class="term-count-wrap">
               <div class="term-count">${termPassed}/${termTotal}</div>
-              <div class="term-count-label">classes completed</div>
+              <div class="term-count-label">CLASSES COMPLETED</div>
             </div>
           </div>
           <div class="term-time-wrap">
@@ -399,24 +403,85 @@ window.Study = {
       const totalMin = classSessions.reduce((s, x) => s + x.durationMinutes, 0);
       const statusLabels = { passed: 'Passed ✓', in_progress: 'In Progress', not_started: 'Not Started' };
       const statusClass = { passed: 'status-passed', in_progress: 'status-active', not_started: 'status-pending' };
+      const isPassed = cls.status === 'passed';
       return `
-      <div class="class-card">
-        <div class="class-card-header">
-          <div>
-            <div class="class-name">${App.escapeHtml(cls.name)}</div>
-            <div class="class-meta">${cls.code} · ${cls.credits} credits · ${cls.term}</div>
+      <div class="class-swipe-row" id="class-swipe-${cls.id}">
+        <div class="class-card ${isPassed ? 'class-card-passed' : ''}">
+          <div class="class-card-header">
+            <div>
+              <div class="class-name">${App.escapeHtml(cls.name)}</div>
+              <div class="class-meta">${cls.code} · ${cls.credits} credits · ${cls.term}</div>
+            </div>
+            <span class="status-badge ${statusClass[cls.status] || ''}">${statusLabels[cls.status] || cls.status}</span>
           </div>
-          <span class="status-badge ${statusClass[cls.status] || ''}">${statusLabels[cls.status] || cls.status}</span>
+          <div class="class-hours">${App.formatMinutes(totalMin)} studied</div>
+          ${isPassed && cls.passedDate
+            ? `<div class="class-passed-date">Completed ${App.formatDate(cls.passedDate)}</div>`
+            : ''}
+          ${!isPassed
+            ? `<button class="btn-mark-passed" onclick="Study.markPassed(${cls.id})">Mark as Passed ✓</button>`
+            : ''}
         </div>
-        <div class="class-hours">${App.formatMinutes(totalMin)} studied</div>
-        ${cls.status === 'passed' && cls.passedDate
-          ? `<div class="class-passed-date">Completed ${App.formatDate(cls.passedDate)}</div>`
-          : ''}
-        ${cls.status !== 'passed'
-          ? `<button class="btn-mark-passed" onclick="Study.markPassed(${cls.id})">Mark as Passed ✓</button>`
-          : ''}
+        <button class="class-delete-btn" onclick="Study.confirmDeleteClass(${cls.id})">🗑</button>
       </div>`;
     }).join('');
+
+    // Wire up swipe-to-reveal-delete on each row
+    container.querySelectorAll('.class-swipe-row').forEach((row) => {
+      let startX = 0;
+      let startY = 0;
+      let swiping = false;
+      const card = row.querySelector('.class-card');
+      const deleteBtn = row.querySelector('.class-delete-btn');
+
+      row.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        swiping = false;
+      }, { passive: true });
+
+      row.addEventListener('touchmove', (e) => {
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+        if (!swiping && Math.abs(dy) > Math.abs(dx)) return;
+        swiping = true;
+        if (dx < 0) {
+          const shift = Math.max(-72, dx);
+          card.style.transform = `translateX(${shift}px)`;
+        } else if (dx > 0) {
+          card.style.transform = 'translateX(0)';
+        }
+      }, { passive: true });
+
+      row.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - startX;
+        if (dx < -50) {
+          card.style.transform = 'translateX(-72px)';
+          row.classList.add('swipe-open');
+        } else {
+          card.style.transform = '';
+          row.classList.remove('swipe-open');
+        }
+      });
+
+      // Tap elsewhere to close
+      document.addEventListener('touchstart', (e) => {
+        if (!row.contains(e.target)) {
+          card.style.transform = '';
+          row.classList.remove('swipe-open');
+        }
+      }, { passive: true });
+    });
+  },
+
+  async confirmDeleteClass(classId) {
+    const cls = await window.db.classes.get(classId);
+    if (!cls) return;
+    const label = `"${cls.name}${cls.code ? ' - ' + cls.code : ''}"`;
+    if (!confirm(`Are you sure you wish to remove ${label}?`)) return;
+    await window.db.classes.delete(classId);
+    await this.renderClasses();
+    await this.renderTermProgress();
   },
 
   setClassFilter(filter) {
