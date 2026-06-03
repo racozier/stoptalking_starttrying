@@ -201,7 +201,11 @@ window.Fitness = {
     if (!mapEl || !run.polyline || this._leafletMaps[run.id]) return;
     const coords = run.polyline;
     const map = L.map(mapEl, { zoomControl: false, dragging: false, scrollWheelZoom: false, attributionControl: false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const tileUrl = isDark
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+    L.tileLayer(tileUrl, { maxZoom: 18 }).addTo(map);
     const polyline = L.polyline(coords, { color: '#38BDF8', weight: 4 }).addTo(map);
     map.fitBounds(polyline.getBounds(), { padding: [10, 10] });
     this._leafletMaps[run.id] = map;

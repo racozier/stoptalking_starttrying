@@ -408,7 +408,11 @@ window.Dashboard = {
         doubleClickZoom: false,
         keyboard: false,
       });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { opacity: 0.65 }).addTo(map);
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      const tileUrl = isDark
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+      L.tileLayer(tileUrl, { maxZoom: 18 }).addTo(map);
       const line = L.polyline(e.polyline, { color: '#78B86C', weight: 3, opacity: 0.95 }).addTo(map);
       map.fitBounds(line.getBounds(), { padding: [8, 8] });
     });
