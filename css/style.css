@@ -2385,7 +2385,9 @@ h3 { font-size: 1rem; font-weight: 600; }
   inset: 0;
   transform: rotateY(180deg);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 6px;
+  overflow: hidden;
 }
 
 /* Front face */
@@ -2403,13 +2405,13 @@ h3 { font-size: 1rem; font-weight: 600; }
 .polish-tap-hint { font-size: 0.5rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* Back face */
-.polish-back-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.polish-back-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.polish-back-right { display: flex; flex-direction: column; justify-content: space-between; align-items: center; flex-shrink: 0; }
 .polish-back-word { font-size: 1.8rem; font-weight: 800; color: var(--text); line-height: 1; }
 .polish-back-meta { display: flex; align-items: center; gap: 7px; margin-top: 5px; flex-wrap: wrap; }
 .polish-back-trans { font-size: 0.85rem; color: var(--subtext); }
 .polish-pos-badge { display: inline-block; background: rgba(220,38,38,0.15); color: #F87171; border: 1px solid rgba(220,38,38,0.25); border-radius: 20px; font-size: 0.55rem; font-weight: 700; padding: 2px 7px; text-transform: uppercase; letter-spacing: 0.06em; flex-shrink: 0; }
-.polish-back-footer { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 6px; }
-.polish-chevron { background: none; border: none; color: var(--subtext); cursor: pointer; padding: 4px 2px; font-size: 22px; line-height: 1; transition: transform 0.25s; }
+.polish-chevron { background: none; border: none; color: var(--subtext); cursor: pointer; padding: 2px; font-size: 32px; line-height: 1; transition: transform 0.25s; }
 .polish-chevron.open { transform: rotate(180deg); }
 
 /* Expand panel */

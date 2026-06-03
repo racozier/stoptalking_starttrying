@@ -550,22 +550,20 @@
             </div>
             <!-- BACK -->
             <div class="polish-flip-face polish-back" id="polish-flip-back">
-              <div class="polish-back-top">
-                <div class="polish-back-left">
-                  <div class="polish-back-word" id="polish-wotd-word">---</div>
-                  <div class="polish-back-meta">
-                    <span class="polish-back-trans" id="polish-wotd-trans">---</span>
-                    <span class="polish-pos-badge" id="polish-wotd-pos">---</span>
-                  </div>
+              <div class="polish-back-main">
+                <div class="polish-back-word" id="polish-wotd-word">---</div>
+                <div class="polish-back-meta">
+                  <span class="polish-back-trans" id="polish-wotd-trans">---</span>
+                  <span class="polish-pos-badge" id="polish-wotd-pos">---</span>
                 </div>
+                <div class="polish-expand-panel" id="polish-expand-panel">
+                  <div class="polish-expand-divider"></div>
+                  <div class="polish-sentence-pl" id="polish-wotd-sent-pl"></div>
+                  <div class="polish-sentence-en" id="polish-wotd-sent-en"></div>
+                </div>
+              </div>
+              <div class="polish-back-right">
                 <button class="polish-star-btn" id="polish-star-btn" onclick="event.stopPropagation();PolishToggleFavorite()" title="Save word">☆</button>
-              </div>
-              <div class="polish-expand-panel" id="polish-expand-panel">
-                <div class="polish-expand-divider"></div>
-                <div class="polish-sentence-pl" id="polish-wotd-sent-pl"></div>
-                <div class="polish-sentence-en" id="polish-wotd-sent-en"></div>
-              </div>
-              <div class="polish-back-footer">
                 <button class="polish-chevron" id="polish-chevron" onclick="event.stopPropagation();PolishToggleExpand()">▾</button>
               </div>
             </div>
