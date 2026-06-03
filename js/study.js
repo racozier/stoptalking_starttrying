@@ -290,12 +290,12 @@ window.Study = {
     const bar = document.getElementById('study-daily-goal-bar');
     if (bar) {
       bar.style.width = Math.min(rawPct, 100) + '%';
-      bar.style.background = isOnFire ? '#F97316' : '#78B86C';
+      bar.style.background = isOnFire ? '#EAB308' : '#78B86C';
     }
     const pctEl = document.getElementById('study-daily-goal-pct');
     if (pctEl) {
       pctEl.textContent = rawPct + '%' + (isOnFire ? ' 🔥' : '');
-      pctEl.style.color = isOnFire ? '#F97316' : '#78B86C';
+      pctEl.style.color = isOnFire ? '#EAB308' : '#78B86C';
     }
   },
 
@@ -324,12 +324,12 @@ window.Study = {
     const goalBar = document.getElementById('study-week-goal-bar');
     if (goalBar) {
       goalBar.style.width = Math.min(rawPct, 100) + '%';
-      goalBar.style.background = isOnFire ? '#F97316' : '#78B86C';
+      goalBar.style.background = isOnFire ? '#EAB308' : '#78B86C';
     }
     const goalPct = document.getElementById('study-week-goal-pct');
     if (goalPct) {
       goalPct.textContent = rawPct + '%' + (isOnFire ? ' 🔥' : '');
-      goalPct.style.color = isOnFire ? '#F97316' : '#78B86C';
+      goalPct.style.color = isOnFire ? '#EAB308' : '#78B86C';
     }
 
     const dailyGoalHours = (await window.db.settings.get('dailyStudyGoalHours', 4));

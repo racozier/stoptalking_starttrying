@@ -202,7 +202,7 @@ window.Charts = {
           data,
           backgroundColor: data.map((v) => {
             if (v <= 0) return 'rgba(37, 99, 235, 0.15)';
-            if (dailyGoalHours !== null && v >= dailyGoalHours) return 'rgba(249, 115, 22, 0.85)';
+            if (dailyGoalHours !== null && v >= dailyGoalHours) return 'rgba(234, 179, 8, 0.85)';
             return 'rgba(37, 99, 235, 0.7)';
           }),
           borderRadius: 5,
