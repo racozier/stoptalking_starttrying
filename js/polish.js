@@ -570,17 +570,19 @@ window.Polish = {
     const startBtn = document.getElementById('polish-timer-start-btn');
     const controls = document.getElementById('polish-timer-controls');
     const pauseBtn = document.getElementById('polish-timer-pause-btn');
+    const PAUSE_HTML  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg> Pause';
+    const RESUME_HTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Resume';
     if (state === 'idle') {
       if (startBtn) startBtn.style.display = '';
       if (controls) controls.style.display = 'none';
     } else if (state === 'running') {
       if (startBtn) startBtn.style.display = 'none';
       if (controls) controls.style.display = 'flex';
-      if (pauseBtn) pauseBtn.textContent = '⏸ Pause';
+      if (pauseBtn) pauseBtn.innerHTML = PAUSE_HTML;
     } else if (state === 'paused') {
       if (startBtn) startBtn.style.display = 'none';
       if (controls) controls.style.display = 'flex';
-      if (pauseBtn) pauseBtn.textContent = '▶ Resume';
+      if (pauseBtn) pauseBtn.innerHTML = RESUME_HTML;
     }
   },
 
@@ -603,6 +605,21 @@ window.Polish = {
     clearInterval(this._timerInterval);
     this._timerInterval = null;
     this._updateTimerDisplay();
+  },
+
+  resumeTimer() {
+    const state = this._getTimerState();
+    if (!state || state.running) return;
+    this._setTimerState({ ...state, running: true, startTime: Date.now() });
+    this._startTick();
+    this._updateTimerDisplay();
+  },
+
+  togglePauseResume() {
+    const state = this._getTimerState();
+    if (!state) return;
+    if (state.running) this.pauseTimer();
+    else this.resumeTimer();
   },
 
   async stopTimer() {
@@ -648,6 +665,7 @@ window.PolishCalNext = () => Polish.calNextMonth();
 window.PolishToggleExpand = () => Polish.toggleExpand();
 window.PolishStartTimerFlow = () => Polish.startTimer();
 window.PolishPauseTimer = () => Polish.pauseTimer();
+window.PolishTogglePauseResume = () => Polish.togglePauseResume();
 window.PolishStopTimer = () => Polish.stopTimer();
 window.PolishOpenLog = () => openQuickStudyModal('Polish Language');
 window.PolishToggleFavorite = () => Polish.toggleFavorite();

@@ -3,7 +3,6 @@ window.SettingsModule = {
 
   async render() {
     await this.loadSettings();
-    await this.renderStravaStatus();
   },
 
   async loadSettings() {
@@ -11,8 +10,6 @@ window.SettingsModule = {
 
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
     set('settings-name', settings.displayName || 'Richie');
-    set('settings-target-weight', settings.targetWeight || '');
-    set('settings-degree-credits', settings.degreeCreditHours || 120);
     set('settings-term-name', settings.currentTermName || '');
     set('settings-term-end', settings.currentTermEnd || '');
     set('settings-timezone', settings.timezone || 'Europe/Warsaw');
@@ -29,11 +26,22 @@ window.SettingsModule = {
     if (clearBtn) clearBtn.style.display = settings.sampleDataLoaded ? 'flex' : 'none';
   },
 
+  selectTerm(value) {
+    const termEndDates = {
+      'Term 1': '2026-04-30',
+      'Term 2': '2026-10-31',
+      'Term 3': '2027-04-30',
+    };
+    const end = termEndDates[value];
+    if (end) {
+      const el = document.getElementById('settings-term-end');
+      if (el) el.value = end;
+    }
+  },
+
   async saveSettings() {
     const get = (id) => document.getElementById(id)?.value || '';
     await window.db.settings.set('displayName', get('settings-name') || 'Richie');
-    await window.db.settings.set('targetWeight', parseFloat(get('settings-target-weight')) || null);
-    await window.db.settings.set('degreeCreditHours', parseInt(get('settings-degree-credits')) || 120);
     await window.db.settings.set('currentTermName', get('settings-term-name'));
     await window.db.settings.set('currentTermEnd', get('settings-term-end'));
     const tz = get('settings-timezone') || 'Europe/Warsaw';
@@ -150,6 +158,7 @@ window.SettingsModule = SettingsModule;
 window.SettingsSave = () => SettingsModule.saveSettings();
 window.SettingsSetTheme = (t) => SettingsModule.setTheme(t);
 window.SettingsDisconnectStrava = () => SettingsModule.disconnectStrava();
+window.SettingsSelectTerm = (v) => SettingsModule.selectTerm(v);
 window.SettingsExport = () => SettingsModule.exportData();
 window.SettingsTriggerImport = () => SettingsModule.triggerImport();
 window.SettingsHandleImport = (input) => SettingsModule.handleImport(input);

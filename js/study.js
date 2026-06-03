@@ -243,20 +243,19 @@ window.Study = {
     const startBtn = document.getElementById('timer-start-btn');
     const controls = document.getElementById('study-timer-controls');
     const pauseBtn = document.getElementById('timer-pause-btn');
-    const stopBtn = document.getElementById('timer-stop-btn');
+    const PAUSE_HTML  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg> Pause';
+    const RESUME_HTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Resume';
     if (state === 'idle') {
       if (startBtn) startBtn.style.display = '';
       if (controls) controls.style.display = 'none';
     } else if (state === 'running') {
       if (startBtn) startBtn.style.display = 'none';
       if (controls) controls.style.display = 'flex';
-      if (pauseBtn) pauseBtn.textContent = '⏸ Pause';
-      if (stopBtn) stopBtn.style.display = '';
+      if (pauseBtn) pauseBtn.innerHTML = PAUSE_HTML;
     } else if (state === 'paused') {
       if (startBtn) startBtn.style.display = 'none';
       if (controls) controls.style.display = 'flex';
-      if (pauseBtn) pauseBtn.textContent = '▶ Resume';
-      if (stopBtn) stopBtn.style.display = '';
+      if (pauseBtn) pauseBtn.innerHTML = RESUME_HTML;
     }
   },
 
@@ -314,6 +313,21 @@ window.Study = {
     App.showToast(`Session saved: ${App.formatMinutes(minutes)}`, 'success');
     await this.renderOverview();
     if (App.currentTab === 'dashboard') await Dashboard.render();
+  },
+
+  resumeTimer() {
+    const state = this._getTimerState();
+    if (!state || state.running) return;
+    this._setTimerState({ ...state, running: true, startTime: Date.now() });
+    this._startTimerTick();
+    this.updateTimerDisplay();
+  },
+
+  togglePauseResume() {
+    const state = this._getTimerState();
+    if (!state) return;
+    if (state.running) this.pauseTimer();
+    else this.resumeTimer();
   },
 
   _startTimerTick() {
@@ -791,6 +805,7 @@ window.Study = {
 window.Study = Study;
 window.StudyStartTimer = () => Study.startTimer();
 window.StudyPauseTimer = () => Study.pauseTimer();
+window.StudyTogglePauseResume = () => Study.togglePauseResume();
 window.StudyStopTimer = () => Study.stopTimer();
 window.StudyMarkPassed = (id) => Study.markPassed(id);
 window.StudyOpenAddClass = () => Study.openAddClassModal();

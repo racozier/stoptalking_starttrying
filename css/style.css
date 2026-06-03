@@ -2529,7 +2529,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .study-goal-bar-wrap { margin-bottom: 8px; flex-shrink: 0; }
 .study-start-btn { width: 100%; padding: 7px 0; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 600; cursor: pointer; margin-bottom: 6px; flex-shrink: 0; }
 .study-timer-controls { display: flex; gap: 5px; margin-bottom: 6px; flex-shrink: 0; }
-.study-pause-btn, .study-stop-btn { flex: 1; padding: 6px 0; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.68rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text); }
+.study-pause-btn, .study-stop-btn { flex: 1; padding: 6px 0; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.68rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text); display: flex; align-items: center; justify-content: center; gap: 5px; }
 .study-log-link { font-size: 0.68rem; display: block; text-align: center; padding: 0; flex-shrink: 0; }
 .study-week-total-row { font-size: 0.88rem; margin-bottom: 2px; flex-shrink: 0; }
 .study-week-num { font-size: 2.25rem; font-weight: 400; color: var(--text); }

@@ -412,8 +412,12 @@
             </div>
             <button class="study-start-btn" id="timer-start-btn" onclick="StudyStartTimerFlow()">▶ Start Study Timer</button>
             <div class="study-timer-controls" id="study-timer-controls" style="display:none">
-              <button class="study-pause-btn" id="timer-pause-btn" onclick="StudyPauseTimer()">⏸ Pause</button>
-              <button class="study-stop-btn" id="timer-stop-btn" onclick="StudyStopTimer()">⏹ Stop</button>
+              <button class="study-pause-btn" id="timer-pause-btn" onclick="StudyTogglePauseResume()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg> Pause
+              </button>
+              <button class="study-stop-btn" id="timer-stop-btn" onclick="StudyStopTimer()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> Stop
+              </button>
             </div>
             <button class="link-btn study-log-link" onclick="StudyOpenManualLog()">+ Log Study Time</button>
           </div>
@@ -506,8 +510,12 @@
             </div>
             <button class="study-start-btn" id="polish-timer-start-btn" onclick="PolishStartTimerFlow()">▶ Start Study Timer</button>
             <div class="study-timer-controls" id="polish-timer-controls" style="display:none">
-              <button class="study-pause-btn" id="polish-timer-pause-btn" onclick="PolishPauseTimer()">⏸ Pause</button>
-              <button class="study-stop-btn" onclick="PolishStopTimer()">⏹ Stop</button>
+              <button class="study-pause-btn" id="polish-timer-pause-btn" onclick="PolishTogglePauseResume()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg> Pause
+              </button>
+              <button class="study-stop-btn" onclick="PolishStopTimer()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> Stop
+              </button>
             </div>
             <button class="link-btn study-log-link" onclick="PolishOpenLog()">+ Log Polish Time</button>
           </div>
@@ -713,22 +721,6 @@
             </select>
           </div>
           <div class="settings-row">
-            <div class="settings-row-label">Target Weight<div class="sub">kg</div></div>
-            <input class="settings-input" id="settings-target-weight" type="number" min="40" max="200" step="0.5" placeholder="e.g. 80" />
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-label">Degree Credit Hours<div class="sub">WGU total</div></div>
-            <input class="settings-input" id="settings-degree-credits" type="number" min="60" max="240" value="120" />
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-label">Current Term</div>
-            <input class="settings-input" id="settings-term-name" type="text" placeholder="e.g. Term 1 2026" />
-          </div>
-          <div class="settings-row">
-            <div class="settings-row-label">Term End Date</div>
-            <input class="settings-input" id="settings-term-end" type="date" />
-          </div>
-          <div class="settings-row">
             <div class="settings-row-label">Timezone</div>
             <select class="settings-input" id="settings-timezone" style="max-width:180px">
               <option value="Europe/Warsaw">Warsaw (GMT+2)</option>
@@ -752,21 +744,25 @@
         </div>
       </div>
 
-      <!-- Strava -->
+      <!-- Education -->
       <div class="settings-section">
-        <div class="settings-section-title">Strava</div>
+        <div class="settings-section-title">Education</div>
         <div class="settings-card">
           <div class="settings-row">
-            <div class="settings-row-label">
-              Connection
-              <div class="strava-status" id="strava-connection-status">
-                <span class="status-disconnected">● Not connected</span>
-              </div>
-            </div>
+            <div class="settings-row-label">Current Term<div class="sub">WGU enrollment period</div></div>
+            <select class="settings-input" id="settings-term-name" style="max-width:200px" onchange="SettingsSelectTerm(this.value)">
+              <option value="">-- Select term --</option>
+              <option value="Term 1">Term 1 (Nov 2025 – Apr 2026)</option>
+              <option value="Term 2">Term 2 (May 2026 – Oct 2026)</option>
+              <option value="Term 3">Term 3 (Nov 2026 – Apr 2027)</option>
+            </select>
           </div>
           <div class="settings-row">
-            <button class="btn btn-primary" id="strava-connect-btn" onclick="FitnessConnectStrava()" style="background:#FC4C02">Connect Strava</button>
-            <button class="btn btn-secondary" id="strava-disconnect-btn" onclick="SettingsDisconnectStrava()" style="display:none">Disconnect</button>
+            <div class="settings-row-label">Term End Date<div class="sub">Auto-set by term above</div></div>
+            <input class="settings-input" id="settings-term-end" type="date" style="max-width:160px" />
+          </div>
+          <div class="settings-row">
+            <button class="btn btn-primary" onclick="SettingsSave()">Save Education</button>
           </div>
         </div>
       </div>
