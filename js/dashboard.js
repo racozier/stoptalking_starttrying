@@ -67,12 +67,17 @@ window.Dashboard = {
       window.db.runs.getAll(),
     ]);
 
-    const activeDays = new Set();
-    for (const s of allStudy) {
-      if (s.durationMinutes >= 30) activeDays.add(s.date.split('T')[0]);
-    }
-    for (const w of allWorkouts) activeDays.add(w.date.split('T')[0]);
-    for (const r of allRuns) activeDays.add(r.date.split('T')[0]);
+    // Mental: any study session (WGU or Polish) logged that day
+    const mentalDays = new Set();
+    for (const s of allStudy) mentalDays.add(s.date.split('T')[0]);
+
+    // Physical: any workout or run logged that day
+    const physicalDays = new Set();
+    for (const w of allWorkouts) physicalDays.add(w.date.split('T')[0]);
+    for (const r of allRuns) physicalDays.add(r.date.split('T')[0]);
+
+    // Active day = both mental AND physical logged
+    const activeDays = new Set([...mentalDays].filter((d) => physicalDays.has(d)));
     this._streakActiveDays = activeDays;
 
     let streak = 0;

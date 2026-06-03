@@ -354,28 +354,29 @@ window.Study = {
   async renderStreakCalendar() {
     const allSessions = await window.db.study.getAll();
 
-    // Build active day map: date → minutes
-    const dayMinutes = {};
+    // WGU-only: exclude Polish study sessions
+    const wguMinutes = {};
     allSessions.forEach((s) => {
+      if (s.subject === 'Polish Language') return;
       const d = s.date.split('T')[0];
-      dayMinutes[d] = (dayMinutes[d] || 0) + s.durationMinutes;
+      wguMinutes[d] = (wguMinutes[d] || 0) + s.durationMinutes;
     });
 
-    // Streak (always calculated from today regardless of displayed month)
+    // Streak: consecutive days with >=4h WGU study
     let streak = 0;
     const today = new Date();
     const checkDate = new Date(today);
     const todayStr = today.toISOString().split('T')[0];
-    if (!dayMinutes[todayStr] || dayMinutes[todayStr] < 30) checkDate.setDate(checkDate.getDate() - 1);
+    if (!wguMinutes[todayStr] || wguMinutes[todayStr] < 240) checkDate.setDate(checkDate.getDate() - 1);
     while (true) {
       const ds = checkDate.toISOString().split('T')[0];
-      if (dayMinutes[ds] >= 30) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
+      if (wguMinutes[ds] >= 240) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
       else break;
     }
     const streakEl = document.getElementById('study-streak-count');
     if (streakEl) streakEl.textContent = streak;
 
-    // Month metrics
+    // Month metrics (WGU only)
     const year = this._calendarYear;
     const month = this._calendarMonth;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -383,7 +384,7 @@ window.Study = {
     let monthTotalMins = 0;
     for (let day = 1; day <= daysInMonth; day++) {
       const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const mins = dayMinutes[ds] || 0;
+      const mins = wguMinutes[ds] || 0;
       if (mins > 0) daysStudied++;
       monthTotalMins += mins;
     }
@@ -401,7 +402,7 @@ window.Study = {
     const monthEl = document.getElementById('study-calendar-month');
     if (monthEl) monthEl.textContent = monthName;
 
-    // Calendar grid
+    // Calendar grid: flame=>=4h streak day, check=<4h but studied, empty=nothing
     const calEl = document.getElementById('study-calendar');
     if (!calEl) return;
 
@@ -412,14 +413,13 @@ window.Study = {
     for (let i = 0; i < startOffset; i++) cells.push('<div class="cal-cell empty"></div>');
     for (let day = 1; day <= daysInMonth; day++) {
       const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const mins = dayMinutes[ds] || 0;
+      const mins = wguMinutes[ds] || 0;
       const isToday = ds === todayStr;
-      let dotClass = 'dot-none';
-      if (mins >= 360) dotClass = 'dot-gold';
-      else if (mins >= 180) dotClass = 'dot-dark';
-      else if (mins >= 60) dotClass = 'dot-mid';
-      else if (mins >= 1) dotClass = 'dot-light';
-      cells.push(`<div class="cal-cell ${isToday ? 'cal-today' : ''}"><div class="cal-dot ${dotClass}"></div><span class="cal-day-num">${day}</span></div>`);
+      let icon;
+      if (mins >= 240)   icon = '<span class="cal-icon-flame">&#x1F525;</span>';
+      else if (mins > 0) icon = '<span class="cal-icon-check">&#x2713;</span>';
+      else               icon = '<span class="cal-icon-spacer"></span>';
+      cells.push(`<div class="cal-cell ${isToday ? 'cal-today' : ''}">${icon}<span class="cal-day-num">${day}</span></div>`);
     }
     calEl.innerHTML = cells.join('');
   },
