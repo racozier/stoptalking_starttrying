@@ -243,7 +243,7 @@ window.Dashboard = {
       const todayStudy  = allStudy.filter((s) => s.date.startsWith(todayStr) && s.subject !== 'Polish Language');
       const items = [
         { label: 'Workout',      done: allWorkouts.some((w) => w.date.startsWith(todayStr)), lucide: 'dumbbell',   cls: 'icon-workout' },
-        { label: 'Run',          done: allRuns.some((r) => r.date.startsWith(todayStr)),     lucide: 'person-running', cls: 'icon-run' },
+        { label: 'Run',          done: allRuns.some((r) => r.date.startsWith(todayStr)),     lucide: 'footprints', cls: 'icon-run' },
         { label: 'WGU Study',    done: todayStudy.length > 0,                                lucide: 'book-open',  cls: 'icon-study' },
         { label: 'Learn Polish', done: todayPolish.length > 0,                               lucide: null,         cls: 'icon-polish' },
       ];
@@ -281,7 +281,7 @@ window.Dashboard = {
       events.push({ time: w.date, lucide: 'scale', iconClass: 'icon-weight', title: 'Weight Logged', sub: `${w.value} kg`, type: 'weight', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
     });
     runs.filter((r) => r.date.startsWith(dateStr)).forEach((r) => {
-      events.push({ time: r.date, lucide: 'person-running', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id, polyline: r.polyline, hasNotes: !!(r.notes && r.notes.trim()) });
+      events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id, polyline: r.polyline, hasNotes: !!(r.notes && r.notes.trim()) });
     });
     workouts.filter((w) => w.date.startsWith(dateStr)).forEach((w) => {
       events.push({ time: w.date, lucide: 'dumbbell', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
