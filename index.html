@@ -326,10 +326,6 @@
 
       <div class="tab-page-header">
         <h2>Fitness</h2>
-        <div class="header-actions">
-          <button class="icon-btn-round" title="Search"><i data-lucide="search" style="width:16px;height:16px"></i></button>
-          <button class="icon-btn-round" title="Filter"><i data-lucide="sliders-horizontal" style="width:16px;height:16px"></i></button>
-        </div>
       </div>
 
       <!-- Filter tabs -->
@@ -361,10 +357,6 @@
 
       <div class="tab-page-header">
         <h2>Study</h2>
-        <div class="header-actions">
-          <button class="icon-btn-round" onclick="Study.openManualLogModal()" title="Log Study Time"><i data-lucide="timer" style="width:16px;height:16px"></i></button>
-          <button class="icon-btn-round" title="More">···</button>
-        </div>
       </div>
 
       <!-- Sub-tabs -->
@@ -421,33 +413,43 @@
           </div>
         </div>
 
-        <!-- Streak + Calendar -->
-        <div class="card study-streak-section mb-12">
-          <div class="flex-between mb-12">
-            <div>
-              <div class="streak-section-row">
-                <span class="streak-big" id="study-streak-count">0</span>
-                <div style="margin-left:8px">
-                  <div style="font-size:0.85rem;font-weight:700">Day Streak</div>
-                  <div style="font-size:0.72rem;color:var(--subtext)">Days with ≥ 30 min study</div>
+        <!-- Compact Calendar + Metrics -->
+        <div class="card study-cal-card mb-12">
+          <div class="study-cal-layout">
+            <!-- Left ~70%: month nav + calendar -->
+            <div class="study-cal-left">
+              <div class="study-cal-nav">
+                <button class="study-cal-arrow" onclick="Study.calPrevMonth()">‹</button>
+                <span class="study-cal-month-label" id="study-calendar-month">JUNE 2026</span>
+                <button class="study-cal-arrow" onclick="Study.calNextMonth()">›</button>
+              </div>
+              <div class="study-cal-day-labels">
+                <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+              </div>
+              <div class="calendar-grid study-cal-grid" id="study-calendar"></div>
+            </div>
+            <!-- Vertical divider -->
+            <div class="study-cal-vdiv"></div>
+            <!-- Right ~30%: 3 stacked metrics -->
+            <div class="study-cal-right">
+              <div class="study-cal-metric">
+                <div class="study-cal-metric-val" id="study-days-studied">0</div>
+                <div class="study-cal-metric-lbl">days studied</div>
+              </div>
+              <div class="study-cal-hdiv"></div>
+              <div class="study-cal-metric">
+                <div class="study-cal-metric-val" id="study-month-total">0h 0m</div>
+                <div class="study-cal-metric-lbl">This month</div>
+              </div>
+              <div class="study-cal-hdiv"></div>
+              <div class="study-cal-metric">
+                <div class="study-cal-metric-val-row">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                  <span id="study-streak-count">0</span>
                 </div>
+                <div class="study-cal-metric-lbl">day streak</div>
               </div>
             </div>
-          </div>
-
-          <div class="calendar-nav">
-            <span id="study-calendar-month">MAY 2026</span>
-          </div>
-          <div class="calendar-day-labels">
-            <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
-          </div>
-          <div class="calendar-grid" id="study-calendar"></div>
-          <div class="calendar-legend">
-            <div class="legend-item"><div class="legend-dot" style="background:rgba(124,58,237,0.3)"></div> &lt;1h</div>
-            <div class="legend-item"><div class="legend-dot" style="background:rgba(124,58,237,0.6)"></div> 1–3h</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> 3–6h</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div> 6h+</div>
-            <div class="legend-item">Passed</div>
           </div>
         </div>
 

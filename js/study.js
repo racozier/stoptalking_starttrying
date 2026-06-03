@@ -2,6 +2,8 @@ window.Study = {
   _subTab: 'overview',
   _timerInterval: null,
   _sessionFilter: { classId: '', dateFrom: '', dateTo: '' },
+  _calendarYear: new Date().getFullYear(),
+  _calendarMonth: new Date().getMonth(),
 
   async init() {
     document.querySelectorAll('.study-subtab-btn').forEach((btn) => {
@@ -337,9 +339,20 @@ window.Study = {
     Charts.createStudyWeekBars('study-week-chart', ['M', 'T', 'W', 'T', 'F', 'S', 'S'], studyPerDay, dailyGoalHours);
   },
 
+  calPrevMonth() {
+    if (this._calendarMonth === 0) { this._calendarMonth = 11; this._calendarYear--; }
+    else this._calendarMonth--;
+    this.renderStreakCalendar();
+  },
+
+  calNextMonth() {
+    if (this._calendarMonth === 11) { this._calendarMonth = 0; this._calendarYear++; }
+    else this._calendarMonth++;
+    this.renderStreakCalendar();
+  },
+
   async renderStreakCalendar() {
     const allSessions = await window.db.study.getAll();
-    const classes = await window.db.classes.getAll();
 
     // Build active day map: date → minutes
     const dayMinutes = {};
@@ -348,10 +361,7 @@ window.Study = {
       dayMinutes[d] = (dayMinutes[d] || 0) + s.durationMinutes;
     });
 
-    // Passed dates from classes
-    const passedDates = new Set(classes.filter((c) => c.passedDate).map((c) => c.passedDate));
-
-    // Streak
+    // Streak (always calculated from today regardless of displayed month)
     let streak = 0;
     const today = new Date();
     const checkDate = new Date(today);
@@ -362,41 +372,54 @@ window.Study = {
       if (dayMinutes[ds] >= 30) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
       else break;
     }
-
     const streakEl = document.getElementById('study-streak-count');
     if (streakEl) streakEl.textContent = streak;
 
-    // Monthly calendar
+    // Month metrics
+    const year = this._calendarYear;
+    const month = this._calendarMonth;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let daysStudied = 0;
+    let monthTotalMins = 0;
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const mins = dayMinutes[ds] || 0;
+      if (mins > 0) daysStudied++;
+      monthTotalMins += mins;
+    }
+    const daysEl = document.getElementById('study-days-studied');
+    if (daysEl) daysEl.textContent = daysStudied;
+    const monthTotalEl = document.getElementById('study-month-total');
+    if (monthTotalEl) {
+      const mh = Math.floor(monthTotalMins / 60);
+      const mm = monthTotalMins % 60;
+      monthTotalEl.textContent = mh > 0 ? `${mh}h ${mm}m` : `${mm}m`;
+    }
+
+    // Month label
+    const monthName = new Date(year, month, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }).toUpperCase();
+    const monthEl = document.getElementById('study-calendar-month');
+    if (monthEl) monthEl.textContent = monthName;
+
+    // Calendar grid
     const calEl = document.getElementById('study-calendar');
     if (!calEl) return;
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const monthName = now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }).toUpperCase();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+    const firstDay = new Date(year, month, 1).getDay();
     const startOffset = (firstDay + 6) % 7; // Mon=0
-
-    const monthEl = document.getElementById('study-calendar-month');
-    if (monthEl) monthEl.textContent = monthName;
 
     const cells = [];
     for (let i = 0; i < startOffset; i++) cells.push('<div class="cal-cell empty"></div>');
     for (let day = 1; day <= daysInMonth; day++) {
       const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const mins = dayMinutes[ds] || 0;
-      const passed = passedDates.has(ds);
       const isToday = ds === todayStr;
       let dotClass = 'dot-none';
       if (mins >= 360) dotClass = 'dot-gold';
       else if (mins >= 180) dotClass = 'dot-dark';
       else if (mins >= 60) dotClass = 'dot-mid';
       else if (mins >= 1) dotClass = 'dot-light';
-      cells.push(`<div class="cal-cell ${isToday ? 'cal-today' : ''}">
-        <div class="cal-dot ${dotClass}"></div>
-        <span class="cal-day-num">${day}</span>
-      </div>`);
+      cells.push(`<div class="cal-cell ${isToday ? 'cal-today' : ''}"><div class="cal-dot ${dotClass}"></div><span class="cal-day-num">${day}</span></div>`);
     }
     calEl.innerHTML = cells.join('');
   },
