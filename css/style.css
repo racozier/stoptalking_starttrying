@@ -2346,7 +2346,6 @@ h3 { font-size: 1rem; font-weight: 600; }
   position: absolute;
   inset: 0;
   transform: rotateY(180deg);
-  overflow: hidden;
 }
 
 /* Front face */

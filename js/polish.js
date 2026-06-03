@@ -168,12 +168,16 @@ const POLISH_WORDS = [
   { word: "równowaga", translation: "balance, equilibrium", pos: "noun", sentence_pl: "Szukam równowagi między pracą a odpoczynkiem.", sentence_en: "I'm looking for balance between work and rest." },
 ];
 
-const POLISH_DAILY_GOAL_MIN = 15;
+const POLISH_DAILY_GOAL_MIN = 20;
 const POLISH_WEEKLY_GOAL_MIN = POLISH_DAILY_GOAL_MIN * 7;
+const POLISH_TIMER_KEY = 'st2_polish_timer';
 
 window.Polish = {
   _flipped: false,
   _expanded: false,
+  _timerInterval: null,
+
+  // ── Word of the Day ────────────────────────────────────────────────────────
 
   _getWordOfDay() {
     const now = new Date();
@@ -188,7 +192,7 @@ window.Polish = {
     const inner = document.getElementById('polish-flip-inner');
     const panel = document.getElementById('polish-expand-panel');
     const chevron = document.getElementById('polish-chevron');
-    if (inner) inner.classList.remove('flipped');
+    if (inner) { inner.classList.remove('flipped'); inner.style.minHeight = ''; }
     if (panel) panel.classList.remove('open');
     if (chevron) chevron.classList.remove('open');
 
@@ -199,8 +203,50 @@ window.Polish = {
     }
 
     this._displayWord(this._getWordOfDay());
+    this.restoreTimer();
     await this.renderStats();
   },
+
+  _displayWord(data) {
+    const wordEl = document.getElementById('polish-wotd-word');
+    const transEl = document.getElementById('polish-wotd-trans');
+    const posEl = document.getElementById('polish-wotd-pos');
+    const sentPlEl = document.getElementById('polish-wotd-sent-pl');
+    const sentEnEl = document.getElementById('polish-wotd-sent-en');
+    if (wordEl) wordEl.textContent = data.word;
+    if (transEl) transEl.textContent = data.translation;
+    if (posEl) posEl.textContent = data.pos;
+    if (sentPlEl) sentPlEl.textContent = data.sentence_pl;
+    if (sentEnEl) sentEnEl.textContent = data.sentence_en;
+  },
+
+  flipCard() {
+    const inner = document.getElementById('polish-flip-inner');
+    if (!inner) return;
+    this._flipped = !this._flipped;
+    inner.classList.toggle('flipped', this._flipped);
+    if (!this._flipped) {
+      this._expanded = false;
+      const panel = document.getElementById('polish-expand-panel');
+      const chevron = document.getElementById('polish-chevron');
+      if (panel) panel.classList.remove('open');
+      if (chevron) chevron.classList.remove('open');
+      inner.style.minHeight = '';
+    }
+  },
+
+  toggleExpand() {
+    this._expanded = !this._expanded;
+    const panel = document.getElementById('polish-expand-panel');
+    const chevron = document.getElementById('polish-chevron');
+    const inner = document.getElementById('polish-flip-inner');
+    if (panel) panel.classList.toggle('open', this._expanded);
+    if (chevron) chevron.classList.toggle('open', this._expanded);
+    // Grow the flip card to reveal the expanded content
+    if (inner) inner.style.minHeight = this._expanded ? '185px' : '';
+  },
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
 
   async renderStats() {
     const allSessions = await window.db.study.getAll();
@@ -237,8 +283,6 @@ window.Polish = {
       dailyPct.textContent = dailyRaw + '%' + (dailyOnFire ? ' 🔥' : '');
       dailyPct.style.color = dailyOnFire ? '#F97316' : '#78B86C';
     }
-    const goalLabel = document.getElementById('polish-daily-goal-label');
-    if (goalLabel) goalLabel.textContent = `${POLISH_DAILY_GOAL_MIN}m`;
 
     // Week card
     const weekEl = document.getElementById('polish-week-total');
@@ -263,49 +307,120 @@ window.Polish = {
       weekPct.style.color = weekOnFire ? '#F97316' : '#78B86C';
     }
 
-    // Mini bar chart — Polish minutes per day this week
     const polishPerDay = weekDates.map((d) =>
       Math.round(polishSessions.filter((s) => s.date.startsWith(d)).reduce((t, s) => t + s.durationMinutes, 0) / 60 * 10) / 10
     );
     Charts.createStudyWeekBars('polish-week-chart', ['M', 'T', 'W', 'T', 'F', 'S', 'S'], polishPerDay, POLISH_DAILY_GOAL_MIN / 60);
   },
 
-  _displayWord(data) {
-    const wordEl = document.getElementById('polish-wotd-word');
-    const transEl = document.getElementById('polish-wotd-trans');
-    const posEl = document.getElementById('polish-wotd-pos');
-    const sentPlEl = document.getElementById('polish-wotd-sent-pl');
-    const sentEnEl = document.getElementById('polish-wotd-sent-en');
-    if (wordEl) wordEl.textContent = data.word;
-    if (transEl) transEl.textContent = data.translation;
-    if (posEl) posEl.textContent = data.pos;
-    if (sentPlEl) sentPlEl.textContent = data.sentence_pl;
-    if (sentEnEl) sentEnEl.textContent = data.sentence_en;
+  // ── Timer ──────────────────────────────────────────────────────────────────
+
+  _getTimerState() {
+    try { return JSON.parse(localStorage.getItem(POLISH_TIMER_KEY) || 'null'); } catch { return null; }
+  },
+  _setTimerState(s) { localStorage.setItem(POLISH_TIMER_KEY, JSON.stringify(s)); },
+  _clearTimerState() { localStorage.removeItem(POLISH_TIMER_KEY); },
+
+  restoreTimer() {
+    const state = this._getTimerState();
+    if (state && state.running) this._startTick();
+    this._updateTimerDisplay();
   },
 
-  flipCard() {
-    const inner = document.getElementById('polish-flip-inner');
-    if (!inner) return;
-    this._flipped = !this._flipped;
-    inner.classList.toggle('flipped', this._flipped);
-    if (!this._flipped) {
-      this._expanded = false;
-      const panel = document.getElementById('polish-expand-panel');
-      const chevron = document.getElementById('polish-chevron');
-      if (panel) panel.classList.remove('open');
-      if (chevron) chevron.classList.remove('open');
+  _updateTimerDisplay() {
+    const display = document.getElementById('polish-timer-display');
+    if (!display) return;
+    const state = this._getTimerState();
+    if (!state) { display.textContent = '00:00:00'; this._setTimerButtons('idle'); return; }
+    const elapsed = state.running
+      ? state.elapsedOnPause + Math.floor((Date.now() - state.startTime) / 1000)
+      : state.elapsedOnPause;
+    const h = Math.floor(elapsed / 3600);
+    const m = Math.floor((elapsed % 3600) / 60);
+    const s = elapsed % 60;
+    display.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (state.running) this._setTimerButtons('running');
+    else if (state.elapsedOnPause > 0) this._setTimerButtons('paused');
+    else this._setTimerButtons('idle');
+  },
+
+  _setTimerButtons(state) {
+    const startBtn = document.getElementById('polish-timer-start-btn');
+    const controls = document.getElementById('polish-timer-controls');
+    const pauseBtn = document.getElementById('polish-timer-pause-btn');
+    if (state === 'idle') {
+      if (startBtn) startBtn.style.display = '';
+      if (controls) controls.style.display = 'none';
+    } else if (state === 'running') {
+      if (startBtn) startBtn.style.display = 'none';
+      if (controls) controls.style.display = 'flex';
+      if (pauseBtn) pauseBtn.textContent = '⏸ Pause';
+    } else if (state === 'paused') {
+      if (startBtn) startBtn.style.display = 'none';
+      if (controls) controls.style.display = 'flex';
+      if (pauseBtn) pauseBtn.textContent = '▶ Resume';
     }
   },
 
-  toggleExpand() {
-    this._expanded = !this._expanded;
-    const panel = document.getElementById('polish-expand-panel');
-    const chevron = document.getElementById('polish-chevron');
-    if (panel) panel.classList.toggle('open', this._expanded);
-    if (chevron) chevron.classList.toggle('open', this._expanded);
+  startTimer() {
+    const existing = this._getTimerState();
+    this._setTimerState({
+      running: true,
+      startTime: Date.now(),
+      elapsedOnPause: existing?.elapsedOnPause || 0,
+    });
+    this._startTick();
+    this._updateTimerDisplay();
+  },
+
+  pauseTimer() {
+    const state = this._getTimerState();
+    if (!state || !state.running) return;
+    const elapsed = state.elapsedOnPause + Math.floor((Date.now() - state.startTime) / 1000);
+    this._setTimerState({ ...state, running: false, elapsedOnPause: elapsed });
+    clearInterval(this._timerInterval);
+    this._timerInterval = null;
+    this._updateTimerDisplay();
+  },
+
+  async stopTimer() {
+    const state = this._getTimerState();
+    if (!state) return;
+    this.pauseTimer();
+    const finalState = this._getTimerState();
+    const elapsed = finalState.elapsedOnPause;
+    if (elapsed < 60) {
+      App.showToast('Session too short (< 1 min). Discarded.', 'info');
+      this._clearTimerState();
+      this._updateTimerDisplay();
+      return;
+    }
+    const minutes = Math.round(elapsed / 60);
+    await window.db.study.add({
+      date: new Date().toISOString(),
+      classId: null,
+      subject: 'Polish Language',
+      durationMinutes: minutes,
+      notes: '',
+    });
+    this._clearTimerState();
+    clearInterval(this._timerInterval);
+    this._timerInterval = null;
+    this._updateTimerDisplay();
+    App.showToast(`Polish session saved: ${App.formatMinutes(minutes)}`, 'success');
+    await this.renderStats();
+    if (App.currentTab === 'dashboard') await Dashboard.render();
+  },
+
+  _startTick() {
+    clearInterval(this._timerInterval);
+    this._timerInterval = setInterval(() => this._updateTimerDisplay(), 1000);
   },
 };
 
 window.PolishFlip = () => Polish.flipCard();
 window.PolishToggleExpand = () => Polish.toggleExpand();
+window.PolishStartTimerFlow = () => Polish.startTimer();
+window.PolishPauseTimer = () => Polish.pauseTimer();
+window.PolishStopTimer = () => Polish.stopTimer();
 window.PolishOpenLog = () => openQuickStudyModal('Polish Language');

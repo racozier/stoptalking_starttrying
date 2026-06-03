@@ -506,14 +506,23 @@
         <!-- Stats: Today + This Week -->
         <div class="study-dual-grid">
           <div class="card study-today-card">
-            <div class="study-card-label">TODAY'S POLISH</div>
+            <div class="study-card-label">TODAY'S STUDY TIME</div>
             <div id="polish-today-total" class="study-today-big"></div>
+            <div class="study-timer-row">
+              <span class="study-timer-label">⏱</span>
+              <span id="polish-timer-display" class="study-timer-num">00:00:00</span>
+            </div>
             <div class="study-goal-label-row">
-              <span>Daily Goal <span id="polish-daily-goal-label">15m</span></span>
+              <span>Daily Goal <span id="polish-daily-goal-label">20m</span></span>
               <span id="polish-daily-goal-pct" class="study-daily-pct"></span>
             </div>
             <div class="progress-bar-wrap study-goal-bar-wrap">
               <div class="progress-bar" id="polish-daily-goal-bar" style="width:0%"></div>
+            </div>
+            <button class="study-start-btn" id="polish-timer-start-btn" onclick="PolishStartTimerFlow()">▶ Start Study Timer</button>
+            <div class="study-timer-controls" id="polish-timer-controls" style="display:none">
+              <button class="study-pause-btn" id="polish-timer-pause-btn" onclick="PolishPauseTimer()">⏸ Pause</button>
+              <button class="study-stop-btn" onclick="PolishStopTimer()">⏹ Stop</button>
             </div>
             <button class="link-btn study-log-link" onclick="PolishOpenLog()">+ Log Polish Time</button>
           </div>
