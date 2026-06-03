@@ -223,9 +223,10 @@ window.db = {
           n.tags?.some((t) => t.toLowerCase().includes(q))
       );
     },
-    async update(note) {
+    async update(note, { preserveUpdated = false } = {}) {
       const d = await getDB();
-      return d.put('notes', { ...note, updated: new Date().toISOString() });
+      const data = preserveUpdated ? note : { ...note, updated: new Date().toISOString() };
+      return d.put('notes', data);
     },
     async delete(id) {
       const d = await getDB();

@@ -81,10 +81,13 @@ window.Notes = {
   },
 
   _setupCardHandlers(card, id) {
-    // Long press → enter / expand selection
-    const startLong = () => {
+    let longFired = false;
+
+    const startLong = (e) => {
+      longFired = false;
       this._longPressTimer = setTimeout(() => {
         this._longPressTimer = null;
+        longFired = true;
         if (!this._selectionMode) this.enterSelectionMode(id);
         else this.toggleNoteSelection(id);
       }, 500);
@@ -97,9 +100,11 @@ window.Notes = {
     card.addEventListener('mousedown', startLong);
     card.addEventListener('mouseup', cancelLong);
     card.addEventListener('mouseleave', cancelLong);
+    card.addEventListener('contextmenu', (e) => e.preventDefault());
 
     card.addEventListener('click', () => {
-      if (this._longPressTimer !== null) return; // long press already handled
+      if (longFired) { longFired = false; return; }
+      if (this._longPressTimer !== null) return;
       if (this._selectionMode) this.toggleNoteSelection(id);
       else this.openEditor(id);
     });
@@ -165,12 +170,26 @@ window.Notes = {
     const color = colorDef?.bg || null;
     for (const id of this._selectedIds) {
       const note = await window.db.notes.get(id);
-      if (note) await window.db.notes.update({ ...note, color });
+      if (note) await window.db.notes.update({ ...note, color }, { preserveUpdated: true });
     }
     App.closeAllModals();
     this.exitSelectionMode();
     await this.renderGrid();
     App.showToast('Color updated.', 'success');
+  },
+
+  async deleteSelected() {
+    const count = this._selectedIds.length;
+    const msg = count === 1
+      ? 'Are you sure you want to delete this note?'
+      : `Are you sure you want to delete these ${count} notes?`;
+    if (!confirm(msg)) return;
+    for (const id of this._selectedIds) {
+      await window.db.notes.delete(id);
+    }
+    this.exitSelectionMode();
+    await this.renderGrid();
+    App.showToast(count === 1 ? 'Note deleted.' : `${count} notes deleted.`, 'success');
   },
 
   async applySelectionPin() {
@@ -375,14 +394,22 @@ window.Notes = {
     this._speechRecognition.start();
     this._isRecording = true;
     const btn = document.getElementById('note-voice-btn');
-    if (btn) { btn.classList.add('recording'); btn.textContent = '⏹ Stop'; }
+    if (btn) {
+      btn.classList.add('recording');
+      const label = btn.querySelector('.note-voice-label');
+      if (label) label.textContent = '⏹ Stop';
+    }
   },
 
   stopVoiceRecording() {
     if (this._speechRecognition) { this._speechRecognition.stop(); this._speechRecognition = null; }
     this._isRecording = false;
     const btn = document.getElementById('note-voice-btn');
-    if (btn) { btn.classList.remove('recording'); btn.textContent = '🎤 Voice'; }
+    if (btn) {
+      btn.classList.remove('recording');
+      const label = btn.querySelector('.note-voice-label');
+      if (label) label.textContent = 'Recording';
+    }
     // Clean up [listening…] placeholder
     const body = document.getElementById('note-body');
     if (body) body.innerText = body.innerText.replace(/\s*\[listening…\]$/, '');
@@ -498,6 +525,33 @@ window.Notes = {
       this._drawingCtx.clearRect(0, 0, this._drawingCanvas.width, this._drawingCanvas.height);
     }
   },
+
+  // ─── Bottom + Menu ────────────────────────────────────────────────────────
+
+  toggleAddMenu() {
+    const menu = document.getElementById('note-add-submenu');
+    if (!menu) return;
+    const isOpen = menu.classList.contains('open');
+    if (isOpen) {
+      menu.classList.remove('open');
+    } else {
+      menu.classList.add('open');
+      setTimeout(() => {
+        const close = (e) => {
+          if (!menu.contains(e.target) && e.target.id !== 'note-add-btn') {
+            menu.classList.remove('open');
+          }
+          document.removeEventListener('click', close, true);
+        };
+        document.addEventListener('click', close, true);
+      }, 0);
+    }
+  },
+
+  closeAddMenu() {
+    const menu = document.getElementById('note-add-submenu');
+    if (menu) menu.classList.remove('open');
+  },
 };
 
 window.Notes = Notes;
@@ -517,3 +571,6 @@ window.NotesExitSelection = () => Notes.exitSelectionMode();
 window.NotesSelectionPin = () => Notes.applySelectionPin();
 window.NotesOpenColorPicker = () => Notes.openColorPicker();
 window.NotesApplyColor = (id) => Notes.applyColor(id);
+window.NotesDeleteSelected = () => Notes.deleteSelected();
+window.NotesToggleAddMenu = () => Notes.toggleAddMenu();
+window.NotesCloseAddMenu = () => Notes.closeAddMenu();
