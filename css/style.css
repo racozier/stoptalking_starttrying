@@ -360,11 +360,115 @@ h3 { font-size: 1rem; font-weight: 600; }
 .trend-down { color: var(--accent2); }
 .trend-up { color: var(--danger); }
 
-.streak-card { display: flex; flex-direction: column; gap: 2px; overflow: hidden; min-width: 0; }
+/* Study calendar icon colors */
+.study-cal-icon-accent { color: var(--accent); }
+.study-cal-icon-muted { color: rgba(255,255,255,0.55); }
+[data-theme="light"] .study-cal-icon-muted { color: var(--subtext); }
+[data-theme="midnight"] .study-cal-icon-muted { color: rgba(255,255,255,0.55); }
+
+/* Streak card slider */
+.streak-card { display: flex; flex-direction: column; overflow: hidden; min-width: 0; padding: 0; }
+.streak-slider {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  transition: transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94);
+  will-change: transform;
+  min-height: 0;
+}
+.streak-slide {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 11px 12px 6px;
+}
 .streak-number { font-size: 2.2rem; font-weight: 800; color: #F97316; line-height: 1; }
 .streak-label { font-size: 0.68rem; font-weight: 600; }
 .streak-tagline { font-size: 0.62rem; color: var(--subtext); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .streak-dots { display: flex; gap: 0px; margin-top: auto; flex-wrap: nowrap; width: 100%; }
+
+/* Streak nav dots */
+.streak-nav-dots { display: flex; justify-content: center; gap: 5px; padding: 3px 0 6px; flex-shrink: 0; }
+.streak-nav-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: background 0.2s; cursor: pointer; }
+.streak-nav-dot.active { background: #F97316; }
+[data-theme="light"] .streak-nav-dot { background: rgba(0,0,0,0.15); }
+[data-theme="light"] .streak-nav-dot.active { background: #F97316; }
+
+/* Streak month view (slide 1) */
+.streak-mv-header { display: flex; align-items: center; gap: 4px; }
+.streak-mv-count { font-size: 1.6rem; font-weight: 800; color: #F97316; line-height: 1; }
+.streak-mv-label { font-size: 0.62rem; color: var(--subtext); align-self: flex-end; padding-bottom: 2px; }
+.streak-mv-month { font-size: 0.62rem; font-weight: 700; color: var(--subtext); letter-spacing: 0.04em; margin-bottom: 4px; }
+.streak-mv-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  flex: 1;
+}
+.streak-mv-dot {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+.streak-mv-dot.active { background: #F97316; }
+.streak-mv-dot.inactive { background: var(--accent); opacity: 0.45; }
+.streak-mv-dot.pre { background: rgba(255,255,255,0.08); }
+.streak-mv-dot.future { background: rgba(255,255,255,0.05); }
+[data-theme="light"] .streak-mv-dot { background: rgba(0,0,0,0.08); }
+[data-theme="light"] .streak-mv-dot.future { background: rgba(0,0,0,0.04); }
+[data-theme="light"] .streak-mv-dot.pre { background: rgba(0,0,0,0.08); }
+.streak-expand-btn {
+  margin-top: auto;
+  align-self: flex-end;
+  background: none;
+  border: none;
+  color: var(--subtext);
+  cursor: pointer;
+  padding: 2px;
+  opacity: 0.6;
+}
+.streak-expand-btn:hover { opacity: 1; }
+
+/* Streak year modal grid */
+.streak-year-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 4px 2px 12px;
+}
+.streak-year-month {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.streak-year-month-name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--subtext);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.streak-year-dot-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.streak-year-dot {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+.streak-year-dot.active { background: #F97316; }
+.streak-year-dot.inactive { background: var(--accent); opacity: 0.4; }
+.streak-year-dot.pre { background: rgba(255,255,255,0.1); opacity: 0.4; }
+.streak-year-dot.future { background: rgba(255,255,255,0.04); }
+[data-theme="light"] .streak-year-dot { background: rgba(0,0,0,0.08); }
+[data-theme="light"] .streak-year-dot.future { background: rgba(0,0,0,0.04); }
+[data-theme="light"] .streak-year-dot.pre { background: rgba(0,0,0,0.1); }
 .streak-dot-item { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; min-width: 0; }
 .streak-dot {
   width: 7px;

@@ -1,6 +1,9 @@
 window.Dashboard = {
+  _streakActiveDays: new Set(),
+
   async init() {
     initWeekCardSwipe();
+    initStreakCardSwipe();
     renderTlHeader();
   },
 
@@ -16,6 +19,7 @@ window.Dashboard = {
     setTimeout(() => {
       const card = document.getElementById('this-week-card');
       if (card) { const w = card.offsetWidth; if (w) card.querySelectorAll('.week-panel').forEach((p) => { p.style.width = w + 'px'; }); }
+      initStreakCardSwipe();
     }, 0);
   },
 
@@ -54,12 +58,14 @@ window.Dashboard = {
     if (!streakEl) return;
 
     const weekDates = App.getWeekDates();
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
 
-    // Calculate streak: consecutive days with ≥30 min study OR any workout/run
-    const allStudy = await window.db.study.getAll();
-    const allWorkouts = await window.db.workouts.getAll();
-    const allRuns = await window.db.runs.getAll();
+    const [allStudy, allWorkouts, allRuns] = await Promise.all([
+      window.db.study.getAll(),
+      window.db.workouts.getAll(),
+      window.db.runs.getAll(),
+    ]);
 
     const activeDays = new Set();
     for (const s of allStudy) {
@@ -67,17 +73,15 @@ window.Dashboard = {
     }
     for (const w of allWorkouts) activeDays.add(w.date.split('T')[0]);
     for (const r of allRuns) activeDays.add(r.date.split('T')[0]);
+    this._streakActiveDays = activeDays;
 
     let streak = 0;
-    const checkDate = new Date();
-    // If today has no activity yet, start checking from yesterday
-    if (!activeDays.has(today)) checkDate.setDate(checkDate.getDate() - 1);
+    const checkDate = new Date(today);
+    if (!activeDays.has(todayStr)) checkDate.setDate(checkDate.getDate() - 1);
     while (true) {
       const ds = checkDate.toISOString().split('T')[0];
-      if (activeDays.has(ds)) {
-        streak++;
-        checkDate.setDate(checkDate.getDate() - 1);
-      } else break;
+      if (activeDays.has(ds)) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
+      else break;
     }
 
     streakEl.textContent = streak;
@@ -85,17 +89,74 @@ window.Dashboard = {
       taglineEl.textContent = streak >= 7 ? 'On fire! 🔥' : streak >= 3 ? 'Keep it going! 💪' : streak > 0 ? 'Building momentum!' : 'Start today!';
     }
 
+    // Week dots (slide 0)
     if (dotsEl) {
       const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
       dotsEl.innerHTML = weekDates.map((dateStr, i) => {
         const isActive = activeDays.has(dateStr);
-        const isToday = dateStr === today;
-        return `<div class="streak-dot-item">
-          <div class="streak-dot ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}"></div>
-          <span class="streak-day-label">${days[i]}</span>
-        </div>`;
+        const isToday = dateStr === todayStr;
+        return `<div class="streak-dot-item"><div class="streak-dot ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}"></div><span class="streak-day-label">${days[i]}</span></div>`;
       }).join('');
     }
+
+    // Month view (slide 1)
+    const mvCountEl = document.getElementById('dash-streak-mv');
+    const mvMonthEl = document.getElementById('dash-streak-mv-month');
+    const mvGridEl = document.getElementById('dash-streak-mv-grid');
+    if (mvCountEl) mvCountEl.textContent = streak;
+    if (mvMonthEl) {
+      mvMonthEl.textContent = today.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }).toUpperCase();
+    }
+    if (mvGridEl) mvGridEl.innerHTML = this._buildMonthDotGrid(today.getFullYear(), today.getMonth(), activeDays, todayStr);
+  },
+
+  _buildMonthDotGrid(year, month, activeDays, todayStr) {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    const startOffset = (firstDay + 6) % 7;
+    const todayDate = todayStr || new Date().toISOString().split('T')[0];
+    const cells = [];
+    for (let i = 0; i < startOffset; i++) cells.push('<div class="streak-mv-dot pre"></div>');
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      let cls = 'streak-mv-dot';
+      if (ds > todayDate) cls += ' future';
+      else if (activeDays.has(ds)) cls += ' active';
+      else cls += ' inactive';
+      cells.push(`<div class="${cls}"></div>`);
+    }
+    return cells.join('');
+  },
+
+  openStreakYearModal() {
+    const gridEl = document.getElementById('streak-year-grid');
+    if (!gridEl) return;
+    const activeDays = this._streakActiveDays;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const months = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({ year: d.getFullYear(), month: d.getMonth() });
+    }
+    gridEl.innerHTML = months.map(({ year, month }) => {
+      const name = new Date(year, month, 1).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }).toUpperCase();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDay = new Date(year, month, 1).getDay();
+      const startOffset = (firstDay + 6) % 7;
+      let cells = '';
+      for (let i = 0; i < startOffset; i++) cells += '<div class="streak-year-dot pre"></div>';
+      for (let day = 1; day <= daysInMonth; day++) {
+        const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        let cls = 'streak-year-dot';
+        if (ds > todayStr) cls += ' future';
+        else if (activeDays.has(ds)) cls += ' active';
+        else cls += ' inactive';
+        cells += `<div class="${cls}"></div>`;
+      }
+      return `<div class="streak-year-month"><div class="streak-year-month-name">${name}</div><div class="streak-year-dot-grid">${cells}</div></div>`;
+    }).join('');
+    App.openModal('modal-streak-year');
   },
 
   async renderThisWeek() {
@@ -1084,6 +1145,44 @@ async function deleteTlEntry() {
   if (App.currentTab === 'dashboard') await Dashboard.render();
 }
 window.deleteTlEntry = deleteTlEntry;
+
+function initStreakCardSwipe() {
+  const card = document.getElementById('streak-card');
+  if (!card) return;
+  const slider = card.querySelector('.streak-slider');
+  const slides = card.querySelectorAll('.streak-slide');
+  if (!slider || slides.length < 2) return;
+
+  let startX = 0, currentView = 0;
+
+  function resize() {
+    const w = card.offsetWidth;
+    if (!w) { setTimeout(resize, 50); return; }
+    slides.forEach((s) => { s.style.width = w + 'px'; });
+    slider.style.transition = 'none';
+    slider.style.transform = currentView === 0 ? '' : `translateX(-${currentView * w}px)`;
+    requestAnimationFrame(() => { slider.style.transition = ''; });
+  }
+
+  function goTo(n) {
+    currentView = n;
+    const w = card.offsetWidth;
+    slider.style.transform = n === 0 ? '' : `translateX(-${n * w}px)`;
+    card.querySelectorAll('.streak-nav-dot').forEach((d, i) => d.classList.toggle('active', i === n));
+  }
+
+  card.querySelectorAll('.streak-nav-dot').forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+
+  setTimeout(resize, 0);
+  window.addEventListener('resize', resize);
+
+  card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  card.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx < -35 && currentView < slides.length - 1) goTo(currentView + 1);
+    else if (dx > 35 && currentView > 0) goTo(currentView - 1);
+  }, { passive: true });
+}
 
 function initWeekCardSwipe() {
   const card = document.getElementById('this-week-card');
