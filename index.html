@@ -542,14 +542,14 @@
           </div>
         </div>
 
-        <!-- Word of the Day flip card with side nav -->
-        <div class="polish-nav-wrap">
-          <button class="polish-nav-side" onclick="PolishPrevWord()">‹</button>
-          <div class="polish-flip-wrap" id="polish-flip-wrap" onclick="PolishFlip()">
-            <div class="polish-flip-inner" id="polish-flip-inner">
-              <!-- FRONT -->
-              <div class="polish-flip-face polish-front">
-                <div class="polish-front-inner">
+        <!-- Word of the Day flip card -->
+        <div class="polish-flip-wrap" id="polish-flip-wrap" onclick="PolishFlip()">
+          <div class="polish-flip-inner" id="polish-flip-inner">
+            <!-- FRONT -->
+            <div class="polish-flip-face polish-front">
+              <div class="polish-front-inner">
+                <button class="polish-nav-side" onclick="event.stopPropagation();PolishPrevWord()">‹</button>
+                <div class="polish-front-center">
                   <div class="polish-front-left">
                     <div class="polish-front-eyebrow">Polish</div>
                     <div class="polish-front-title">Word of the Day</div>
@@ -560,31 +560,46 @@
                     <div class="polish-tap-hint">Tap to reveal</div>
                   </div>
                 </div>
+                <button class="polish-nav-side" id="polish-nav-next" onclick="event.stopPropagation();PolishNextWord()">›</button>
               </div>
-              <!-- BACK -->
-              <div class="polish-flip-face polish-back" id="polish-flip-back">
-                <div class="polish-back-top">
-                  <div class="polish-back-left">
-                    <div class="polish-back-word" id="polish-wotd-word">---</div>
-                    <div class="polish-back-meta">
-                      <span class="polish-back-trans" id="polish-wotd-trans">---</span>
-                      <span class="polish-pos-badge" id="polish-wotd-pos">---</span>
-                    </div>
-                  </div>
-                  <div class="polish-back-actions">
-                    <button class="polish-star-btn" id="polish-star-btn" onclick="event.stopPropagation();PolishToggleFavorite()" title="Save word">☆</button>
-                    <button class="polish-chevron" id="polish-chevron" onclick="event.stopPropagation();PolishToggleExpand()">▾</button>
+            </div>
+            <!-- BACK -->
+            <div class="polish-flip-face polish-back" id="polish-flip-back">
+              <div class="polish-back-top">
+                <div class="polish-back-left">
+                  <div class="polish-back-word" id="polish-wotd-word">---</div>
+                  <div class="polish-back-meta">
+                    <span class="polish-back-trans" id="polish-wotd-trans">---</span>
+                    <span class="polish-pos-badge" id="polish-wotd-pos">---</span>
                   </div>
                 </div>
-                <div class="polish-expand-panel" id="polish-expand-panel">
-                  <div class="polish-expand-divider"></div>
-                  <div class="polish-sentence-pl" id="polish-wotd-sent-pl"></div>
-                  <div class="polish-sentence-en" id="polish-wotd-sent-en"></div>
+                <div class="polish-back-actions">
+                  <button class="polish-star-btn" id="polish-star-btn" onclick="event.stopPropagation();PolishToggleFavorite()" title="Save word">☆</button>
+                  <button class="polish-chevron" id="polish-chevron" onclick="event.stopPropagation();PolishToggleExpand()">▾</button>
                 </div>
+              </div>
+              <div class="polish-expand-panel" id="polish-expand-panel">
+                <div class="polish-expand-divider"></div>
+                <div class="polish-sentence-pl" id="polish-wotd-sent-pl"></div>
+                <div class="polish-sentence-en" id="polish-wotd-sent-en"></div>
               </div>
             </div>
           </div>
-          <button class="polish-nav-side" id="polish-nav-next" onclick="PolishNextWord()">›</button>
+        </div>
+
+        <!-- Saved Words -->
+        <div class="polish-saved-section card" id="polish-saved-section">
+          <div class="polish-saved-header" onclick="PolishToggleSaved()">
+            <span class="polish-saved-title">Saved Words</span>
+            <span class="polish-saved-count" id="polish-saved-count">0</span>
+            <span class="polish-saved-chevron" id="polish-saved-chevron">▾</span>
+          </div>
+          <div class="polish-saved-body" id="polish-saved-body">
+            <div class="polish-saved-search-wrap">
+              <input class="polish-saved-search" id="polish-saved-search" type="search" placeholder="Search saved words…" oninput="PolishFilterSaved(this.value)" />
+            </div>
+            <div class="polish-saved-list" id="polish-saved-list"></div>
+          </div>
         </div>
 
         <!-- Polish Calendar -->
@@ -604,7 +619,7 @@
             <div class="study-cal-vdiv"></div>
             <div class="study-cal-right">
               <div class="study-cal-metric">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="study-cal-icon-accent" style="flex-shrink:0"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span style="font-size:1.4rem;flex-shrink:0;line-height:1">🇵🇱</span>
                 <div class="study-cal-metric-text">
                   <div class="study-cal-metric-val" id="polish-days-practiced">0</div>
                   <div class="study-cal-metric-lbl">days practiced</div>
@@ -627,21 +642,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Saved Words -->
-        <div class="polish-saved-section card" id="polish-saved-section">
-          <div class="polish-saved-header" onclick="PolishToggleSaved()">
-            <span class="polish-saved-title">Saved Words</span>
-            <span class="polish-saved-count" id="polish-saved-count">0</span>
-            <span class="polish-saved-chevron" id="polish-saved-chevron">▾</span>
-          </div>
-          <div class="polish-saved-body" id="polish-saved-body">
-            <div class="polish-saved-search-wrap">
-              <input class="polish-saved-search" id="polish-saved-search" type="search" placeholder="Search saved words…" oninput="PolishFilterSaved(this.value)" />
-            </div>
-            <div class="polish-saved-list" id="polish-saved-list"></div>
           </div>
         </div>
 

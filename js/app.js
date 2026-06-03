@@ -58,6 +58,8 @@ window.App = {
   },
 
   async switchTab(tab) {
+    // Clear Polish accent when leaving Study tab
+    document.documentElement.removeAttribute('data-tab');
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach((el) => el.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach((el) => el.classList.remove('active'));

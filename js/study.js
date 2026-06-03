@@ -20,6 +20,8 @@ window.Study = {
     this._subTab = tab;
     document.querySelectorAll('.study-subtab-btn').forEach((b) => b.classList.toggle('active', b.dataset.subtab === tab));
     document.querySelectorAll('.study-subtab-pane').forEach((p) => p.classList.toggle('active', p.dataset.subtabPane === tab));
+    if (tab === 'polish') document.documentElement.setAttribute('data-tab', 'polish');
+    else document.documentElement.removeAttribute('data-tab');
     this.renderSubTab(tab);
   },
 
