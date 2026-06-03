@@ -1,7 +1,8 @@
 window.Study = {
   _subTab: 'overview',
   _timerInterval: null,
-  _progressView: 'degree',
+  _progressView: 'term',
+  _progressSwipeSetup: false,
   _sessionFilter: { classId: '', dateFrom: '', dateTo: '' },
   _calendarYear: new Date().getFullYear(),
   _calendarMonth: new Date().getMonth(),
@@ -119,7 +120,7 @@ window.Study = {
     const pct = isDegree ? degreePct : termPct;
     const countNum = isDegree ? degreePassed : termPassed;
     const countDen = isDegree ? degreeTotal : termTotal;
-    const label = isDegree ? 'DEGREE PROGRESS' : 'CURRENT TERM PROGRESS';
+    const label = isDegree ? 'FULL DEGREE PROGRESS' : 'CURRENT TERM PROGRESS';
 
     const r = 24;
     const circ = +(2 * Math.PI * r).toFixed(2);
@@ -161,6 +162,20 @@ window.Study = {
         <div class="term-right">${rightHtml}</div>
       </div>
     `;
+    this._setupProgressSwipe();
+  },
+
+  _setupProgressSwipe() {
+    if (this._progressSwipeSetup) return;
+    const el = document.getElementById('study-progress-card');
+    if (!el) return;
+    let startX = 0;
+    el.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    el.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 35) this.setProgressView(dx < 0 ? 'degree' : 'term');
+    }, { passive: true });
+    this._progressSwipeSetup = true;
   },
 
   async renderTimerCard() {

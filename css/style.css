@@ -1541,8 +1541,8 @@ h3 { font-size: 1rem; font-weight: 600; }
   padding: 1px;
 }
 .cal-cell.empty { visibility: hidden; }
-.cal-cell.cal-today { background: rgba(37,99,235,0.18); border-radius: 3px; }
-.cal-cell.cal-today .cal-day-num { color: var(--accent); font-weight: 700; }
+[data-tab="polish"] .cal-cell.cal-today { background: rgba(220,38,38,0.2); }
+[data-tab="polish"] .cal-cell.cal-today .cal-day-num { color: #DC2626; }
 .cal-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
@@ -2277,7 +2277,10 @@ h3 { font-size: 1rem; font-weight: 600; }
 .cal-cell.cal-empty { cursor: default; }
 .cal-cell.cal-future { cursor: default; opacity: 0.3; }
 .cal-cell:not(.cal-empty):not(.cal-future):hover { background: rgba(255,255,255,0.07); }
-.cal-cell.cal-today { background: rgba(37,99,235,0.25); }
+.cal-cell.cal-today { background: rgba(37,99,235,0.18); border-radius: 3px; }
+.cal-cell.cal-today .cal-day-num { color: var(--accent); font-weight: 700; }
+[data-tab="polish"] .cal-cell.cal-today { background: rgba(220,38,38,0.2); }
+[data-tab="polish"] .cal-cell.cal-today .cal-day-num { color: #DC2626; }
 .cal-cell.cal-selected { background: var(--accent) !important; }
 .cal-cell.cal-selected .cal-day-num { color: #fff; }
 .cal-day-num {
