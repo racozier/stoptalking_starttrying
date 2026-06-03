@@ -1502,7 +1502,8 @@ h3 { font-size: 1rem; font-weight: 600; }
   padding: 1px;
 }
 .cal-cell.empty { visibility: hidden; }
-.cal-cell.cal-today .cal-day-num { background: var(--accent); color: #fff; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+.cal-cell.cal-today { background: rgba(37,99,235,0.18); border-radius: 3px; }
+.cal-cell.cal-today .cal-day-num { color: var(--accent); font-weight: 700; }
 .cal-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
@@ -1513,10 +1514,11 @@ h3 { font-size: 1rem; font-weight: 600; }
 .dot-dark { background: var(--accent); }
 .dot-gold { background: #F59E0B; }
 .cal-day-num { font-size: 0.6rem; color: var(--subtext); line-height: 16px; }
-.cal-icon-flame, .cal-icon-check, .cal-icon-spacer {
+.cal-icon-flame, .cal-icon-check, .cal-icon-spacer, .cal-icon-x {
   display: block; height: 8px; line-height: 8px; font-size: 8px;
 }
 .cal-icon-check { color: var(--accent2); font-weight: 700; font-size: 9px; }
+.cal-icon-x { color: var(--danger); font-weight: 700; }
 .cal-icon-spacer { visibility: hidden; }
 
 /* Classes */

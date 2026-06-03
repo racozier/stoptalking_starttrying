@@ -416,9 +416,10 @@ window.Study = {
       const mins = wguMinutes[ds] || 0;
       const isToday = ds === todayStr;
       let icon;
-      if (mins >= 240)   icon = '<span class="cal-icon-flame">&#x1F525;</span>';
-      else if (mins > 0) icon = '<span class="cal-icon-check">&#x2713;</span>';
-      else               icon = '<span class="cal-icon-spacer"></span>';
+      if (mins >= 240)         icon = '<span class="cal-icon-flame">&#x1F525;</span>';
+      else if (mins > 0)       icon = '<span class="cal-icon-check">&#x2713;</span>';
+      else if (ds < todayStr)  icon = '<span class="cal-icon-x">&#x2715;</span>';
+      else                     icon = '<span class="cal-icon-spacer"></span>';
       cells.push(`<div class="cal-cell ${isToday ? 'cal-today' : ''}">${icon}<span class="cal-day-num">${day}</span></div>`);
     }
     calEl.innerHTML = cells.join('');
@@ -675,10 +676,11 @@ window.Study = {
     if (modal.querySelector('#study-notes-input')) modal.querySelector('#study-notes-input').value = '';
 
     const classes = await window.db.classes.getAll();
+    const inProgress = classes.filter((c) => c.status === 'in_progress');
     const select = document.getElementById('study-class-select');
     if (select) {
       select.innerHTML = '<option value="">Select subject…</option>' +
-        classes.map((c) => `<option value="${c.id}">${c.code} ${c.name}</option>`).join('');
+        inProgress.map((c) => `<option value="${c.id}">${c.code} ${c.name}</option>`).join('');
     }
     App.openModal('modal-log-study');
   },
