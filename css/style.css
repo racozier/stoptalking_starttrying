@@ -1339,13 +1339,11 @@ h3 { font-size: 1rem; font-weight: 600; }
 .timer-btn-pause { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 .timer-btn-stop { background: var(--danger); color: #fff; }
 
-/* Today/This Week study */
-.study-today-card, .study-week-card { margin-bottom: 14px; }
+/* Today/This Week study — legacy rules (superseded by dual-grid below) */
+.study-today-card, .study-week-card { }
 .study-today-total { font-size: 2rem; font-weight: 800; color: var(--accent); }
 .today-session-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px solid var(--border); }
 .study-week-total { font-size: 1.8rem; font-weight: 800; }
-.study-week-chart-wrap { height: 80px; margin: 12px 0; }
-.study-week-goal-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: var(--subtext); margin-bottom: 6px; }
 
 /* Calendar */
 .study-streak-section { margin-bottom: 14px; }
@@ -2152,22 +2150,31 @@ h3 { font-size: 1rem; font-weight: 600; }
 .cal-leg-item .cal-dot { width: 7px; height: 7px; }
 
 /* ── Study Dual Cards ─────────────────────────────────────────────────────── */
-.study-dual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.study-card-label { font-size: 0.62rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
-.study-time-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 4px; flex-wrap: wrap; }
-.study-timer-num { font-size: 0.82rem; font-weight: 400; color: var(--text); letter-spacing: 0.02em; }
-.study-time-sep { color: var(--border); font-size: 0.8rem; }
-.study-total-num { font-size: 0.82rem; font-weight: 400; color: var(--text); }
-.study-goal-label-row { font-size: 0.7rem; color: var(--subtext); margin-bottom: 4px; }
-.study-goal-bar-wrap { margin-bottom: 10px; }
-.study-start-btn { width: 100%; padding: 9px 0; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
-.study-timer-controls { display: flex; gap: 6px; margin-bottom: 8px; }
-.study-pause-btn, .study-stop-btn { flex: 1; padding: 8px 0; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text); }
-.study-log-link { font-size: 0.75rem; display: block; text-align: center; padding: 0; }
-.study-week-total-row { font-size: 0.88rem; margin-bottom: 8px; }
-.study-week-num { font-size: 1.2rem; font-weight: 400; color: var(--text); }
-.study-week-unit { font-size: 0.72rem; color: var(--subtext); }
-.study-week-chart-wrap { height: 70px; position: relative; margin-bottom: 8px; }
-.study-week-goal-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.68rem; color: var(--subtext); margin-bottom: 4px; }
+.study-dual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.study-dual-grid > .card {
+  min-width: 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+.study-card-label { font-size: 0.58rem; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; flex-shrink: 0; }
+.study-time-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 3px; flex-shrink: 0; min-width: 0; }
+.study-timer-num { font-size: 0.75rem; font-weight: 400; color: var(--text); letter-spacing: 0.01em; white-space: nowrap; }
+.study-time-sep { color: var(--border); font-size: 0.75rem; flex-shrink: 0; }
+.study-total-num { font-size: 0.75rem; font-weight: 400; color: var(--text); white-space: nowrap; }
+.study-goal-label-row { font-size: 0.63rem; color: var(--subtext); margin-bottom: 3px; flex-shrink: 0; }
+.study-goal-bar-wrap { margin-bottom: 8px; flex-shrink: 0; }
+.study-start-btn { width: 100%; padding: 7px 0; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 600; cursor: pointer; margin-bottom: 6px; flex-shrink: 0; }
+.study-timer-controls { display: flex; gap: 5px; margin-bottom: 6px; flex-shrink: 0; }
+.study-pause-btn, .study-stop-btn { flex: 1; padding: 6px 0; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.68rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text); }
+.study-log-link { font-size: 0.68rem; display: block; text-align: center; padding: 0; flex-shrink: 0; }
+.study-week-total-row { font-size: 0.88rem; margin-bottom: 6px; flex-shrink: 0; }
+.study-week-num { font-size: 1.15rem; font-weight: 400; color: var(--text); }
+.study-week-unit { font-size: 0.68rem; color: var(--subtext); }
+.study-week-chart-wrap { flex: 1; min-height: 0; position: relative; margin-bottom: 6px; }
+.study-week-chart-wrap canvas { width: 100% !important; height: 100% !important; }
+.study-week-goal-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.63rem; color: var(--subtext); margin-bottom: 3px; flex-shrink: 0; }
 .study-week-goal-label { }
-.study-week-pct { font-weight: 700; color: var(--accent); font-size: 0.72rem; }
+.study-week-pct { font-weight: 700; color: var(--accent); font-size: 0.68rem; }
