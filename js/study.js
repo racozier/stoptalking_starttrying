@@ -272,7 +272,9 @@ window.Study = {
     const el = document.getElementById('study-today-total');
     const h = Math.floor(totalMin / 60);
     const m = totalMin % 60;
-    if (el) el.textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    if (el) el.innerHTML = h > 0
+      ? `<span class="study-total-h">${h}</span><span class="study-total-unit">h </span><span class="study-total-h">${m}</span><span class="study-total-unit">m</span>`
+      : `<span class="study-total-h">${m}</span><span class="study-total-unit">m</span>`;
 
     // Daily goal: default 4h (240 min), from settings
     const dailyGoalMin = (await window.db.settings.get('dailyStudyGoalHours', 4)) * 60;
@@ -281,9 +283,18 @@ window.Study = {
     const goalLabel = document.getElementById('study-daily-goal-label');
     if (goalLabel) goalLabel.textContent = `${goalH}h ${String(goalM).padStart(2, '0')}m`;
 
-    const barPct = Math.min(100, Math.round((totalMin / dailyGoalMin) * 100));
+    const rawPct = Math.round((totalMin / dailyGoalMin) * 100);
+    const isOnFire = rawPct >= 100;
     const bar = document.getElementById('study-daily-goal-bar');
-    if (bar) bar.style.width = barPct + '%';
+    if (bar) {
+      bar.style.width = Math.min(rawPct, 100) + '%';
+      bar.style.background = isOnFire ? '#F97316' : '#22C55E';
+    }
+    const pctEl = document.getElementById('study-daily-goal-pct');
+    if (pctEl) {
+      pctEl.textContent = rawPct + '%' + (isOnFire ? ' 🔥' : '');
+      pctEl.style.color = isOnFire ? '#F97316' : '#22C55E';
+    }
   },
 
   async renderThisWeekStudy() {
@@ -311,18 +322,19 @@ window.Study = {
     const goalBar = document.getElementById('study-week-goal-bar');
     if (goalBar) {
       goalBar.style.width = Math.min(rawPct, 100) + '%';
-      goalBar.style.background = isOnFire ? '#F97316' : '';
+      goalBar.style.background = isOnFire ? '#F97316' : '#22C55E';
     }
     const goalPct = document.getElementById('study-week-goal-pct');
     if (goalPct) {
       goalPct.textContent = rawPct + '%' + (isOnFire ? ' 🔥' : '');
-      goalPct.style.color = isOnFire ? '#F97316' : '';
+      goalPct.style.color = isOnFire ? '#F97316' : '#22C55E';
     }
 
+    const dailyGoalHours = (await window.db.settings.get('dailyStudyGoalHours', 4));
     const studyPerDay = weekDates.map((d) =>
       Math.round(allSessions.filter((s) => s.date.startsWith(d)).reduce((sum, x) => sum + x.durationMinutes, 0) / 60 * 10) / 10
     );
-    Charts.createStudyWeekBars('study-week-chart', ['M', 'T', 'W', 'T', 'F', 'S', 'S'], studyPerDay);
+    Charts.createStudyWeekBars('study-week-chart', ['M', 'T', 'W', 'T', 'F', 'S', 'S'], studyPerDay, dailyGoalHours);
   },
 
   async renderStreakCalendar() {

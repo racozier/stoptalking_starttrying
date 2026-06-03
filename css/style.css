@@ -2159,12 +2159,15 @@ h3 { font-size: 1rem; font-weight: 600; }
   flex-direction: column;
   padding: 10px;
 }
-.study-card-label { font-size: 0.58rem; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; flex-shrink: 0; }
-.study-time-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 3px; flex-shrink: 0; min-width: 0; }
-.study-timer-num { font-size: 0.75rem; font-weight: 400; color: var(--text); letter-spacing: 0.01em; white-space: nowrap; }
-.study-time-sep { color: var(--border); font-size: 0.75rem; flex-shrink: 0; }
-.study-total-num { font-size: 0.75rem; font-weight: 400; color: var(--text); white-space: nowrap; }
-.study-goal-label-row { font-size: 0.63rem; color: var(--subtext); margin-bottom: 3px; flex-shrink: 0; }
+.study-card-label { font-size: 0.58rem; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; flex-shrink: 0; }
+.study-today-big { font-size: 1.55rem; font-weight: 400; color: var(--text); line-height: 1; margin-bottom: 3px; flex-shrink: 0; }
+.study-total-h { font-size: 1.55rem; font-weight: 400; color: var(--text); }
+.study-total-unit { font-size: 0.72rem; color: var(--subtext); }
+.study-timer-row { display: flex; align-items: center; gap: 3px; margin-bottom: 4px; flex-shrink: 0; }
+.study-timer-label { font-size: 0.6rem; color: var(--subtext); }
+.study-timer-num { font-size: 0.68rem; font-weight: 400; color: var(--subtext); letter-spacing: 0.01em; }
+.study-goal-label-row { font-size: 0.6rem; color: var(--subtext); margin-bottom: 3px; flex-shrink: 0; display: flex; align-items: center; gap: 4px; }
+.study-daily-pct { font-size: 0.6rem; font-weight: 700; color: #22C55E; }
 .study-goal-bar-wrap { margin-bottom: 8px; flex-shrink: 0; }
 .study-start-btn { width: 100%; padding: 7px 0; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 600; cursor: pointer; margin-bottom: 6px; flex-shrink: 0; }
 .study-timer-controls { display: flex; gap: 5px; margin-bottom: 6px; flex-shrink: 0; }

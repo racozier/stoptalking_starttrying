@@ -387,14 +387,14 @@
           <!-- Left: Today + Timer -->
           <div class="card study-today-card">
             <div class="study-card-label">TODAY'S STUDY TIME</div>
-            <div class="study-time-row">
+            <div id="study-today-total" class="study-today-big"></div>
+            <div class="study-timer-row">
+              <span class="study-timer-label">⏱</span>
               <span id="timer-display" class="study-timer-num">00:00:00</span>
-              <span class="study-time-sep">|</span>
-              <span id="study-today-total" class="study-total-num">0h 0m</span>
             </div>
-            <div class="study-goal-label-row">Goal: <span id="study-daily-goal-label">4h 00m</span></div>
+            <div class="study-goal-label-row">Goal: <span id="study-daily-goal-label">4h 00m</span> <span id="study-daily-goal-pct" class="study-daily-pct"></span></div>
             <div class="progress-bar-wrap study-goal-bar-wrap">
-              <div class="progress-bar" id="study-daily-goal-bar" style="width:0%"></div>
+              <div class="progress-bar" id="study-daily-goal-bar" style="width:0%;background:#22C55E"></div>
             </div>
             <button class="study-start-btn" id="timer-start-btn" onclick="StudyStartTimerFlow()">▶ Start Study Timer</button>
             <div class="study-timer-controls" id="study-timer-controls" style="display:none">

@@ -189,7 +189,7 @@ window.Charts = {
   },
 
   // Study hours full week bar chart (Study Overview)
-  createStudyWeekBars(canvasId, labels, data) {
+  createStudyWeekBars(canvasId, labels, data, dailyGoalHours = null) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -200,7 +200,11 @@ window.Charts = {
         labels,
         datasets: [{
           data,
-          backgroundColor: 'rgba(124, 58, 237, 0.7)',
+          backgroundColor: data.map((v) => {
+            if (v <= 0) return 'rgba(34, 197, 94, 0.15)';
+            if (dailyGoalHours !== null && v >= dailyGoalHours) return 'rgba(249, 115, 22, 0.85)';
+            return 'rgba(34, 197, 94, 0.8)';
+          }),
           borderRadius: 5,
           borderSkipped: false,
         }],
