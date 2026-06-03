@@ -550,16 +550,10 @@
                 <div class="polish-expand-divider"></div>
                 <div class="polish-sentence-pl" id="polish-wotd-sent-pl"></div>
                 <div class="polish-sentence-en" id="polish-wotd-sent-en"></div>
-                <div class="polish-new-word-row">
-                  <button class="polish-new-btn" onclick="event.stopPropagation();PolishFetchNew()">↻ New word</button>
-                </div>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Loading / error state -->
-        <div class="polish-wotd-status" id="polish-wotd-status"></div>
 
         <!-- Log Polish button -->
         <button class="btn btn-secondary polish-log-btn" onclick="PolishOpenLog()">+ Log Polish Study</button>
@@ -667,20 +661,6 @@
           </div>
           <div class="settings-row">
             <button class="btn btn-primary" onclick="SettingsSave()">Save Changes</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Polish -->
-      <div class="settings-section">
-        <div class="settings-section-title">Polish</div>
-        <div class="settings-card">
-          <div class="settings-row">
-            <div class="settings-row-label">Gemini API Key<div class="sub">For Word of the Day (free)</div></div>
-            <input class="settings-input" id="settings-claude-key" type="password" placeholder="AIza…" style="max-width:180px" />
-          </div>
-          <div class="settings-row">
-            <button class="btn btn-primary" onclick="SettingsSave()">Save</button>
           </div>
         </div>
       </div>
