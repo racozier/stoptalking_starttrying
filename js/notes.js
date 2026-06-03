@@ -16,15 +16,16 @@ window.Notes = {
   _selectionMode: false,
   _selectedIds: [],
   _longPressTimer: null,
-  _speechRecognition: null,
-  _isRecording: false,
+  _mediaRecorder: null,
+  _audioChunks: [],
+  _audioDataUrl: null,
+  _isRecordingAudio: false,
   _drawingCanvas: null,
   _drawingCtx: null,
   _isDrawing: false,
   _drawingColor: '#7C3AED',
   _drawingMode: 'pen',
   _photos: [],
-  _audioBlob: null,
   _saveTimer: null,
 
   async init() {
@@ -203,15 +204,26 @@ window.Notes = {
   },
 
   renderNoteCard(note) {
-    const preview = note.content ? note.content.substring(0, 120) + (note.content.length > 120 ? '…' : '') : '';
-    const tagsHtml = (note.tags || []).map((t) => `<span class="tag-chip">${App.escapeHtml(t)}</span>`).join('');
-    const photoThumb = note.photos?.length > 0 ? '<div class="note-photo-indicator">📷</div>' : '';
     const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
+    const hasPhotos = note.photos?.length > 0;
+    const hasAudio = !!note.audio;
+    const tagsHtml = (note.tags || []).map((t) => `<span class="tag-chip">${App.escapeHtml(t)}</span>`).join('');
+
+    let body = '';
+    if (hasPhotos) {
+      body += `<div class="note-card-photo"><img src="${note.photos[0].dataUrl}" alt="" /></div>`;
+    }
+    if (note.content) {
+      body += `<div class="note-card-body">${note.content}</div>`;
+    }
+    if (hasAudio) {
+      body += `<div class="note-card-audio-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Voice note</div>`;
+    }
+
     return `
     <div class="note-card" data-id="${note.id}" style="${bgStyle}">
-      ${photoThumb}
       ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
-      ${preview ? `<div class="note-card-preview">${App.escapeHtml(preview)}</div>` : ''}
+      ${body}
       ${tagsHtml ? `<div class="note-tags">${tagsHtml}</div>` : ''}
       <div class="note-card-date">${App.formatDate(note.updated, { relative: true })}</div>
     </div>`;
@@ -219,9 +231,11 @@ window.Notes = {
 
   renderNoteCardSmall(note) {
     const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
+    const preview = note.content ? `<div class="note-card-body">${note.content}</div>` : '';
     return `
     <div class="note-card-small" data-id="${note.id}" style="${bgStyle}">
-      <div class="note-card-title">${App.escapeHtml(note.title || 'Untitled')}</div>
+      ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
+      ${preview}
       <div class="note-card-date">${App.formatDate(note.updated, { relative: true })}</div>
     </div>`;
   },
@@ -229,7 +243,8 @@ window.Notes = {
   async openEditor(noteId) {
     this._currentNoteId = noteId;
     this._photos = [];
-    this._audioBlob = null;
+    this._audioDataUrl = null;
+    if (this._isRecordingAudio) this._stopRecording();
 
     const modal = document.getElementById('modal-note-editor');
     if (!modal) return;
@@ -259,6 +274,10 @@ window.Notes = {
     // Photos
     this._photos = note?.photos ? [...note.photos] : [];
     this.renderPhotoThumbnails();
+
+    // Audio
+    this._audioDataUrl = note?.audio || null;
+    this.renderAudioPlayer(this._audioDataUrl);
 
     // Drawing
     if (note?.drawing) {
@@ -308,10 +327,17 @@ window.Notes = {
   async saveNote(close = true) {
     const title = document.getElementById('note-title-input')?.value.trim() || '';
     const body = document.getElementById('note-body');
-    const content = body?.innerText || '';
-    const contentHtml = body?.innerHTML || '';
     const pinned = document.getElementById('note-pin-btn')?.classList.contains('pinned') || false;
     const tags = this.getTags();
+
+    // Sync checkbox checked state to HTML attribute so it persists on reload
+    if (body) {
+      body.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+        if (cb.checked) cb.setAttribute('checked', '');
+        else cb.removeAttribute('checked');
+      });
+    }
+    const contentHtml = body?.innerHTML || '';
 
     // Drawing
     let drawing = null;
@@ -324,7 +350,7 @@ window.Notes = {
       }
     }
 
-    const noteData = { title, content: contentHtml, tags, pinned, photos: this._photos, audio: this._audioBlob, drawing };
+    const noteData = { title, content: contentHtml, tags, pinned, photos: this._photos, audio: this._audioDataUrl, drawing };
 
     if (this._currentNoteId) {
       const existing = await window.db.notes.get(this._currentNoteId);
@@ -360,59 +386,149 @@ window.Notes = {
     document.execCommand(cmd, false, value);
   },
 
-  // ─── Voice Recording ──────────────────────────────────────────────────────
+  // ─── Audio Recording (MediaRecorder) ─────────────────────────────────────
 
   toggleVoiceRecording() {
-    if (this._isRecording) {
-      this.stopVoiceRecording();
-    } else {
-      this.startVoiceRecording();
+    if (this._isRecordingAudio) this._stopRecording();
+    else this._startRecording();
+  },
+
+  async _startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this._audioChunks = [];
+      this._mediaRecorder = new MediaRecorder(stream);
+      this._mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) this._audioChunks.push(e.data);
+      };
+      this._mediaRecorder.onstop = () => {
+        const mimeType = this._mediaRecorder?.mimeType || 'audio/webm';
+        const blob = new Blob(this._audioChunks, { type: mimeType });
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          this._audioDataUrl = ev.target.result;
+          this.renderAudioPlayer(this._audioDataUrl);
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      this._mediaRecorder.start();
+      this._isRecordingAudio = true;
+      this._setRecordingUI(true);
+      this.closeAddMenu();
+    } catch {
+      App.showToast('Microphone access denied.', 'error');
     }
   },
 
-  startVoiceRecording() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) { App.showToast('Voice recognition not supported in this browser.', 'error'); return; }
+  _stopRecording() {
+    if (this._mediaRecorder && this._mediaRecorder.state !== 'inactive') {
+      this._mediaRecorder.stop();
+    }
+    this._isRecordingAudio = false;
+    this._setRecordingUI(false);
+  },
 
-    this._speechRecognition = new SpeechRecognition();
-    this._speechRecognition.continuous = true;
-    this._speechRecognition.interimResults = true;
-    this._speechRecognition.lang = 'en-GB';
-
-    this._speechRecognition.onresult = (e) => {
-      let transcript = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        transcript += e.results[i][0].transcript;
-      }
-      const body = document.getElementById('note-body');
-      if (body) {
-        const existingText = body.innerText;
-        body.innerText = existingText.replace(/\[listening…\]$/, '') + transcript + (e.results[e.results.length - 1].isFinal ? ' ' : ' [listening…]');
-      }
-    };
-
-    this._speechRecognition.start();
-    this._isRecording = true;
-    const btn = document.getElementById('note-voice-btn');
-    if (btn) {
-      btn.classList.add('recording');
-      const label = btn.querySelector('.note-voice-label');
-      if (label) label.textContent = '⏹ Stop';
+  _setRecordingUI(isRecording) {
+    const addBtn = document.getElementById('note-add-btn');
+    if (addBtn) addBtn.classList.toggle('recording', isRecording);
+    const voiceBtn = document.getElementById('note-voice-btn');
+    if (voiceBtn) {
+      voiceBtn.classList.toggle('recording', isRecording);
+      const label = voiceBtn.querySelector('.note-voice-label');
+      if (label) label.textContent = isRecording ? '⏹ Stop Recording' : 'Recording';
     }
   },
 
-  stopVoiceRecording() {
-    if (this._speechRecognition) { this._speechRecognition.stop(); this._speechRecognition = null; }
-    this._isRecording = false;
-    const btn = document.getElementById('note-voice-btn');
-    if (btn) {
-      btn.classList.remove('recording');
-      const label = btn.querySelector('.note-voice-label');
-      if (label) label.textContent = 'Recording';
-    }
-    // Clean up [listening…] placeholder
+  renderAudioPlayer(dataUrl) {
+    const container = document.getElementById('note-audio-container');
+    if (!container) return;
+    if (!dataUrl) { container.innerHTML = ''; return; }
+    const uid = 'aud_' + Date.now();
+    container.innerHTML = `
+      <div class="audio-player-card">
+        <audio id="${uid}" src="${dataUrl}" preload="metadata"></audio>
+        <button class="audio-play-btn" id="audio-play-btn" onclick="Notes._toggleAudio('${uid}', this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <div class="audio-track-wrap">
+          <div class="audio-progress" onclick="Notes._seekAudio('${uid}', event, this)">
+            <div class="audio-progress-fill" id="audio-fill-${uid}" style="width:0%"></div>
+          </div>
+          <span class="audio-time" id="audio-time-${uid}">0:00</span>
+        </div>
+        <button class="audio-delete-btn" onclick="Notes._deleteAudio()" title="Remove audio">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
+      </div>`;
+
+    const audio = document.getElementById(uid);
+    const fmtTime = (s) => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+    audio.addEventListener('loadedmetadata', () => {
+      const el = document.getElementById(`audio-time-${uid}`);
+      if (el) el.textContent = fmtTime(audio.duration);
+    });
+    audio.addEventListener('timeupdate', () => {
+      const pct = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;
+      const fill = document.getElementById(`audio-fill-${uid}`);
+      if (fill) fill.style.width = pct + '%';
+      const el = document.getElementById(`audio-time-${uid}`);
+      if (el) el.textContent = fmtTime(Math.max(0, audio.duration - audio.currentTime));
+    });
+    audio.addEventListener('ended', () => {
+      const btn = document.getElementById('audio-play-btn');
+      if (btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+      const fill = document.getElementById(`audio-fill-${uid}`);
+      if (fill) fill.style.width = '0%';
+      if (audio.duration) {
+        const el = document.getElementById(`audio-time-${uid}`);
+        if (el) el.textContent = fmtTime(audio.duration);
+      }
+    });
+  },
+
+  _toggleAudio(uid, btn) {
+    const audio = document.getElementById(uid);
+    if (!audio) return;
+    const playIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    const pauseIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+    if (audio.paused) { audio.play(); btn.innerHTML = pauseIcon; }
+    else { audio.pause(); btn.innerHTML = playIcon; }
+  },
+
+  _seekAudio(uid, event, el) {
+    const audio = document.getElementById(uid);
+    if (!audio || !audio.duration) return;
+    const rect = el.getBoundingClientRect();
+    audio.currentTime = ((event.clientX - rect.left) / rect.width) * audio.duration;
+  },
+
+  _deleteAudio() {
+    this._audioDataUrl = null;
+    const container = document.getElementById('note-audio-container');
+    if (container) container.innerHTML = '';
+  },
+
+  // ─── Checklist ────────────────────────────────────────────────────────────
+
+  insertChecklist() {
     const body = document.getElementById('note-body');
-    if (body) body.innerText = body.innerText.replace(/\s*\[listening…\]$/, '');
+    if (!body) return;
+    body.focus();
+    document.execCommand('insertHTML', false,
+      '<div class="task-item"><input type="checkbox" class="task-check"><span class="task-text">&nbsp;New task</span></div>');
+    this.closeAddMenu();
+    // Move cursor into the task text
+    const tasks = body.querySelectorAll('.task-item .task-text');
+    const last = tasks[tasks.length - 1];
+    if (last) {
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(last);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
   },
 
   // ─── Photos ───────────────────────────────────────────────────────────────
@@ -560,6 +676,7 @@ window.NotesDelete = () => Notes.deleteNote();
 window.NotesTogglePin = () => Notes.togglePin();
 window.NotesExecFormat = (cmd) => Notes.execFormat(cmd);
 window.NotesToggleVoice = () => Notes.toggleVoiceRecording();
+window.NotesInsertChecklist = () => Notes.insertChecklist();
 window.NotesTriggerPhoto = () => Notes.triggerPhotoInput();
 window.NotesHandlePhoto = (input) => Notes.handlePhotoInput(input);
 window.NotesToggleDrawing = () => Notes.toggleDrawingCanvas();

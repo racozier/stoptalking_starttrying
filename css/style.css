@@ -1839,6 +1839,68 @@ h3 { font-size: 1rem; font-weight: 600; }
   -webkit-touch-callout: none;
 }
 
+/* ── Note Card Rendered Preview ──────────────────────────────────────────── */
+.note-card-photo { margin-bottom: 8px; }
+.note-card-photo img { width: 100%; border-radius: 8px; max-height: 100px; object-fit: cover; display: block; }
+.note-card-body {
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--text);
+  max-height: 130px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+}
+.note-card-body h3 { font-size: 0.85rem; font-weight: 700; margin: 2px 0 4px; }
+.note-card-body ul, .note-card-body ol { padding-left: 14px; margin: 2px 0; }
+.note-card-body .task-item { display: flex; align-items: flex-start; gap: 5px; margin: 1px 0; }
+.note-card-body .task-check { flex-shrink: 0; }
+.note-card-audio-badge {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.71rem; color: var(--subtext);
+  margin-bottom: 6px;
+}
+
+/* ── Checklist in editor ─────────────────────────────────────────────────── */
+.task-item { display: flex; align-items: flex-start; gap: 8px; margin: 4px 0; }
+.task-check { width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; margin-top: 3px; cursor: pointer; }
+.task-text { flex: 1; }
+.task-item:has(.task-check:checked) .task-text { text-decoration: line-through; opacity: 0.55; }
+
+/* ── Audio Player in editor ──────────────────────────────────────────────── */
+.audio-player-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 4px 16px 12px;
+}
+.audio-play-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--accent); color: #fff; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; padding-left: 2px;
+}
+.audio-track-wrap { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.audio-progress {
+  height: 4px; background: var(--border); border-radius: 2px;
+  cursor: pointer; position: relative;
+}
+.audio-progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.1s linear; }
+.audio-time { font-size: 0.7rem; color: var(--subtext); }
+.audio-delete-btn {
+  background: none; border: none; color: var(--subtext); cursor: pointer;
+  padding: 5px; display: flex; align-items: center; border-radius: 6px; flex-shrink: 0;
+}
+.audio-delete-btn:hover { color: var(--danger); }
+
+/* Recording state on + button */
+.note-add-btn.recording { background: var(--danger); animation: pulse-rec 1s ease-in-out infinite; }
+@keyframes pulse-rec { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
+
 /* ── Settings Tab ─────────────────────────────────────────────────────────── */
 .settings-section { margin-bottom: 24px; }
 .settings-section-title { font-size: 0.75rem; color: var(--subtext); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
