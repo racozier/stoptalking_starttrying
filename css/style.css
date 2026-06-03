@@ -403,7 +403,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 /* Streak month view (slide 1) */
 .streak-mv-month { font-size: 0.62rem; font-weight: 700; color: var(--subtext); letter-spacing: 0.04em; margin-bottom: 3px; }
-.streak-mv-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 3px; }
+.streak-mv-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 6px; flex: 1; align-content: space-between; }
 .streak-mv-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.12); justify-self: center; }
 .streak-mv-dot.active { background: #F97316; }
 .streak-mv-dot.inactive { background: var(--accent); opacity: 0.45; }
