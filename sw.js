@@ -1,6 +1,7 @@
-const CACHE_NAME = 'st2-v3';
+const CACHE_NAME = 'st2-v4';
 const STRAVA_ORIGIN = 'https://www.strava.com';
 const ANTHROPIC_ORIGIN = 'https://api.anthropic.com';
+const GEMINI_ORIGIN = 'https://generativelanguage.googleapis.com';
 
 const STATIC_ASSETS = [
   './',
@@ -42,8 +43,8 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // Network-only for Anthropic API calls
-  if (url.origin === ANTHROPIC_ORIGIN) {
+  // Network-only for AI API calls (never cache)
+  if (url.origin === ANTHROPIC_ORIGIN || url.origin === GEMINI_ORIGIN) {
     e.respondWith(fetch(e.request));
     return;
   }

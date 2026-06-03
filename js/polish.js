@@ -71,7 +71,7 @@ window.Polish = {
 
     const apiKey = await window.db.settings.get('claudeApiKey', null);
     if (!apiKey) {
-      this._setStatus('Add a Claude API key in Settings → Polish to get your daily word.');
+      this._setStatus('Add a Gemini API key in Settings → Polish to get your daily word.');
       return;
     }
 
@@ -99,24 +99,19 @@ window.Polish = {
 
   async _fetchWord(apiKey, cacheKey) {
     this._setStatus('Fetching word of the day…');
+    const prompt = 'Give me a Polish word of the day for an intermediate learner. Include the word, its English translation, the part of speech, an example sentence in Polish, and the English translation of that sentence. Respond with ONLY a JSON object in this exact format: {"word": "...", "translation": "...", "pos": "...", "sentence_pl": "...", "sentence_en": "..."}';
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 300,
-          messages: [{
-            role: 'user',
-            content: 'Give me a Polish word of the day for an intermediate learner. Include the word, its English translation, the part of speech, an example sentence in Polish, and the English translation of that sentence. Respond with ONLY a JSON object in this exact format: {"word": "...", "translation": "...", "pos": "...", "sentence_pl": "...", "sentence_en": "..."}',
-          }],
-        }),
-      });
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 300 },
+          }),
+        }
+      );
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -125,7 +120,7 @@ window.Polish = {
       }
 
       const body = await res.json();
-      const text = body.content?.[0]?.text || '';
+      const text = body.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const match = text.match(/\{[\s\S]*\}/);
       if (!match) { this._setStatus('Unexpected response. Try again.'); return; }
 
@@ -174,7 +169,7 @@ window.Polish = {
 
     const apiKey = await window.db.settings.get('claudeApiKey', null);
     if (!apiKey) {
-      this._setStatus('Add a Claude API key in Settings → Polish to get your daily word.');
+      this._setStatus('Add a Gemini API key in Settings → Polish to get your daily word.');
       return;
     }
     await this._fetchWord(apiKey, `st2_wotd_${todayStr}`);
