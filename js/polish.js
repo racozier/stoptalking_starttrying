@@ -252,30 +252,51 @@ window.Polish = {
     await this.renderFavoritesSection();
   },
 
+  _savedWords: [],
+
   async renderFavoritesSection() {
     const favs = await this._getFavorites();
+    this._savedWords = favs.map((w) => POLISH_WORDS.find((x) => x.word === w)).filter(Boolean);
+
     const countEl = document.getElementById('polish-saved-count');
     if (countEl) countEl.textContent = favs.length;
 
-    const body = document.getElementById('polish-saved-body');
-    if (!body) return;
+    const searchEl = document.getElementById('polish-saved-search');
+    this._renderSavedList(searchEl?.value || '');
+  },
 
-    if (favs.length === 0) {
-      body.innerHTML = '<div class="polish-saved-empty">No saved words yet — star a word to save it.</div>';
-    } else {
-      body.innerHTML = favs.map((w) => {
-        const data = POLISH_WORDS.find((x) => x.word === w);
-        if (!data) return '';
-        return `<div class="polish-saved-row">
-          <div class="polish-saved-word-info">
-            <span class="polish-saved-word">${App.escapeHtml(data.word)}</span>
-            <span class="polish-saved-trans">${App.escapeHtml(data.translation)}</span>
-            <span class="polish-pos-badge">${App.escapeHtml(data.pos)}</span>
-          </div>
-          <button class="polish-saved-remove" onclick="PolishRemoveFavorite('${App.escapeHtml(data.word)}')" title="Remove">★</button>
-        </div>`;
-      }).join('');
+  _renderSavedList(query) {
+    const list = document.getElementById('polish-saved-list');
+    if (!list) return;
+
+    if (this._savedWords.length === 0) {
+      list.innerHTML = '<div class="polish-saved-empty">No saved words yet — star a word to save it.</div>';
+      return;
     }
+
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? this._savedWords.filter((d) => d.word.toLowerCase().includes(q) || d.translation.toLowerCase().includes(q) || d.pos.toLowerCase().includes(q))
+      : this._savedWords;
+
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="polish-saved-no-results">No matches for "${App.escapeHtml(query)}"</div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map((data) => `
+      <div class="polish-saved-row">
+        <div class="polish-saved-word-info">
+          <span class="polish-saved-word">${App.escapeHtml(data.word)}</span>
+          <span class="polish-saved-trans">${App.escapeHtml(data.translation)}</span>
+          <span class="polish-pos-badge">${App.escapeHtml(data.pos)}</span>
+        </div>
+        <button class="polish-saved-remove" onclick="PolishRemoveFavorite('${App.escapeHtml(data.word)}')" title="Remove">★</button>
+      </div>`).join('');
+  },
+
+  filterSaved(query) {
+    this._renderSavedList(query);
   },
 
   async removeFavorite(word) {
@@ -293,6 +314,10 @@ window.Polish = {
     const chevron = document.getElementById('polish-saved-chevron');
     if (body) body.classList.toggle('open', this._savedOpen);
     if (chevron) chevron.classList.toggle('open', this._savedOpen);
+    if (this._savedOpen) {
+      const searchEl = document.getElementById('polish-saved-search');
+      if (searchEl) { searchEl.value = ''; this._renderSavedList(''); }
+    }
   },
 
   flipCard() {
@@ -502,3 +527,4 @@ window.PolishOpenLog = () => openQuickStudyModal('Polish Language');
 window.PolishToggleFavorite = () => Polish.toggleFavorite();
 window.PolishToggleSaved = () => Polish.toggleSavedPanel();
 window.PolishRemoveFavorite = (w) => Polish.removeFavorite(w);
+window.PolishFilterSaved = (q) => Polish.filterSaved(q);

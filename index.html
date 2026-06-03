@@ -590,7 +590,12 @@
             <span class="polish-saved-count" id="polish-saved-count">0</span>
             <span class="polish-saved-chevron" id="polish-saved-chevron">▾</span>
           </div>
-          <div class="polish-saved-body" id="polish-saved-body"></div>
+          <div class="polish-saved-body" id="polish-saved-body">
+            <div class="polish-saved-search-wrap">
+              <input class="polish-saved-search" id="polish-saved-search" type="search" placeholder="Search saved words…" oninput="PolishFilterSaved(this.value)" />
+            </div>
+            <div class="polish-saved-list" id="polish-saved-list"></div>
+          </div>
         </div>
 
         <!-- Log Polish button -->
