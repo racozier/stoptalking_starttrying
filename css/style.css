@@ -2166,8 +2166,8 @@ h3 { font-size: 1rem; font-weight: 600; }
 .study-timer-row { display: flex; align-items: center; gap: 3px; margin-bottom: 4px; flex-shrink: 0; }
 .study-timer-label { font-size: 0.75rem; color: var(--subtext); }
 .study-timer-num { font-size: 1.32rem; font-weight: 400; color: var(--subtext); letter-spacing: 0.01em; }
-.study-goal-label-row { font-size: 0.6rem; color: var(--subtext); margin-bottom: 3px; flex-shrink: 0; display: flex; align-items: center; gap: 4px; }
-.study-daily-pct { font-size: 0.6rem; font-weight: 700; color: #22C55E; }
+.study-goal-label-row { font-size: 0.63rem; color: var(--subtext); margin-bottom: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+.study-daily-pct { font-size: 0.68rem; font-weight: 700; color: #22C55E; }
 .study-goal-bar-wrap { margin-bottom: 8px; flex-shrink: 0; }
 .study-start-btn { width: 100%; padding: 7px 0; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 600; cursor: pointer; margin-bottom: 6px; flex-shrink: 0; }
 .study-timer-controls { display: flex; gap: 5px; margin-bottom: 6px; flex-shrink: 0; }
@@ -2176,7 +2176,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .study-week-total-row { font-size: 0.88rem; margin-bottom: 6px; flex-shrink: 0; }
 .study-week-num { font-size: 2.5rem; font-weight: 400; color: var(--text); }
 .study-week-unit { font-size: 1rem; color: var(--subtext); }
-.study-week-chart-wrap { flex: 1; min-height: 0; position: relative; margin-bottom: 6px; }
+.study-week-chart-wrap { flex: 1; min-height: 40px; position: relative; margin-bottom: 6px; }
 .study-week-chart-wrap canvas { width: 100% !important; height: 100% !important; }
 .study-week-goal-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.63rem; color: var(--subtext); margin-bottom: 3px; flex-shrink: 0; }
 .study-week-goal-label { }
