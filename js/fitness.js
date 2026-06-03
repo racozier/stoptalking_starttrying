@@ -700,6 +700,12 @@ window.Fitness = {
     if (!file) return;
     const rawName = file.name.replace(/\.gpx$/i, '').replace(/[_-]/g, ' ');
     input.value = '';
+
+    if (file.size === 0) {
+      this._showGpxError('This GPX file is empty (0 bytes). In FitoTrack, make sure GPS is enabled and the workout was recorded before exporting.');
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
