@@ -1654,6 +1654,41 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .notes-fab:active { transform: scale(0.9); }
 
+/* ── Notes Selection Mode ─────────────────────────────────────────────────── */
+.notes-sel-bar { display: none; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--accent); border-radius: 12px; margin-bottom: 12px; }
+.notes-sel-cancel { background: none; border: none; color: var(--text); cursor: pointer; font-size: 1.1rem; padding: 4px; line-height: 1; flex-shrink: 0; }
+.notes-sel-count { flex: 1; font-size: 0.88rem; font-weight: 600; color: var(--text); }
+.notes-sel-actions { display: flex; gap: 6px; }
+.notes-sel-btn { background: none; border: none; color: var(--text); cursor: pointer; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.notes-sel-btn:hover { background: var(--surface2); }
+
+.note-card { position: relative; }
+.note-card.selected { box-shadow: 0 0 0 2px var(--accent); }
+.note-card.selected::after,
+.note-card-small.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.note-card-small { position: relative; }
+.note-card-small.selected { box-shadow: 0 0 0 2px var(--accent); }
+
+/* ── Note Color Picker ────────────────────────────────────────────────────── */
+.note-color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; justify-items: center; padding: 8px 0 16px; }
+.note-color-swatch { width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s; }
+.note-color-swatch:hover { transform: scale(1.12); box-shadow: 0 0 0 3px var(--accent); }
+.note-color-swatch.swatch-default { background: var(--surface2); color: var(--subtext); border-color: var(--border); }
+
 /* ── Note Editor ──────────────────────────────────────────────────────────── */
 .note-editor-header {
   display: flex;

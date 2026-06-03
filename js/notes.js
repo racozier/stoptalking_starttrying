@@ -1,5 +1,21 @@
+const NOTE_COLORS = [
+  { id: 'default', bg: null,      label: 'Default' },
+  { id: 'red',     bg: '#5c2020', label: 'Red' },
+  { id: 'coral',   bg: '#5c3315', label: 'Coral' },
+  { id: 'yellow',  bg: '#4d3c08', label: 'Yellow' },
+  { id: 'teal',    bg: '#0b3d38', label: 'Teal' },
+  { id: 'blue',    bg: '#0d2d5e', label: 'Blue' },
+  { id: 'green',   bg: '#1b3d1b', label: 'Green' },
+  { id: 'purple',  bg: '#321563', label: 'Purple' },
+  { id: 'pink',    bg: '#5a1a3a', label: 'Pink' },
+  { id: 'gray',    bg: '#2d2d2d', label: 'Gray' },
+];
+
 window.Notes = {
   _currentNoteId: null,
+  _selectionMode: false,
+  _selectedIds: [],
+  _longPressTimer: null,
   _speechRecognition: null,
   _isRecording: false,
   _drawingCanvas: null,
@@ -34,7 +50,6 @@ window.Notes = {
     const pinned = notes.filter((n) => n.pinned);
     const unpinned = notes.filter((n) => !n.pinned);
 
-    // Pinned row
     if (pinnedContainer) {
       if (pinned.length > 0) {
         pinnedContainer.innerHTML = '<div class="pinned-label">📌 Pinned</div>' +
@@ -51,26 +66,130 @@ window.Notes = {
       return;
     }
 
-    // Masonry 2-col grid
     gridContainer.innerHTML = unpinned.map((n) => this.renderNoteCard(n)).join('');
 
-    // Click handlers
     gridContainer.querySelectorAll('.note-card').forEach((card) => {
-      card.addEventListener('click', () => this.openEditor(Number(card.dataset.id)));
+      this._setupCardHandlers(card, Number(card.dataset.id));
     });
     if (pinnedContainer) {
       pinnedContainer.querySelectorAll('.note-card-small').forEach((card) => {
-        card.addEventListener('click', () => this.openEditor(Number(card.dataset.id)));
+        this._setupCardHandlers(card, Number(card.dataset.id));
       });
     }
+
+    if (this._selectionMode) this._updateSelectionUI();
+  },
+
+  _setupCardHandlers(card, id) {
+    // Long press → enter / expand selection
+    const startLong = () => {
+      this._longPressTimer = setTimeout(() => {
+        this._longPressTimer = null;
+        if (!this._selectionMode) this.enterSelectionMode(id);
+        else this.toggleNoteSelection(id);
+      }, 500);
+    };
+    const cancelLong = () => { clearTimeout(this._longPressTimer); this._longPressTimer = null; };
+
+    card.addEventListener('touchstart', startLong, { passive: true });
+    card.addEventListener('touchend', cancelLong, { passive: true });
+    card.addEventListener('touchmove', cancelLong, { passive: true });
+    card.addEventListener('mousedown', startLong);
+    card.addEventListener('mouseup', cancelLong);
+    card.addEventListener('mouseleave', cancelLong);
+
+    card.addEventListener('click', () => {
+      if (this._longPressTimer !== null) return; // long press already handled
+      if (this._selectionMode) this.toggleNoteSelection(id);
+      else this.openEditor(id);
+    });
+  },
+
+  // ─── Selection Mode ───────────────────────────────────────────────────────
+
+  enterSelectionMode(id) {
+    this._selectionMode = true;
+    this._selectedIds = [id];
+    document.getElementById('notes-sel-bar').style.display = 'flex';
+    document.getElementById('notes-header').style.display = 'none';
+    document.getElementById('notes-search').style.display = 'none';
+    document.getElementById('notes-fab').style.display = 'none';
+    this._updateSelectionUI();
+  },
+
+  toggleNoteSelection(id) {
+    const idx = this._selectedIds.indexOf(id);
+    if (idx >= 0) this._selectedIds.splice(idx, 1);
+    else this._selectedIds.push(id);
+    if (this._selectedIds.length === 0) { this.exitSelectionMode(); return; }
+    this._updateSelectionUI();
+  },
+
+  exitSelectionMode() {
+    this._selectionMode = false;
+    this._selectedIds = [];
+    document.getElementById('notes-sel-bar').style.display = 'none';
+    document.getElementById('notes-header').style.display = '';
+    document.getElementById('notes-search').style.display = '';
+    document.getElementById('notes-fab').style.display = '';
+    document.querySelectorAll('.note-card.selected, .note-card-small.selected')
+      .forEach((c) => c.classList.remove('selected'));
+  },
+
+  _updateSelectionUI() {
+    const n = this._selectedIds.length;
+    const el = document.getElementById('notes-sel-count');
+    if (el) el.textContent = `${n} selected`;
+    document.querySelectorAll('.note-card[data-id], .note-card-small[data-id]').forEach((card) => {
+      card.classList.toggle('selected', this._selectedIds.includes(Number(card.dataset.id)));
+    });
+  },
+
+  openColorPicker() {
+    const grid = document.getElementById('note-color-grid');
+    if (grid) {
+      grid.innerHTML = NOTE_COLORS.map((c) =>
+        `<button class="note-color-swatch${c.bg === null ? ' swatch-default' : ''}"
+          style="${c.bg ? `background:${c.bg}` : ''}"
+          onclick="NotesApplyColor('${c.id}')"
+          title="${c.label}">
+          ${c.bg === null ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' : ''}
+        </button>`
+      ).join('');
+    }
+    App.openModal('modal-note-color');
+  },
+
+  async applyColor(colorId) {
+    const colorDef = NOTE_COLORS.find((c) => c.id === colorId);
+    const color = colorDef?.bg || null;
+    for (const id of this._selectedIds) {
+      const note = await window.db.notes.get(id);
+      if (note) await window.db.notes.update({ ...note, color });
+    }
+    App.closeAllModals();
+    this.exitSelectionMode();
+    await this.renderGrid();
+    App.showToast('Color updated.', 'success');
+  },
+
+  async applySelectionPin() {
+    for (const id of this._selectedIds) {
+      const note = await window.db.notes.get(id);
+      if (note) await window.db.notes.update({ ...note, pinned: !note.pinned });
+    }
+    this.exitSelectionMode();
+    await this.renderGrid();
+    App.showToast('Updated.', 'success');
   },
 
   renderNoteCard(note) {
     const preview = note.content ? note.content.substring(0, 120) + (note.content.length > 120 ? '…' : '') : '';
     const tagsHtml = (note.tags || []).map((t) => `<span class="tag-chip">${App.escapeHtml(t)}</span>`).join('');
     const photoThumb = note.photos?.length > 0 ? '<div class="note-photo-indicator">📷</div>' : '';
+    const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
     return `
-    <div class="note-card" data-id="${note.id}">
+    <div class="note-card" data-id="${note.id}" style="${bgStyle}">
       ${photoThumb}
       ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
       ${preview ? `<div class="note-card-preview">${App.escapeHtml(preview)}</div>` : ''}
@@ -80,8 +199,9 @@ window.Notes = {
   },
 
   renderNoteCardSmall(note) {
+    const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
     return `
-    <div class="note-card-small" data-id="${note.id}">
+    <div class="note-card-small" data-id="${note.id}" style="${bgStyle}">
       <div class="note-card-title">${App.escapeHtml(note.title || 'Untitled')}</div>
       <div class="note-card-date">${App.formatDate(note.updated, { relative: true })}</div>
     </div>`;
@@ -126,6 +246,10 @@ window.Notes = {
       if (drawingSection) drawingSection.style.display = 'block';
       setTimeout(() => this.initDrawingCanvas(note.drawing), 100);
     }
+
+    // Apply note color to editor background
+    const sheet = modal.querySelector('.modal-sheet');
+    if (sheet) sheet.style.background = note?.color || '';
 
     App.openModal('modal-note-editor');
 
@@ -389,3 +513,7 @@ window.NotesSetDrawColor = (color) => Notes.setDrawingColor(color);
 window.NotesSetDrawMode = (mode) => Notes.setDrawingMode(mode);
 window.NotesClearDrawing = () => Notes.clearDrawing();
 window.NotesHandleTagInput = (e) => Notes.handleTagInput(e);
+window.NotesExitSelection = () => Notes.exitSelectionMode();
+window.NotesSelectionPin = () => Notes.applySelectionPin();
+window.NotesOpenColorPicker = () => Notes.openColorPicker();
+window.NotesApplyColor = (id) => Notes.applyColor(id);

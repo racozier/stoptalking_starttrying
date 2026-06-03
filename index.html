@@ -638,7 +638,21 @@
          ================================================================ -->
     <div id="tab-notes" class="tab-content">
 
-      <div class="tab-page-header">
+      <!-- Selection mode action bar -->
+      <div class="notes-sel-bar" id="notes-sel-bar" style="display:none">
+        <button class="notes-sel-cancel" onclick="NotesExitSelection()">✕</button>
+        <span class="notes-sel-count" id="notes-sel-count">0 selected</span>
+        <div class="notes-sel-actions">
+          <button class="notes-sel-btn" onclick="NotesSelectionPin()" title="Pin/Unpin">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></svg>
+          </button>
+          <button class="notes-sel-btn" onclick="NotesOpenColorPicker()" title="Change color">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="tab-page-header" id="notes-header">
         <h2>Notes</h2>
       </div>
 
@@ -649,7 +663,7 @@
         <div class="empty-state"><p>Loading…</p></div>
       </div>
 
-      <button class="notes-fab" onclick="Notes.openEditor(null)">＋</button>
+      <button class="notes-fab" id="notes-fab" onclick="Notes.openEditor(null)">＋</button>
 
     </div><!-- /tab-notes -->
 
@@ -1208,6 +1222,19 @@
 </div>
 
 <!-- ── Note Editor Modal (full-screen) ────────────────────────────────── -->
+<div class="modal-backdrop" id="modal-note-color">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>Note color</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="note-color-grid" id="note-color-grid"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop modal-fullscreen" id="modal-note-editor">
   <div class="modal-sheet" style="border-radius:0;height:100dvh;display:flex;flex-direction:column">
     <!-- Header -->
