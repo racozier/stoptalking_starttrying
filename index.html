@@ -386,7 +386,7 @@
       <div class="study-subtabs">
         <button class="study-subtab-btn active" data-subtab="overview">Overview</button>
         <button class="study-subtab-btn" data-subtab="classes">Classes</button>
-        <button class="study-subtab-btn" data-subtab="sessions">Sessions</button>
+        <button class="study-subtab-btn" data-subtab="polish">Polish</button>
       </div>
 
       <!-- ── Overview Pane ─────────────────────────────────────────────── -->
@@ -500,22 +500,71 @@
         </div>
       </div>
 
-      <!-- ── Sessions Pane ─────────────────────────────────────────────── -->
-      <div class="study-subtab-pane" data-subtab-pane="sessions">
-        <div class="sessions-filters">
-          <select class="form-select" id="session-class-filter" onchange="StudyFilterSessions()">
-            <option value="">All subjects</option>
-          </select>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <input type="date" class="form-input" id="session-date-from" placeholder="From" onchange="StudyFilterSessions()" />
-            <input type="date" class="form-input" id="session-date-to" placeholder="To" onchange="StudyFilterSessions()" />
+      <!-- ── Polish Pane ──────────────────────────────────────────────── -->
+      <div class="study-subtab-pane" data-subtab-pane="polish">
+
+        <!-- Stats row: Today + This Week (Polish only) -->
+        <div class="polish-stats-row">
+          <div class="card polish-stat-card">
+            <div class="polish-stat-label">TODAY</div>
+            <div class="polish-stat-val" id="polish-today-val">0<span class="polish-stat-unit">m</span></div>
+            <div class="polish-stat-sub">Polish study</div>
+          </div>
+          <div class="card polish-stat-card">
+            <div class="polish-stat-label">THIS WEEK</div>
+            <div class="polish-stat-val" id="polish-week-val">0<span class="polish-stat-unit">m</span></div>
+            <div class="polish-stat-sub" id="polish-week-sub">0 of 7 days</div>
           </div>
         </div>
-        <div class="sessions-total" id="sessions-total">All time</div>
-        <div class="sessions-list" id="sessions-list">
-          <div class="empty-state"><p>Loading…</p></div>
+
+        <!-- Word of the Day flip card -->
+        <div class="polish-flip-wrap" id="polish-flip-wrap" onclick="PolishFlip()">
+          <div class="polish-flip-inner" id="polish-flip-inner">
+            <!-- FRONT -->
+            <div class="polish-flip-face polish-front">
+              <div class="polish-front-inner">
+                <div class="polish-front-left">
+                  <div class="polish-front-eyebrow">Polish</div>
+                  <div class="polish-front-title">Word of the Day</div>
+                  <div class="polish-front-date" id="polish-wotd-date"></div>
+                </div>
+                <div class="polish-front-right">
+                  <div class="polish-flag">🇵🇱</div>
+                  <div class="polish-tap-hint">Tap to reveal</div>
+                </div>
+              </div>
+            </div>
+            <!-- BACK -->
+            <div class="polish-flip-face polish-back" id="polish-flip-back">
+              <div class="polish-back-top">
+                <div class="polish-back-left">
+                  <div class="polish-back-word" id="polish-wotd-word">---</div>
+                  <div class="polish-back-meta">
+                    <span class="polish-back-trans" id="polish-wotd-trans">---</span>
+                    <span class="polish-pos-badge" id="polish-wotd-pos">---</span>
+                  </div>
+                </div>
+                <button class="polish-chevron" id="polish-chevron" onclick="event.stopPropagation();PolishToggleExpand()">▾</button>
+              </div>
+              <div class="polish-expand-panel" id="polish-expand-panel">
+                <div class="polish-expand-divider"></div>
+                <div class="polish-sentence-pl" id="polish-wotd-sent-pl"></div>
+                <div class="polish-sentence-en" id="polish-wotd-sent-en"></div>
+                <div class="polish-new-word-row">
+                  <button class="polish-new-btn" onclick="event.stopPropagation();PolishFetchNew()">↻ New word</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <!-- Loading / error state -->
+        <div class="polish-wotd-status" id="polish-wotd-status"></div>
+
+        <!-- Log Polish button -->
+        <button class="btn btn-secondary polish-log-btn" onclick="PolishOpenLog()">+ Log Polish Study</button>
+
+      </div><!-- /polish pane -->
 
     </div><!-- /tab-study -->
 
@@ -618,6 +667,20 @@
           </div>
           <div class="settings-row">
             <button class="btn btn-primary" onclick="SettingsSave()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Polish -->
+      <div class="settings-section">
+        <div class="settings-section-title">Polish</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div class="settings-row-label">Claude API Key<div class="sub">For Word of the Day</div></div>
+            <input class="settings-input" id="settings-claude-key" type="password" placeholder="sk-ant-…" style="max-width:180px" />
+          </div>
+          <div class="settings-row">
+            <button class="btn btn-primary" onclick="SettingsSave()">Save</button>
           </div>
         </div>
       </div>
@@ -1172,6 +1235,7 @@
 <script src="js/dashboard.js"></script>
 <script src="js/fitness.js"></script>
 <script src="js/study.js"></script>
+<script src="js/polish.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/settings.js"></script>
 

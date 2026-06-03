@@ -2315,3 +2315,70 @@ h3 { font-size: 1rem; font-weight: 600; }
 .study-week-goal-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.63rem; color: var(--subtext); margin-bottom: 3px; flex-shrink: 0; }
 .study-week-goal-label { }
 .study-week-pct { font-weight: 700; color: var(--accent); font-size: 0.68rem; }
+
+/* ── Polish Tab ───────────────────────────────────────────────────────────── */
+.polish-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.polish-stat-card { padding: 12px 14px; }
+.polish-stat-label { font-size: 0.6rem; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.polish-stat-val { font-size: 1.85rem; font-weight: 800; color: var(--text); line-height: 1.1; }
+.polish-stat-unit { font-size: 0.9rem; font-weight: 500; color: var(--subtext); }
+.polish-stat-sub { font-size: 0.63rem; color: var(--subtext); margin-top: 3px; }
+
+/* Flip card */
+.polish-flip-wrap { perspective: 900px; cursor: pointer; margin-bottom: 10px; }
+.polish-flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
+  min-height: 82px;
+}
+.polish-flip-inner.flipped { transform: rotateY(180deg); }
+.polish-flip-face {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.polish-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  overflow: hidden;
+}
+
+/* Front face */
+.polish-front-inner { display: flex; align-items: center; justify-content: space-between; }
+.polish-front-eyebrow { font-size: 0.6rem; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.polish-front-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+.polish-front-date { font-size: 0.65rem; color: var(--subtext); margin-top: 2px; }
+.polish-front-right { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
+.polish-flag { font-size: 1.8rem; line-height: 1; }
+.polish-tap-hint { font-size: 0.5rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* Back face */
+.polish-back-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.polish-back-word { font-size: 1.8rem; font-weight: 800; color: var(--text); line-height: 1; }
+.polish-back-meta { display: flex; align-items: center; gap: 7px; margin-top: 5px; flex-wrap: wrap; }
+.polish-back-trans { font-size: 0.85rem; color: var(--subtext); }
+.polish-pos-badge { display: inline-block; background: rgba(220,38,38,0.15); color: #F87171; border: 1px solid rgba(220,38,38,0.25); border-radius: 20px; font-size: 0.55rem; font-weight: 700; padding: 2px 7px; text-transform: uppercase; letter-spacing: 0.06em; flex-shrink: 0; }
+.polish-chevron { background: none; border: none; color: var(--subtext); cursor: pointer; padding: 4px; font-size: 13px; transition: transform 0.25s; flex-shrink: 0; margin-top: 2px; }
+.polish-chevron.open { transform: rotate(180deg); }
+
+/* Expand panel */
+.polish-expand-panel { overflow: hidden; max-height: 0; transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.25s; opacity: 0; }
+.polish-expand-panel.open { max-height: 160px; opacity: 1; }
+.polish-expand-divider { height: 1px; background: var(--border); margin: 10px 0; }
+.polish-sentence-pl { font-size: 0.82rem; font-weight: 600; color: var(--text); line-height: 1.5; margin-bottom: 4px; }
+.polish-sentence-en { font-size: 0.75rem; font-style: italic; color: var(--subtext); line-height: 1.4; }
+.polish-new-word-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+.polish-new-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--subtext); font-size: 0.65rem; padding: 5px 10px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600; letter-spacing: 0.03em; }
+.polish-new-btn:hover { color: var(--text); border-color: var(--subtext); }
+
+/* Status / loading text */
+.polish-wotd-status { font-size: 0.78rem; color: var(--subtext); text-align: center; padding: 6px 0; min-height: 22px; }
+
+/* Log button */
+.polish-log-btn { width: 100%; margin-top: 2px; }

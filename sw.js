@@ -1,5 +1,6 @@
-const CACHE_NAME = 'st2-v2';
+const CACHE_NAME = 'st2-v3';
 const STRAVA_ORIGIN = 'https://www.strava.com';
+const ANTHROPIC_ORIGIN = 'https://api.anthropic.com';
 
 const STATIC_ASSETS = [
   './',
@@ -10,6 +11,7 @@ const STATIC_ASSETS = [
   './js/dashboard.js',
   './js/fitness.js',
   './js/study.js',
+  './js/polish.js',
   './js/notes.js',
   './js/settings.js',
   './js/strava.js',
@@ -39,6 +41,12 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
+
+  // Network-only for Anthropic API calls
+  if (url.origin === ANTHROPIC_ORIGIN) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
 
   // Network-first for Strava API calls
   if (url.origin === STRAVA_ORIGIN) {

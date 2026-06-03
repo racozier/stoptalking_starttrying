@@ -17,6 +17,7 @@ window.SettingsModule = {
     set('settings-term-end', settings.currentTermEnd || '');
     set('settings-timezone', settings.timezone || 'Europe/Warsaw');
     set('settings-units', settings.units || 'metric');
+    set('settings-claude-key', settings.claudeApiKey || '');
 
     // Highlight active theme swatch
     const theme = settings.theme || 'dark';
@@ -42,6 +43,8 @@ window.SettingsModule = {
     const units = get('settings-units') || 'metric';
     await window.db.settings.set('units', units);
     App._units = units;
+    const claudeKey = get('settings-claude-key').trim();
+    if (claudeKey) await window.db.settings.set('claudeApiKey', claudeKey);
     App.showToast('Settings saved!', 'success');
     App.updateGreeting();
     if (App.currentTab === 'study') await Study.render();

@@ -26,7 +26,7 @@ window.Study = {
   async renderSubTab(tab) {
     if (tab === 'overview') await this.renderOverview();
     else if (tab === 'classes') await this.renderClasses();
-    else if (tab === 'sessions') await this.renderSessions();
+    else if (tab === 'polish') await Polish.render();
   },
 
   // ─── OVERVIEW ──────────────────────────────────────────────────────────────
