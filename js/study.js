@@ -48,7 +48,8 @@ window.Study = {
       || classes[0]?.term
       || termName;
     const termClasses = classes.filter((c) => c.term === currentTermName);
-    const termTotal = termClasses.length;
+    const activeTermClasses = termClasses.filter((c) => c.status === 'in_progress' || c.status === 'passed');
+    const termTotal = activeTermClasses.length;
     const termPassed = termClasses.filter((c) => c.status === 'passed').length;
     const termPct = termTotal > 0 ? Math.round((termPassed / termTotal) * 100) : 0;
 
@@ -120,14 +121,13 @@ window.Study = {
   },
 
   async renderTimerCard() {
-    // Populate subject dropdown
+    // Pre-populate the timer class picker modal with in-progress classes
     const classes = await window.db.classes.getAll();
-    const activeClasses = classes.filter((c) => c.status === 'in_progress' || c.status === 'not_started');
-    const select = document.getElementById('timer-subject-select');
+    const inProgress = classes.filter((c) => c.status === 'in_progress');
+    const select = document.getElementById('timer-class-select');
     if (select) {
-      const currentVal = select.value;
-      select.innerHTML = '<option value="">Select subject…</option>' +
-        activeClasses.map((c) => `<option value="${c.id}" ${String(c.id) === currentVal ? 'selected' : ''}>${c.code} ${c.name}</option>`).join('');
+      select.innerHTML = '<option value="">No class (general study)</option>' +
+        inProgress.map((c) => `<option value="${c.id}">${c.code} ${c.name}</option>`).join('');
     }
     this.updateTimerDisplay();
   },
@@ -154,13 +154,12 @@ window.Study = {
 
   updateTimerDisplay() {
     const display = document.getElementById('timer-display');
-    const ring = document.getElementById('timer-ring');
     if (!display) return;
 
     const state = this._getTimerState();
     if (!state) {
       display.textContent = '00:00:00';
-      if (ring) ring.classList.remove('running');
+      this._setTimerButtons('idle');
       return;
     }
 
@@ -172,29 +171,45 @@ window.Study = {
     const m = Math.floor((elapsed % 3600) / 60);
     const s = elapsed % 60;
     display.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    if (ring) ring.classList.toggle('running', state.running);
 
-    // Update buttons
-    const startBtn = document.getElementById('timer-start-btn');
-    const pauseBtn = document.getElementById('timer-pause-btn');
-    const stopBtn = document.getElementById('timer-stop-btn');
-    if (startBtn) startBtn.style.display = state.running ? 'none' : 'inline-flex';
-    if (pauseBtn) pauseBtn.style.display = state.running ? 'inline-flex' : 'none';
-    if (stopBtn) stopBtn.style.display = state.elapsedOnPause > 0 || state.running ? 'inline-flex' : 'none';
+    if (state.running) {
+      this._setTimerButtons('running');
+    } else if (state.elapsedOnPause > 0) {
+      this._setTimerButtons('paused');
+    } else {
+      this._setTimerButtons('idle');
+    }
   },
 
-  startTimer() {
-    const select = document.getElementById('timer-subject-select');
-    const classId = select?.value ? Number(select.value) : null;
-    const subjectName = select?.options[select.selectedIndex]?.text || 'Unknown';
+  _setTimerButtons(state) {
+    const startBtn = document.getElementById('timer-start-btn');
+    const controls = document.getElementById('study-timer-controls');
+    const pauseBtn = document.getElementById('timer-pause-btn');
+    const stopBtn = document.getElementById('timer-stop-btn');
+    if (state === 'idle') {
+      if (startBtn) startBtn.style.display = '';
+      if (controls) controls.style.display = 'none';
+    } else if (state === 'running') {
+      if (startBtn) startBtn.style.display = 'none';
+      if (controls) controls.style.display = 'flex';
+      if (pauseBtn) pauseBtn.textContent = '⏸ Pause';
+      if (stopBtn) stopBtn.style.display = '';
+    } else if (state === 'paused') {
+      if (startBtn) startBtn.style.display = 'none';
+      if (controls) controls.style.display = 'flex';
+      if (pauseBtn) pauseBtn.textContent = '▶ Resume';
+      if (stopBtn) stopBtn.style.display = '';
+    }
+  },
 
+  startTimer(classId, subjectName) {
     const existing = this._getTimerState();
     this._setTimerState({
       running: true,
       startTime: Date.now(),
       elapsedOnPause: existing?.elapsedOnPause || 0,
-      classId,
-      subject: subjectName,
+      classId: classId || null,
+      subject: subjectName || 'Study',
     });
     this._startTimerTick();
     this.updateTimerDisplay();
@@ -252,17 +267,23 @@ window.Study = {
     const today = new Date().toISOString().split('T')[0];
     const sessions = await window.db.study.getForDate(today);
     const totalMin = sessions.reduce((s, x) => s + x.durationMinutes, 0);
+
+    // Update today total display
     const el = document.getElementById('study-today-total');
-    if (el) el.textContent = App.formatMinutes(totalMin) || '0m';
-    const breakdown = document.getElementById('study-today-breakdown');
-    if (breakdown) {
-      if (sessions.length === 0) { breakdown.innerHTML = '<span class="sub">No sessions yet today.</span>'; return; }
-      const bySubject = {};
-      sessions.forEach((s) => { bySubject[s.subject] = (bySubject[s.subject] || 0) + s.durationMinutes; });
-      breakdown.innerHTML = Object.entries(bySubject).map(([sub, min]) =>
-        `<div class="today-session-row"><span>${App.escapeHtml(sub)}</span><span>${App.formatMinutes(min)}</span></div>`
-      ).join('');
-    }
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    if (el) el.textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+
+    // Daily goal: default 4h (240 min), from settings
+    const dailyGoalMin = (await window.db.settings.get('dailyStudyGoalHours', 4)) * 60;
+    const goalH = Math.floor(dailyGoalMin / 60);
+    const goalM = dailyGoalMin % 60;
+    const goalLabel = document.getElementById('study-daily-goal-label');
+    if (goalLabel) goalLabel.textContent = `${goalH}h ${String(goalM).padStart(2, '0')}m`;
+
+    const barPct = Math.min(100, Math.round((totalMin / dailyGoalMin) * 100));
+    const bar = document.getElementById('study-daily-goal-bar');
+    if (bar) bar.style.width = barPct + '%';
   },
 
   async renderThisWeekStudy() {
@@ -281,21 +302,22 @@ window.Study = {
     if (totalEl) {
       const h = Math.floor(thisTotal / 60);
       const m = thisTotal % 60;
-      totalEl.textContent = `${h}h ${m}m`;
-    }
-    const vsEl = document.getElementById('study-week-vs');
-    if (vsEl) {
-      const sign = diffMin >= 0 ? '+' : '';
-      const cls = diffMin >= 0 ? 'trend-up' : 'trend-down';
-      vsEl.innerHTML = `<span class="${cls}">${sign}${App.formatMinutes(Math.abs(diffMin))} vs last week</span>`;
+      totalEl.innerHTML = `<span class="study-week-num">${h}</span><span class="study-week-unit">h </span><span class="study-week-num">${m}</span><span class="study-week-unit">m</span>`;
     }
 
     const weeklyGoal = 20 * 60; // 20h in minutes
-    const pct = Math.min(Math.round((thisTotal / weeklyGoal) * 100), 100);
+    const rawPct = Math.round((thisTotal / weeklyGoal) * 100);
+    const isOnFire = rawPct >= 100;
     const goalBar = document.getElementById('study-week-goal-bar');
-    if (goalBar) goalBar.style.width = pct + '%';
+    if (goalBar) {
+      goalBar.style.width = Math.min(rawPct, 100) + '%';
+      goalBar.style.background = isOnFire ? '#F97316' : '';
+    }
     const goalPct = document.getElementById('study-week-goal-pct');
-    if (goalPct) goalPct.textContent = pct + '%';
+    if (goalPct) {
+      goalPct.textContent = rawPct + '%' + (isOnFire ? ' 🔥' : '');
+      goalPct.style.color = isOnFire ? '#F97316' : '';
+    }
 
     const studyPerDay = weekDates.map((d) =>
       Math.round(allSessions.filter((s) => s.date.startsWith(d)).reduce((sum, x) => sum + x.durationMinutes, 0) / 60 * 10) / 10
@@ -445,11 +467,13 @@ window.Study = {
         const dy = e.touches[0].clientY - startY;
         if (!swiping && Math.abs(dy) > Math.abs(dx)) return;
         swiping = true;
+        if (dx < -10) row.classList.add('swiping');
         if (dx < 0) {
           const shift = Math.max(-72, dx);
           card.style.transform = `translateX(${shift}px)`;
         } else if (dx > 0) {
           card.style.transform = 'translateX(0)';
+          row.classList.remove('swiping');
         }
       }, { passive: true });
 
@@ -461,6 +485,7 @@ window.Study = {
         } else {
           card.style.transform = '';
           row.classList.remove('swipe-open');
+          row.classList.remove('swiping');
         }
       });
 
@@ -605,18 +630,21 @@ window.Study = {
   async openManualLogModal() {
     const modal = document.getElementById('modal-log-study');
     if (!modal) return;
-    modal.querySelector('#study-date-input').value = new Date().toISOString().slice(0, 16);
-    modal.querySelector('#study-duration-input').value = '';
-    modal.querySelector('#study-notes-input').value = '';
+    const now = new Date();
+    const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    const oneHourAgo = new Date(now - 3600000);
+    const startInput = modal.querySelector('#study-start-input');
+    const endInput = modal.querySelector('#study-end-input');
+    if (startInput) startInput.value = iso(oneHourAgo);
+    if (endInput) endInput.value = iso(now);
+    if (modal.querySelector('#study-notes-input')) modal.querySelector('#study-notes-input').value = '';
 
-    // Populate subject dropdown
     const classes = await window.db.classes.getAll();
     const select = document.getElementById('study-class-select');
     if (select) {
       select.innerHTML = '<option value="">Select subject…</option>' +
         classes.map((c) => `<option value="${c.id}">${c.code} ${c.name}</option>`).join('');
     }
-
     App.openModal('modal-log-study');
   },
 
@@ -624,14 +652,18 @@ window.Study = {
     const select = document.getElementById('study-class-select');
     const classId = select?.value ? Number(select.value) : null;
     const subjectName = select?.options[select.selectedIndex]?.text || 'Unknown';
-    const dateVal = document.getElementById('study-date-input')?.value;
-    const durationMin = parseInt(document.getElementById('study-duration-input')?.value) || 0;
+    const startVal = document.getElementById('study-start-input')?.value;
+    const endVal = document.getElementById('study-end-input')?.value;
     const notes = document.getElementById('study-notes-input')?.value.trim() || '';
 
-    if (durationMin <= 0) { App.showToast('Enter a valid duration.', 'error'); return; }
+    if (!startVal || !endVal) { App.showToast('Enter start and end times.', 'error'); return; }
+    const startDate = new Date(startVal);
+    const endDate = new Date(endVal);
+    const durationMin = Math.round((endDate - startDate) / 60000);
+    if (durationMin <= 0) { App.showToast('End time must be after start time.', 'error'); return; }
 
     await window.db.study.add({
-      date: dateVal ? new Date(dateVal).toISOString() : new Date().toISOString(),
+      date: startDate.toISOString(),
       classId,
       subject: subjectName,
       durationMinutes: durationMin,
@@ -640,6 +672,26 @@ window.Study = {
     App.closeAllModals();
     App.showToast('Session logged!', 'success');
     await this.renderSubTab(this._subTab);
+    if (App.currentTab === 'dashboard') await Dashboard.render();
+  },
+
+  async openTimerClassPicker() {
+    const classes = await window.db.classes.getAll();
+    const inProgress = classes.filter((c) => c.status === 'in_progress');
+    const select = document.getElementById('timer-class-select');
+    if (select) {
+      select.innerHTML = '<option value="">No class (general study)</option>' +
+        inProgress.map((c) => `<option value="${c.id}">${c.code} ${c.name}</option>`).join('');
+    }
+    App.openModal('modal-timer-class');
+  },
+
+  confirmStartTimer() {
+    const select = document.getElementById('timer-class-select');
+    const classId = select?.value ? Number(select.value) : null;
+    const subjectName = select?.options[select.selectedIndex]?.text || 'Study';
+    App.closeAllModals();
+    this.startTimer(classId, subjectName);
   },
 };
 
@@ -654,3 +706,5 @@ window.StudyFilterSessions = () => Study.filterSessions();
 window.StudyOpenManualLog = () => Study.openManualLogModal();
 window.StudySaveManualSession = () => Study.saveManualSession();
 window.StudySetClassFilter = (f) => Study.setClassFilter(f);
+window.StudyStartTimerFlow = () => Study.openTimerClassPicker();
+window.StudyConfirmStartTimer = () => Study.confirmStartTimer();
