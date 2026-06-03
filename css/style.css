@@ -1358,11 +1358,11 @@ h3 { font-size: 1rem; font-weight: 600; }
 .study-cal-day-labels { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 3px; }
 .study-cal-day-labels span { font-size: 0.58rem; color: var(--subtext); text-align: center; font-weight: 600; }
 .study-cal-grid { gap: 2px !important; }
-.study-cal-metric { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 5px 0; flex: 1; justify-content: center; }
+.study-cal-metric { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px; padding: 5px 0; flex: 1; }
+.study-cal-metric-text { display: flex; flex-direction: column; }
 .study-cal-metric-val { font-size: 1.05rem; font-weight: 700; color: var(--text); line-height: 1.1; }
-.study-cal-metric-lbl { font-size: 0.6rem; color: var(--subtext); margin-top: 2px; }
+.study-cal-metric-lbl { font-size: 0.6rem; color: var(--subtext); margin-top: 1px; }
 .study-cal-hdiv { width: 80%; height: 1px; background: var(--border); flex-shrink: 0; }
-.study-cal-metric-val-row { display: flex; align-items: center; gap: 3px; }
 
 /* Legacy calendar grid (kept for reuse) */
 .calendar-grid {
