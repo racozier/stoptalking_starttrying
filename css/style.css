@@ -2358,7 +2358,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .polish-stat-sub { font-size: 0.63rem; color: var(--subtext); margin-top: 3px; }
 
 /* Flip card */
-.polish-flip-wrap { perspective: 900px; cursor: pointer; margin-bottom: 10px; }
+.polish-flip-wrap { perspective: 900px; cursor: pointer; }
 .polish-flip-inner {
   position: relative;
   transform-style: preserve-3d;
@@ -2382,14 +2382,15 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 
 /* Front face */
+.polish-nav-wrap { display: flex; align-items: center; gap: 2px; margin-bottom: 10px; }
+.polish-nav-side { background: none; border: none; color: var(--subtext); cursor: pointer; font-size: 1.8rem; padding: 0 4px; line-height: 1; flex-shrink: 0; transition: color 0.15s; font-family: inherit; }
+.polish-nav-side:hover:not(:disabled) { color: var(--text); }
+.polish-nav-side:disabled { opacity: 0.2; cursor: default; }
+.polish-flip-wrap { flex: 1; perspective: 900px; cursor: pointer; }
 .polish-front-inner { display: flex; align-items: center; justify-content: space-between; }
 .polish-front-eyebrow { font-size: 0.6rem; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
 .polish-front-title { font-size: 1rem; font-weight: 700; color: var(--text); }
-.polish-front-date-nav { display: flex; align-items: center; gap: 1px; margin-top: 4px; }
-.polish-front-date { font-size: 0.63rem; color: var(--subtext); }
-.polish-nav-btn { background: none; border: none; color: var(--subtext); cursor: pointer; font-size: 15px; padding: 0 4px; line-height: 1; transition: color 0.15s; font-family: inherit; }
-.polish-nav-btn:hover:not(:disabled) { color: var(--text); }
-.polish-nav-btn:disabled { opacity: 0.2; cursor: default; }
+.polish-front-date { font-size: 0.63rem; color: var(--subtext); margin-top: 4px; }
 .polish-front-right { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
 .polish-flag { font-size: 1.8rem; line-height: 1; }
 .polish-tap-hint { font-size: 0.5rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.06em; }
@@ -2430,8 +2431,8 @@ h3 { font-size: 1rem; font-weight: 600; }
 .polish-saved-header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; cursor: pointer; user-select: none; }
 .polish-saved-header:hover .polish-saved-title { color: var(--text); }
 .polish-saved-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--subtext); flex: 1; }
-.polish-saved-count { background: rgba(234,179,8,0.18); color: #EAB308; border-radius: 20px; font-size: 0.6rem; font-weight: 700; padding: 2px 8px; min-width: 20px; text-align: center; }
-.polish-saved-chevron { color: var(--subtext); font-size: 12px; transition: transform 0.25s; line-height: 1; }
+.polish-saved-count { background: rgba(234,179,8,0.18); color: #EAB308; border-radius: 20px; font-size: 0.72rem; font-weight: 700; padding: 2px 9px; min-width: 22px; text-align: center; }
+.polish-saved-chevron { color: var(--subtext); font-size: 15px; transition: transform 0.25s; line-height: 1; }
 .polish-saved-chevron.open { transform: rotate(180deg); }
 .polish-saved-body { display: none; border-top: 1px solid var(--border); }
 .polish-saved-body.open { display: block; }

@@ -542,46 +542,89 @@
           </div>
         </div>
 
-        <!-- Word of the Day flip card -->
-        <div class="polish-flip-wrap" id="polish-flip-wrap" onclick="PolishFlip()">
-          <div class="polish-flip-inner" id="polish-flip-inner">
-            <!-- FRONT -->
-            <div class="polish-flip-face polish-front">
-              <div class="polish-front-inner">
-                <div class="polish-front-left">
-                  <div class="polish-front-eyebrow">Polish</div>
-                  <div class="polish-front-title">Word of the Day</div>
-                  <div class="polish-front-date-nav">
-                    <button class="polish-nav-btn" onclick="event.stopPropagation();PolishPrevWord()">‹</button>
-                    <span class="polish-front-date" id="polish-wotd-date"></span>
-                    <button class="polish-nav-btn" id="polish-nav-next" onclick="event.stopPropagation();PolishNextWord()">›</button>
+        <!-- Word of the Day flip card with side nav -->
+        <div class="polish-nav-wrap">
+          <button class="polish-nav-side" onclick="PolishPrevWord()">‹</button>
+          <div class="polish-flip-wrap" id="polish-flip-wrap" onclick="PolishFlip()">
+            <div class="polish-flip-inner" id="polish-flip-inner">
+              <!-- FRONT -->
+              <div class="polish-flip-face polish-front">
+                <div class="polish-front-inner">
+                  <div class="polish-front-left">
+                    <div class="polish-front-eyebrow">Polish</div>
+                    <div class="polish-front-title">Word of the Day</div>
+                    <div class="polish-front-date" id="polish-wotd-date"></div>
+                  </div>
+                  <div class="polish-front-right">
+                    <div class="polish-flag">🇵🇱</div>
+                    <div class="polish-tap-hint">Tap to reveal</div>
                   </div>
                 </div>
-                <div class="polish-front-right">
-                  <div class="polish-flag">🇵🇱</div>
-                  <div class="polish-tap-hint">Tap to reveal</div>
+              </div>
+              <!-- BACK -->
+              <div class="polish-flip-face polish-back" id="polish-flip-back">
+                <div class="polish-back-top">
+                  <div class="polish-back-left">
+                    <div class="polish-back-word" id="polish-wotd-word">---</div>
+                    <div class="polish-back-meta">
+                      <span class="polish-back-trans" id="polish-wotd-trans">---</span>
+                      <span class="polish-pos-badge" id="polish-wotd-pos">---</span>
+                    </div>
+                  </div>
+                  <div class="polish-back-actions">
+                    <button class="polish-star-btn" id="polish-star-btn" onclick="event.stopPropagation();PolishToggleFavorite()" title="Save word">☆</button>
+                    <button class="polish-chevron" id="polish-chevron" onclick="event.stopPropagation();PolishToggleExpand()">▾</button>
+                  </div>
+                </div>
+                <div class="polish-expand-panel" id="polish-expand-panel">
+                  <div class="polish-expand-divider"></div>
+                  <div class="polish-sentence-pl" id="polish-wotd-sent-pl"></div>
+                  <div class="polish-sentence-en" id="polish-wotd-sent-en"></div>
                 </div>
               </div>
             </div>
-            <!-- BACK -->
-            <div class="polish-flip-face polish-back" id="polish-flip-back">
-              <div class="polish-back-top">
-                <div class="polish-back-left">
-                  <div class="polish-back-word" id="polish-wotd-word">---</div>
-                  <div class="polish-back-meta">
-                    <span class="polish-back-trans" id="polish-wotd-trans">---</span>
-                    <span class="polish-pos-badge" id="polish-wotd-pos">---</span>
-                  </div>
-                </div>
-                <div class="polish-back-actions">
-                  <button class="polish-star-btn" id="polish-star-btn" onclick="event.stopPropagation();PolishToggleFavorite()" title="Save word">☆</button>
-                  <button class="polish-chevron" id="polish-chevron" onclick="event.stopPropagation();PolishToggleExpand()">▾</button>
+          </div>
+          <button class="polish-nav-side" id="polish-nav-next" onclick="PolishNextWord()">›</button>
+        </div>
+
+        <!-- Polish Calendar -->
+        <div class="card study-cal-card mb-12">
+          <div class="study-cal-layout">
+            <div class="study-cal-left">
+              <div class="study-cal-nav">
+                <button class="study-cal-arrow" onclick="PolishCalPrev()">‹</button>
+                <span class="study-cal-month-label" id="polish-calendar-month">JUNE 2026</span>
+                <button class="study-cal-arrow" onclick="PolishCalNext()">›</button>
+              </div>
+              <div class="study-cal-day-labels">
+                <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+              </div>
+              <div class="calendar-grid study-cal-grid" id="polish-calendar"></div>
+            </div>
+            <div class="study-cal-vdiv"></div>
+            <div class="study-cal-right">
+              <div class="study-cal-metric">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="study-cal-icon-accent" style="flex-shrink:0"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <div class="study-cal-metric-text">
+                  <div class="study-cal-metric-val" id="polish-days-practiced">0</div>
+                  <div class="study-cal-metric-lbl">days practiced</div>
                 </div>
               </div>
-              <div class="polish-expand-panel" id="polish-expand-panel">
-                <div class="polish-expand-divider"></div>
-                <div class="polish-sentence-pl" id="polish-wotd-sent-pl"></div>
-                <div class="polish-sentence-en" id="polish-wotd-sent-en"></div>
+              <div class="study-cal-hdiv"></div>
+              <div class="study-cal-metric">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="study-cal-icon-muted" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div class="study-cal-metric-text">
+                  <div class="study-cal-metric-val" id="polish-month-total">0m</div>
+                  <div class="study-cal-metric-lbl">this month</div>
+                </div>
+              </div>
+              <div class="study-cal-hdiv"></div>
+              <div class="study-cal-metric">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EAB308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                <div class="study-cal-metric-text">
+                  <div class="study-cal-metric-val"><span id="polish-streak-count">0</span></div>
+                  <div class="study-cal-metric-lbl">day streak</div>
+                </div>
               </div>
             </div>
           </div>
@@ -601,9 +644,6 @@
             <div class="polish-saved-list" id="polish-saved-list"></div>
           </div>
         </div>
-
-        <!-- Log Polish button -->
-        <button class="btn btn-secondary polish-log-btn" onclick="PolishOpenLog()">+ Log Polish Study</button>
 
       </div><!-- /polish pane -->
 

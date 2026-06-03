@@ -178,6 +178,8 @@ window.Polish = {
   _timerInterval: null,
   _savedOpen: false,
   _dayOffset: 0,
+  _calYear: new Date().getFullYear(),
+  _calMonth: new Date().getMonth(),
 
   // ── Word of the Day ────────────────────────────────────────────────────────
 
@@ -213,6 +215,7 @@ window.Polish = {
     this._displayWord(this._getWordOfDay());
     this.restoreTimer();
     await this.renderStats();
+    await this.renderCalendar();
     await this.renderFavoritesSection();
   },
 
@@ -447,6 +450,91 @@ window.Polish = {
     Charts.createStudyWeekBars('polish-week-chart', ['M', 'T', 'W', 'T', 'F', 'S', 'S'], polishPerDay, POLISH_DAILY_GOAL_MIN / 60);
   },
 
+  // ── Calendar ──────────────────────────────────────────────────────────────
+
+  calPrevMonth() {
+    if (this._calMonth === 0) { this._calMonth = 11; this._calYear--; }
+    else this._calMonth--;
+    this.renderCalendar();
+  },
+
+  calNextMonth() {
+    if (this._calMonth === 11) { this._calMonth = 0; this._calYear++; }
+    else this._calMonth++;
+    this.renderCalendar();
+  },
+
+  async renderCalendar() {
+    const allSessions = await window.db.study.getAll();
+    const polishMins = {};
+    allSessions.forEach((s) => {
+      if (s.subject !== 'Polish Language') return;
+      const d = s.date.split('T')[0];
+      polishMins[d] = (polishMins[d] || 0) + s.durationMinutes;
+    });
+
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    // Streak: consecutive days with >= 20 min Polish
+    let streak = 0;
+    const check = new Date(today);
+    if (!polishMins[todayStr] || polishMins[todayStr] < POLISH_DAILY_GOAL_MIN) check.setDate(check.getDate() - 1);
+    while (true) {
+      const ds = check.toISOString().split('T')[0];
+      if ((polishMins[ds] || 0) >= POLISH_DAILY_GOAL_MIN) { streak++; check.setDate(check.getDate() - 1); }
+      else break;
+    }
+    const streakEl = document.getElementById('polish-streak-count');
+    if (streakEl) streakEl.textContent = streak;
+
+    // Month metrics
+    const year = this._calYear;
+    const month = this._calMonth;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let daysPracticed = 0;
+    let monthTotalMins = 0;
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const mins = polishMins[ds] || 0;
+      if (mins > 0) daysPracticed++;
+      monthTotalMins += mins;
+    }
+
+    const dpEl = document.getElementById('polish-days-practiced');
+    if (dpEl) dpEl.textContent = daysPracticed;
+    const mtEl = document.getElementById('polish-month-total');
+    if (mtEl) {
+      const h = Math.floor(monthTotalMins / 60);
+      const m = monthTotalMins % 60;
+      mtEl.textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    }
+
+    const monthName = new Date(year, month, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }).toUpperCase();
+    const monthEl = document.getElementById('polish-calendar-month');
+    if (monthEl) monthEl.textContent = monthName;
+
+    const calEl = document.getElementById('polish-calendar');
+    if (!calEl) return;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const startOffset = (firstDay + 6) % 7;
+    const cells = [];
+    for (let i = 0; i < startOffset; i++) cells.push('<div class="cal-cell empty"></div>');
+    for (let day = 1; day <= daysInMonth; day++) {
+      const ds = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const mins = polishMins[ds] || 0;
+      const isToday = ds === todayStr;
+      let icon;
+      if (mins >= POLISH_DAILY_GOAL_MIN)  icon = '<span class="cal-icon-flame">&#x1F525;</span>';
+      else if (mins > 0)                  icon = '<span class="cal-icon-check">&#x2713;</span>';
+      else if (ds < todayStr)             icon = '<span class="cal-icon-x">&#x2715;</span>';
+      else                                icon = '<span class="cal-icon-spacer"></span>';
+      cells.push(`<div class="cal-cell ${isToday ? 'cal-today' : ''}">${icon}<span class="cal-day-num">${day}</span></div>`);
+    }
+    calEl.innerHTML = cells.join('');
+  },
+
   // ── Timer ──────────────────────────────────────────────────────────────────
 
   _getTimerState() {
@@ -555,6 +643,8 @@ window.Polish = {
 window.PolishFlip = () => Polish.flipCard();
 window.PolishPrevWord = () => Polish.prevWord();
 window.PolishNextWord = () => Polish.nextWord();
+window.PolishCalPrev = () => Polish.calPrevMonth();
+window.PolishCalNext = () => Polish.calNextMonth();
 window.PolishToggleExpand = () => Polish.toggleExpand();
 window.PolishStartTimerFlow = () => Polish.startTimer();
 window.PolishPauseTimer = () => Polish.pauseTimer();
