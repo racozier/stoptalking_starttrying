@@ -41,43 +41,76 @@ window.Study = {
 
   async renderTermProgress() {
     const classes = await window.db.classes.getAll();
-    const termEnd = await window.db.settings.get('currentTermEnd', '2026-08-31');
-    const totalCredits = await window.db.settings.get('degreeCreditHours', 120);
+    const termEnd = await window.db.settings.get('currentTermEnd', '2026-10-31');
     const termName = await window.db.settings.get('currentTermName', 'Term 1');
 
-    const termClasses = classes.filter((c) => c.term === (classes.find((x) => x.status === 'in_progress')?.term || classes[0]?.term));
+    const currentTermName = classes.find((x) => x.status === 'in_progress')?.term
+      || classes[0]?.term
+      || termName;
+    const termClasses = classes.filter((c) => c.term === currentTermName);
     const termTotal = termClasses.length;
     const termPassed = termClasses.filter((c) => c.status === 'passed').length;
     const termPct = termTotal > 0 ? Math.round((termPassed / termTotal) * 100) : 0;
 
-    const allPassed = classes.filter((c) => c.status === 'passed');
-    const earnedCredits = allPassed.reduce((s, c) => s + (c.credits || 3), 0);
-    const degreePct = Math.round((earnedCredits / totalCredits) * 100);
+    // Time progress: estimate term start as 6 months before end
+    const now = new Date();
+    const termEndDate = new Date(termEnd);
+    const termStartDate = new Date(termEndDate);
+    termStartDate.setMonth(termStartDate.getMonth() - 6);
+    const timePct = Math.min(100, Math.max(0, Math.round(((now - termStartDate) / (termEndDate - termStartDate)) * 100)));
+    const termEndStr = termEndDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    const termEndDate = new Date(termEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    // Last passed class in this term
+    const passedClasses = termClasses
+      .filter((c) => c.status === 'passed' && c.passedDate)
+      .sort((a, b) => new Date(b.passedDate) - new Date(a.passedDate));
+    const lastPassed = passedClasses[0] || null;
+    const lastPassedName = lastPassed ? lastPassed.name : null;
+    const lastPassedDateStr = lastPassed
+      ? new Date(lastPassed.passedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+      : null;
+
+    // SVG circle ring
+    const r = 24;
+    const circ = +(2 * Math.PI * r).toFixed(2);
+    const offset = +(circ * (1 - termPct / 100)).toFixed(2);
+
+    const rightHtml = lastPassed
+      ? `<div class="term-last-class">${App.escapeHtml(lastPassedName)}</div>
+         <div class="term-passed-row">🎉 <span class="term-passed-label">Passed</span></div>
+         <div class="term-passed-date">${lastPassedDateStr}</div>
+         <button class="link-btn term-view-all" onclick="Study.switchSubTab('classes')">View All Classes ›</button>`
+      : `<div class="term-no-pass">No classes passed yet</div>
+         <button class="link-btn term-view-all" onclick="Study.switchSubTab('classes')">View All Classes ›</button>`;
 
     const el = document.getElementById('study-progress-card');
     if (!el) return;
     el.innerHTML = `
-      <div class="progress-card-row">
-        <div class="progress-label">
-          <span>Current Term</span>
-          <span class="progress-count">${termPassed} / ${termTotal} classes · ends ${termEndDate}</span>
+      <div class="term-section-label">CURRENT TERM PROGRESS</div>
+      <div class="term-card-body">
+        <div class="term-left">
+          <div class="term-circle-row">
+            <svg class="term-circle-svg" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="28" cy="28" r="${r}" fill="none" stroke="var(--border)" stroke-width="4"/>
+              <circle cx="28" cy="28" r="${r}" fill="none" stroke="var(--accent)" stroke-width="4"
+                stroke-linecap="round"
+                stroke-dasharray="${circ}"
+                stroke-dashoffset="${offset}"
+                transform="rotate(-90 28 28)"/>
+              <text x="28" y="33" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700" font-family="Outfit,sans-serif">${termPct}%</text>
+            </svg>
+            <div class="term-count-wrap">
+              <div class="term-count">${termPassed}/${termTotal}</div>
+              <div class="term-count-label">classes completed</div>
+            </div>
+          </div>
+          <div class="term-time-wrap">
+            <div class="term-time-bar"><div class="term-time-fill" style="width:${timePct}%"></div></div>
+            <div class="term-time-label">Term ends ${termEndStr}</div>
+          </div>
         </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar" style="width:${termPct}%"></div>
-        </div>
-        <span class="progress-pct">${termPct}%</span>
-      </div>
-      <div class="progress-card-row" style="margin-top:12px">
-        <div class="progress-label">
-          <span>Overall Degree</span>
-          <span class="progress-count">${earnedCredits} / ${totalCredits} credit hours</span>
-        </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar degree-bar" style="width:${degreePct}%"></div>
-        </div>
-        <span class="progress-pct">${degreePct}%</span>
+        <div class="term-divider">|</div>
+        <div class="term-right">${rightHtml}</div>
       </div>
     `;
   },

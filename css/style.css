@@ -1192,6 +1192,116 @@ h3 { font-size: 1rem; font-weight: 600; }
 .degree-bar { background: var(--accent2); }
 .progress-pct { font-size: 0.78rem; font-weight: 700; color: var(--accent); }
 
+/* ── Study Term Card ──────────────────────────────────────────────────────── */
+.term-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--subtext);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.term-card-body {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+.term-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.term-circle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.term-circle-svg {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+.term-count {
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.1;
+}
+.term-count-label {
+  font-size: 0.7rem;
+  color: var(--subtext);
+  margin-top: 2px;
+}
+.term-time-wrap { display: flex; flex-direction: column; gap: 4px; }
+.term-time-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.term-time-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s;
+}
+.term-time-label {
+  font-size: 0.69rem;
+  color: var(--subtext);
+}
+.term-divider {
+  color: var(--border);
+  font-size: 1.4rem;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+}
+.term-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+.term-last-class {
+  font-size: 0.72rem;
+  color: var(--subtext);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.term-passed-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.term-passed-label {
+  color: #22C55E;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.term-passed-date {
+  font-size: 0.7rem;
+  color: var(--subtext);
+}
+.term-view-all {
+  font-size: 0.74rem;
+  margin-top: 4px;
+  text-align: left;
+  padding: 0;
+}
+.term-no-pass {
+  font-size: 0.78rem;
+  color: var(--subtext);
+}
+
 /* Timer card */
 .timer-card { margin-bottom: 14px; text-align: center; padding: 24px 16px; }
 .timer-ring-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 16px; }

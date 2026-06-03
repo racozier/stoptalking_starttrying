@@ -16,6 +16,7 @@ window.SettingsModule = {
     set('settings-term-name', settings.currentTermName || '');
     set('settings-term-end', settings.currentTermEnd || '');
     set('settings-timezone', settings.timezone || 'Europe/Warsaw');
+    set('settings-units', settings.units || 'metric');
 
     // Highlight active theme swatch
     const theme = settings.theme || 'dark';
@@ -38,6 +39,9 @@ window.SettingsModule = {
     const tz = get('settings-timezone') || 'Europe/Warsaw';
     await window.db.settings.set('timezone', tz);
     App._timezone = tz;
+    const units = get('settings-units') || 'metric';
+    await window.db.settings.set('units', units);
+    App._units = units;
     App.showToast('Settings saved!', 'success');
     App.updateGreeting();
     if (App.currentTab === 'study') await Study.render();

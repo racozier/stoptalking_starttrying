@@ -14,6 +14,7 @@ window.App = {
     const theme = await window.db.settings.get('theme', 'dark');
     this.applyTheme(theme);
     this._timezone = await window.db.settings.get('timezone', 'Europe/Warsaw');
+    this._units = await window.db.settings.get('units', 'metric');
 
     // Register tab modules
     this._tabModules = {
@@ -191,6 +192,16 @@ window.App = {
   formatTime(isoStr) {
     const tz = this._timezone || 'Europe/Warsaw';
     return new Date(isoStr).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: tz });
+  },
+
+  formatWeight(kg) {
+    if (this._units === 'imperial') return `${(kg * 2.20462).toFixed(1)} lbs`;
+    return `${kg.toFixed(1)} kg`;
+  },
+
+  formatDistance(km) {
+    if (this._units === 'imperial') return `${(km * 0.621371).toFixed(2)} mi`;
+    return `${km.toFixed(2)} km`;
   },
 
   // Returns Mon–Sun dates for the current week

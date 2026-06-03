@@ -378,7 +378,7 @@
       <div class="study-subtab-pane active" data-subtab-pane="overview">
 
         <!-- Term & Degree Progress -->
-        <div class="card progress-card mb-12" onclick="Study.switchSubTab('classes')" id="study-progress-card">
+        <div class="card progress-card mb-12" id="study-progress-card">
           <div style="color:var(--subtext);font-size:0.72rem;margin-bottom:2px">Loading progress…</div>
         </div>
 
@@ -549,6 +549,13 @@
           <div class="settings-row">
             <div class="settings-row-label">Display Name</div>
             <input class="settings-input" id="settings-name" type="text" value="Richie" />
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Units<div class="sub">Weight &amp; distance</div></div>
+            <select class="settings-input" id="settings-units" style="max-width:160px">
+              <option value="metric">Metric (kg, km)</option>
+              <option value="imperial">Imperial (lbs, mi)</option>
+            </select>
           </div>
           <div class="settings-row">
             <div class="settings-row-label">Target Weight<div class="sub">kg</div></div>
