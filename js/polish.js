@@ -1,10 +1,12 @@
 window.Polish = {
   _flipped: false,
   _expanded: false,
+  _wordLoaded: false,
 
   async render() {
     this._flipped = false;
     this._expanded = false;
+    this._wordLoaded = false;
     const inner = document.getElementById('polish-flip-inner');
     const panel = document.getElementById('polish-expand-panel');
     const chevron = document.getElementById('polish-chevron');
@@ -12,7 +14,26 @@ window.Polish = {
     if (panel) panel.classList.remove('open');
     if (chevron) chevron.classList.remove('open');
 
-    await Promise.all([this.renderStats(), this.renderWotd()]);
+    this._setStatus('');
+
+    // Set date label
+    const today = new Date();
+    const dateEl = document.getElementById('polish-wotd-date');
+    if (dateEl) {
+      dateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    }
+
+    // Check if we have a cached word — if so, pre-load it silently
+    const todayStr = today.toISOString().split('T')[0];
+    const cached = localStorage.getItem(`st2_wotd_${todayStr}`);
+    if (cached) {
+      try {
+        this._displayWord(JSON.parse(cached));
+        this._wordLoaded = true;
+      } catch {}
+    }
+
+    await this.renderStats();
   },
 
   async renderStats() {
@@ -49,33 +70,6 @@ window.Polish = {
 
     const subEl = document.getElementById('polish-week-sub');
     if (subEl) subEl.textContent = `${weekDaysCount} of 7 days`;
-  },
-
-  async renderWotd() {
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-
-    const dateEl = document.getElementById('polish-wotd-date');
-    if (dateEl) {
-      dateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    }
-
-    const cacheKey = `st2_wotd_${todayStr}`;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      try {
-        this._displayWord(JSON.parse(cached));
-        return;
-      } catch {}
-    }
-
-    const apiKey = await window.db.settings.get('claudeApiKey', null);
-    if (!apiKey) {
-      this._setStatus('Add a Gemini API key in Settings → Polish to get your daily word.');
-      return;
-    }
-
-    await this._fetchWord(apiKey, cacheKey);
   },
 
   _setStatus(msg) {
@@ -116,27 +110,43 @@ window.Polish = {
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         this._setStatus(`API error: ${err.error?.message || res.statusText}`);
-        return;
+        return false;
       }
 
       const body = await res.json();
       const text = body.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const match = text.match(/\{[\s\S]*\}/);
-      if (!match) { this._setStatus('Unexpected response. Try again.'); return; }
+      if (!match) { this._setStatus('Unexpected response. Try again.'); return false; }
 
       const data = JSON.parse(match[0]);
       if (cacheKey) localStorage.setItem(cacheKey, JSON.stringify(data));
       this._displayWord(data);
+      this._wordLoaded = true;
+      return true;
     } catch (e) {
       this._setStatus(`Error: ${e.message}`);
+      return false;
     }
   },
 
-  flipCard() {
+  async flipCard() {
+    // If flipping to back and word not yet loaded, fetch first
+    if (!this._flipped && !this._wordLoaded) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const apiKey = await window.db.settings.get('claudeApiKey', null);
+      if (!apiKey) {
+        this._setStatus('Add a Gemini API key in Settings → Polish to get your daily word.');
+        return;
+      }
+      const ok = await this._fetchWord(apiKey, `st2_wotd_${todayStr}`);
+      if (!ok) return; // Don't flip if fetch failed
+    }
+
     const inner = document.getElementById('polish-flip-inner');
     if (!inner) return;
     this._flipped = !this._flipped;
     inner.classList.toggle('flipped', this._flipped);
+
     if (!this._flipped) {
       this._expanded = false;
       const panel = document.getElementById('polish-expand-panel');
@@ -157,6 +167,7 @@ window.Polish = {
   async fetchNewWord() {
     const todayStr = new Date().toISOString().split('T')[0];
     localStorage.removeItem(`st2_wotd_${todayStr}`);
+    this._wordLoaded = false;
 
     this._flipped = false;
     this._expanded = false;
@@ -172,7 +183,12 @@ window.Polish = {
       this._setStatus('Add a Gemini API key in Settings → Polish to get your daily word.');
       return;
     }
-    await this._fetchWord(apiKey, `st2_wotd_${todayStr}`);
+    const ok = await this._fetchWord(apiKey, `st2_wotd_${todayStr}`);
+    if (ok) {
+      // Auto-flip to show the new word
+      const flipInner = document.getElementById('polish-flip-inner');
+      if (flipInner) { this._flipped = true; flipInner.classList.add('flipped'); }
+    }
   },
 };
 
