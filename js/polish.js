@@ -276,12 +276,12 @@ window.Polish = {
     const dailyBar = document.getElementById('polish-daily-goal-bar');
     if (dailyBar) {
       dailyBar.style.width = Math.min(dailyRaw, 100) + '%';
-      dailyBar.style.background = dailyOnFire ? '#F97316' : '#78B86C';
+      dailyBar.style.background = dailyOnFire ? '#EAB308' : '#78B86C';
     }
     const dailyPct = document.getElementById('polish-daily-goal-pct');
     if (dailyPct) {
       dailyPct.textContent = dailyRaw + '%' + (dailyOnFire ? ' 🔥' : '');
-      dailyPct.style.color = dailyOnFire ? '#F97316' : '#78B86C';
+      dailyPct.style.color = dailyOnFire ? '#EAB308' : '#78B86C';
     }
 
     // Week card
@@ -299,12 +299,12 @@ window.Polish = {
     const weekBar = document.getElementById('polish-week-goal-bar');
     if (weekBar) {
       weekBar.style.width = Math.min(weekRaw, 100) + '%';
-      weekBar.style.background = weekOnFire ? '#F97316' : '#78B86C';
+      weekBar.style.background = weekOnFire ? '#EAB308' : '#78B86C';
     }
     const weekPct = document.getElementById('polish-week-goal-pct');
     if (weekPct) {
       weekPct.textContent = weekRaw + '%' + (weekOnFire ? ' 🔥' : '');
-      weekPct.style.color = weekOnFire ? '#F97316' : '#78B86C';
+      weekPct.style.color = weekOnFire ? '#EAB308' : '#78B86C';
     }
 
     const polishPerDay = weekDates.map((d) =>
