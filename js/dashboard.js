@@ -130,7 +130,8 @@ window.Dashboard = {
 
   openStreakYearModal() {
     const gridEl = document.getElementById('streak-year-grid');
-    if (!gridEl) return;
+    const panel = document.getElementById('streak-year-panel');
+    if (!gridEl || !panel) return;
     const activeDays = this._streakActiveDays;
     const todayStr = new Date().toISOString().split('T')[0];
     const now = new Date();
@@ -156,7 +157,9 @@ window.Dashboard = {
       }
       return `<div class="streak-year-month"><div class="streak-year-month-name">${name}</div><div class="streak-year-dot-grid">${cells}</div></div>`;
     }).join('');
-    App.openModal('modal-streak-year');
+    if (window.lucide) lucide.createIcons();
+    panel.classList.add('open');
+    document.body.style.overflow = 'hidden';
   },
 
   async renderThisWeek() {
@@ -535,9 +538,21 @@ function toggleWeMonth(id) {
 window.toggleWeMonth = toggleWeMonth;
 window.renderWeightHistoryLog = renderWeightHistoryLog;
 
+function closeStreakYear() {
+  const panel = document.getElementById('streak-year-panel');
+  if (!panel) return;
+  panel.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeStreakYearBackdrop(e) {
+  if (e.target.classList.contains('streak-year-backdrop')) closeStreakYear();
+}
+
 window.openWeightExpand = openWeightExpand;
 window.closeWeightExpand = closeWeightExpand;
 window.closeWeightExpandBackdrop = closeWeightExpandBackdrop;
+window.closeStreakYear = closeStreakYear;
+window.closeStreakYearBackdrop = closeStreakYearBackdrop;
 
 // ─── Quick Actions — open proper modals ──────────────────────────────────────
 document.addEventListener('click', (e) => {

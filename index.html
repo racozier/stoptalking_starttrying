@@ -728,23 +728,29 @@
       <div class="we-history" id="we-history"></div>
     </div>
   </div>
+
+  <!-- ── Streak Year Expand Panel ─────────────────────────────────────── -->
+  <div id="streak-year-panel" class="streak-year-backdrop" onclick="closeStreakYearBackdrop(event)">
+    <div class="streak-year-card">
+      <div class="streak-year-header">
+        <div>
+          <div class="streak-year-panel-label">Activity History</div>
+          <div class="streak-year-panel-sub">Last 12 months</div>
+        </div>
+        <button class="weight-expand-close" onclick="closeStreakYear()">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="streak-year-expand-grid" id="streak-year-grid"></div>
+    </div>
+  </div>
+
 </div><!-- /app -->
 
 
 <!-- ════════════════════════════════════════════════════════════════════════
      MODALS
      ════════════════════════════════════════════════════════════════════════ -->
-
-<!-- ── Streak Year Modal ───────────────────────────────────────────────── -->
-<div class="modal-backdrop" id="modal-streak-year">
-  <div class="modal" style="max-height:82vh;overflow-y:auto">
-    <div class="modal-header">
-      <h3 style="font-size:1rem">Activity History</h3>
-      <button class="modal-close" onclick="App.closeAllModals()">✕</button>
-    </div>
-    <div class="streak-year-modal-grid" id="streak-year-grid"></div>
-  </div>
-</div>
 
 <!-- ── Log Weight Modal ────────────────────────────────────────────────── -->
 <div class="modal-backdrop" id="modal-log-weight">
