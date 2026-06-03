@@ -102,11 +102,10 @@
               <!-- Slide 1: month dot view -->
               <div class="streak-slide">
                 <div class="card-header-row">
-                  <div style="display:flex;align-items:center;gap:4px">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-                    <span class="streak-mv-count" id="dash-streak-mv">--</span>
-                    <span class="streak-mv-label">day streak</span>
+                  <div class="card-icon-wrap icon-orange">
+                    <i data-lucide="flame" style="width:13px;height:13px"></i>
                   </div>
+                  <span class="card-label" style="color:#F97316">Streak — <span id="dash-streak-mv">--</span> days</span>
                   <button class="card-expand-btn" onclick="Dashboard.openStreakYearModal()" title="View year">
                     <i data-lucide="maximize-2" style="width:14px;height:14px"></i>
                   </button>

@@ -1168,35 +1168,46 @@ function initStreakCardSwipe() {
   const slides = card.querySelectorAll('.streak-slide');
   if (!slider || slides.length < 2) return;
 
-  let startX = 0, currentView = 0;
-
-  function resize() {
-    const w = card.offsetWidth;
-    if (!w) { setTimeout(resize, 50); return; }
-    slides.forEach((s) => { s.style.width = w + 'px'; });
-    slider.style.transition = 'none';
-    slider.style.transform = currentView === 0 ? '' : `translateX(-${currentView * w}px)`;
-    requestAnimationFrame(() => { slider.style.transition = ''; });
-  }
-
   function goTo(n) {
-    currentView = n;
+    card._streakView = n;
     const w = card.offsetWidth;
     slider.style.transform = n === 0 ? '' : `translateX(-${n * w}px)`;
     card.querySelectorAll('.streak-nav-dot').forEach((d, i) => d.classList.toggle('active', i === n));
   }
 
-  card.querySelectorAll('.streak-nav-dot').forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+  function resize() {
+    const w = card.offsetWidth;
+    if (!w) { setTimeout(resize, 50); return; }
+    slides.forEach((s) => { s.style.width = w + 'px'; });
+    // Pin slider height to slide 0's natural height — prevents slide 1 from growing the card
+    slider.style.height = 'auto';
+    slider.style.alignItems = 'flex-start';
+    const h0 = slides[0].offsetHeight;
+    slider.style.alignItems = '';   // restores CSS 'stretch'
+    if (h0) slider.style.height = h0 + 'px';
+    const sv = card._streakView || 0;
+    slider.style.transition = 'none';
+    slider.style.transform = sv === 0 ? '' : `translateX(-${sv * w}px)`;
+    requestAnimationFrame(() => { slider.style.transition = ''; });
+  }
+
+  // Guard — only wire events once; resize runs every call (content may have updated)
+  if (!card._streakInit) {
+    card._streakInit = true;
+    card._streakView = 0;
+    let startX = 0;
+    card.querySelectorAll('.streak-nav-dot').forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+    card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    card.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      const sv = card._streakView || 0;
+      if (dx < -35 && sv < slides.length - 1) goTo(sv + 1);
+      else if (dx > 35 && sv > 0) goTo(sv - 1);
+    }, { passive: true });
+    window.addEventListener('resize', resize);
+  }
 
   setTimeout(resize, 0);
-  window.addEventListener('resize', resize);
-
-  card.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
-  card.addEventListener('touchend', (e) => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (dx < -35 && currentView < slides.length - 1) goTo(currentView + 1);
-    else if (dx > 35 && currentView > 0) goTo(currentView - 1);
-  }, { passive: true });
 }
 
 function initWeekCardSwipe() {

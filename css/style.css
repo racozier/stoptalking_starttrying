@@ -397,24 +397,9 @@ h3 { font-size: 1rem; font-weight: 600; }
 [data-theme="light"] .streak-nav-dot.active { background: #F97316; }
 
 /* Streak month view (slide 1) */
-.streak-mv-count { font-size: 1.6rem; font-weight: 800; color: #F97316; line-height: 1; }
-.streak-mv-label { font-size: 0.62rem; color: var(--subtext); align-self: flex-end; padding-bottom: 2px; }
 .streak-mv-month { font-size: 0.62rem; font-weight: 700; color: var(--subtext); letter-spacing: 0.04em; margin-bottom: 3px; }
-.streak-mv-grid {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
-  align-content: start;
-  overflow: hidden;
-}
-.streak-mv-dot {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-}
+.streak-mv-grid { display: grid; grid-template-columns: repeat(7, 7px); gap: 2px; }
+.streak-mv-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.12); }
 .streak-mv-dot.active { background: #F97316; }
 .streak-mv-dot.inactive { background: var(--accent); opacity: 0.45; }
 .streak-mv-dot.pre { background: rgba(255,255,255,0.12); }
