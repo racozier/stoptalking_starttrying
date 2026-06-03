@@ -431,14 +431,10 @@ window.Notes = {
   },
 
   execFormat(cmd, value = null) {
-    const body = document.getElementById('note-body');
-    if (body) {
-      body.focus();
-      if (this._savedRange) {
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(this._savedRange);
-      }
+    if (this._savedRange) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(this._savedRange);
     }
     document.execCommand(cmd, false, value);
   },
@@ -465,21 +461,21 @@ window.Notes = {
     if (main) main.style.display = 'flex';
   },
 
-  cycleFontSize() {
-    const body = document.getElementById('note-body');
-    if (body) {
-      body.focus();
-      if (this._savedRange) {
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(this._savedRange);
-      }
+  _fontSizeStep(delta) {
+    if (this._savedRange) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(this._savedRange);
     }
-    const sizes = ['3', '4', '5', '6'];
-    const current = document.queryCommandValue('fontSize') || '3';
-    const idx = sizes.indexOf(current);
-    const next = sizes[(idx + 1) % sizes.length];
-    document.execCommand('fontSize', false, next);
+    const current = parseInt(document.queryCommandValue('fontSize'), 10) || 3;
+    const next = Math.max(1, Math.min(7, current + delta));
+    document.execCommand('fontSize', false, String(next));
+  },
+
+  increaseFontSize() { this._fontSizeStep(1); },
+  decreaseFontSize() { this._fontSizeStep(-1); },
+
+  cycleFontSize() { this._fontSizeStep(1); },  // kept for any legacy calls
   },
 
   // ─── Audio Recording (MediaRecorder) ─────────────────────────────────────
@@ -789,6 +785,8 @@ window.NotesExecFormat = (cmd, val) => Notes.execFormat(cmd, val);
 window.NotesToggleFormatBar = () => Notes.toggleFormatBar();
 window.NotesCloseFormatBar = () => Notes.closeFormatBar();
 window.NotesCycleFontSize = () => Notes.cycleFontSize();
+window.NotesIncreaseFontSize = () => Notes.increaseFontSize();
+window.NotesDecreaseFontSize = () => Notes.decreaseFontSize();
 window.NotesToggleVoice = () => Notes.toggleVoiceRecording();
 window.NotesInsertChecklist = () => Notes.insertChecklist();
 window.NotesTriggerPhoto = () => Notes.triggerPhotoInput();

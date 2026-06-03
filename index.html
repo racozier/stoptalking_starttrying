@@ -1322,24 +1322,26 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
-        <div style="flex:1"></div>
-        <!-- Format toggle (underlined A) -->
-        <button class="note-format-toggle" onmousedown="event.preventDefault()" onclick="NotesToggleFormatBar()" title="Format text">
+        <!-- Format toggle (underlined A) — right next to + -->
+        <button class="note-format-toggle" onpointerdown="event.preventDefault()" onclick="NotesToggleFormatBar()" title="Format text">
           <span class="fmt-a-icon">A</span>
         </button>
+        <div style="flex:1"></div>
       </div>
       <!-- Format strip (shown in place of main row) -->
       <div class="note-format-bar" id="note-format-bar">
-        <button class="fmt-btn" onmousedown="event.preventDefault()" onclick="NotesExecFormat('formatBlock','h1')">H1</button>
-        <button class="fmt-btn" onmousedown="event.preventDefault()" onclick="NotesExecFormat('formatBlock','h2')">H2</button>
-        <button class="fmt-btn fmt-btn-aa" onmousedown="event.preventDefault()" onclick="NotesCycleFontSize()">Aa</button>
+        <button class="fmt-btn" onpointerdown="event.preventDefault()" onclick="NotesExecFormat('formatBlock','h1')">H1</button>
+        <button class="fmt-btn" onpointerdown="event.preventDefault()" onclick="NotesExecFormat('formatBlock','h2')">H2</button>
         <div class="fmt-sep"></div>
-        <button class="fmt-btn" onmousedown="event.preventDefault()" onclick="NotesExecFormat('bold')"><b>B</b></button>
-        <button class="fmt-btn" onmousedown="event.preventDefault()" onclick="NotesExecFormat('italic')"><i>I</i></button>
-        <button class="fmt-btn" onmousedown="event.preventDefault()" onclick="NotesExecFormat('underline')"><u>U</u></button>
-        <button class="fmt-btn" onmousedown="event.preventDefault()" onclick="NotesExecFormat('strikeThrough')"><s>S</s></button>
+        <button class="fmt-btn fmt-size-down" onpointerdown="event.preventDefault()" onclick="NotesDecreaseFontSize()" title="Smaller text"><span class="fsz-small">A</span></button>
+        <button class="fmt-btn fmt-size-up" onpointerdown="event.preventDefault()" onclick="NotesIncreaseFontSize()" title="Larger text"><span class="fsz-big">A</span></button>
+        <div class="fmt-sep"></div>
+        <button class="fmt-btn" onpointerdown="event.preventDefault()" onclick="NotesExecFormat('bold')"><b>B</b></button>
+        <button class="fmt-btn" onpointerdown="event.preventDefault()" onclick="NotesExecFormat('italic')"><i>I</i></button>
+        <button class="fmt-btn" onpointerdown="event.preventDefault()" onclick="NotesExecFormat('underline')"><u>U</u></button>
+        <button class="fmt-btn" onpointerdown="event.preventDefault()" onclick="NotesExecFormat('strikeThrough')"><s>S</s></button>
         <div style="flex:1"></div>
-        <button class="fmt-btn fmt-close-btn" onmousedown="event.preventDefault()" onclick="NotesCloseFormatBar()">✕</button>
+        <button class="fmt-btn fmt-close-btn" onpointerdown="event.preventDefault()" onclick="NotesCloseFormatBar()">✕</button>
       </div>
     </div>
 
