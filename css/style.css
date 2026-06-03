@@ -382,7 +382,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  padding: 11px 12px 6px;
+  padding: 11px 12px 3px;
 }
 .streak-number { font-size: 2.2rem; font-weight: 800; color: #F97316; line-height: 1; }
 .streak-label { font-size: 0.68rem; font-weight: 600; }
@@ -390,47 +390,34 @@ h3 { font-size: 1rem; font-weight: 600; }
 .streak-dots { display: flex; gap: 0px; margin-top: auto; flex-wrap: nowrap; width: 100%; }
 
 /* Streak nav dots */
-.streak-nav-dots { display: flex; justify-content: center; gap: 5px; padding: 3px 0 6px; flex-shrink: 0; }
+.streak-nav-dots { display: flex; justify-content: center; gap: 5px; padding: 1px 0 4px; flex-shrink: 0; }
 .streak-nav-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: background 0.2s; cursor: pointer; }
 .streak-nav-dot.active { background: #F97316; }
 [data-theme="light"] .streak-nav-dot { background: rgba(0,0,0,0.15); }
 [data-theme="light"] .streak-nav-dot.active { background: #F97316; }
 
 /* Streak month view (slide 1) */
-.streak-mv-header { display: flex; align-items: center; gap: 4px; }
 .streak-mv-count { font-size: 1.6rem; font-weight: 800; color: #F97316; line-height: 1; }
 .streak-mv-label { font-size: 0.62rem; color: var(--subtext); align-self: flex-end; padding-bottom: 2px; }
-.streak-mv-month { font-size: 0.62rem; font-weight: 700; color: var(--subtext); letter-spacing: 0.04em; margin-bottom: 4px; }
+.streak-mv-month { font-size: 0.62rem; font-weight: 700; color: var(--subtext); letter-spacing: 0.04em; margin-bottom: 3px; }
 .streak-mv-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, 7px);
   gap: 3px;
-  flex: 1;
 }
 .streak-mv-dot {
-  width: 100%;
-  aspect-ratio: 1;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.12);
 }
 .streak-mv-dot.active { background: #F97316; }
 .streak-mv-dot.inactive { background: var(--accent); opacity: 0.45; }
-.streak-mv-dot.pre { background: rgba(255,255,255,0.08); }
+.streak-mv-dot.pre { background: rgba(255,255,255,0.12); }
 .streak-mv-dot.future { background: rgba(255,255,255,0.05); }
-[data-theme="light"] .streak-mv-dot { background: rgba(0,0,0,0.08); }
+[data-theme="light"] .streak-mv-dot { background: rgba(0,0,0,0.1); }
 [data-theme="light"] .streak-mv-dot.future { background: rgba(0,0,0,0.04); }
-[data-theme="light"] .streak-mv-dot.pre { background: rgba(0,0,0,0.08); }
-.streak-expand-btn {
-  margin-top: auto;
-  align-self: flex-end;
-  background: none;
-  border: none;
-  color: var(--subtext);
-  cursor: pointer;
-  padding: 2px;
-  opacity: 0.6;
-}
-.streak-expand-btn:hover { opacity: 1; }
+[data-theme="light"] .streak-mv-dot.pre { background: rgba(0,0,0,0.1); }
 
 /* Streak year modal grid */
 .streak-year-modal-grid {
