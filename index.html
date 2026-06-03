@@ -551,7 +551,11 @@
                 <div class="polish-front-left">
                   <div class="polish-front-eyebrow">Polish</div>
                   <div class="polish-front-title">Word of the Day</div>
-                  <div class="polish-front-date" id="polish-wotd-date"></div>
+                  <div class="polish-front-date-nav">
+                    <button class="polish-nav-btn" onclick="event.stopPropagation();PolishPrevWord()">‹</button>
+                    <span class="polish-front-date" id="polish-wotd-date"></span>
+                    <button class="polish-nav-btn" id="polish-nav-next" onclick="event.stopPropagation();PolishNextWord()">›</button>
+                  </div>
                 </div>
                 <div class="polish-front-right">
                   <div class="polish-flag">🇵🇱</div>

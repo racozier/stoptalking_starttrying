@@ -177,6 +177,7 @@ window.Polish = {
   _expanded: false,
   _timerInterval: null,
   _savedOpen: false,
+  _dayOffset: 0,
 
   // ── Word of the Day ────────────────────────────────────────────────────────
 
@@ -184,12 +185,23 @@ window.Polish = {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
     const dayOfYear = Math.floor((now - start) / 86400000);
-    return POLISH_WORDS[dayOfYear % POLISH_WORDS.length];
+    const idx = ((dayOfYear + this._dayOffset) % POLISH_WORDS.length + POLISH_WORDS.length) % POLISH_WORDS.length;
+    return POLISH_WORDS[idx];
+  },
+
+  _updateDateDisplay() {
+    const d = new Date();
+    d.setDate(d.getDate() + this._dayOffset);
+    const dateEl = document.getElementById('polish-wotd-date');
+    if (dateEl) dateEl.textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const nextBtn = document.getElementById('polish-nav-next');
+    if (nextBtn) nextBtn.disabled = this._dayOffset >= 0;
   },
 
   async render() {
     this._flipped = false;
     this._expanded = false;
+    this._dayOffset = 0;
     const inner = document.getElementById('polish-flip-inner');
     const panel = document.getElementById('polish-expand-panel');
     const chevron = document.getElementById('polish-chevron');
@@ -197,12 +209,7 @@ window.Polish = {
     if (panel) panel.classList.remove('open');
     if (chevron) chevron.classList.remove('open');
 
-    const today = new Date();
-    const dateEl = document.getElementById('polish-wotd-date');
-    if (dateEl) {
-      dateEl.textContent = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    }
-
+    this._updateDateDisplay();
     this._displayWord(this._getWordOfDay());
     this.restoreTimer();
     await this.renderStats();
@@ -333,6 +340,33 @@ window.Polish = {
       if (chevron) chevron.classList.remove('open');
       inner.style.minHeight = '';
     }
+  },
+
+  prevWord() {
+    this._dayOffset--;
+    this._navigate();
+  },
+
+  nextWord() {
+    if (this._dayOffset >= 0) return;
+    this._dayOffset++;
+    this._navigate();
+  },
+
+  _navigate() {
+    // Always show front face when changing day
+    if (this._flipped) {
+      this._flipped = false;
+      this._expanded = false;
+      const inner = document.getElementById('polish-flip-inner');
+      const panel = document.getElementById('polish-expand-panel');
+      const chevron = document.getElementById('polish-chevron');
+      if (inner) { inner.classList.remove('flipped'); inner.style.minHeight = ''; }
+      if (panel) panel.classList.remove('open');
+      if (chevron) chevron.classList.remove('open');
+    }
+    this._updateDateDisplay();
+    this._displayWord(this._getWordOfDay());
   },
 
   toggleExpand() {
@@ -519,6 +553,8 @@ window.Polish = {
 };
 
 window.PolishFlip = () => Polish.flipCard();
+window.PolishPrevWord = () => Polish.prevWord();
+window.PolishNextWord = () => Polish.nextWord();
 window.PolishToggleExpand = () => Polish.toggleExpand();
 window.PolishStartTimerFlow = () => Polish.startTimer();
 window.PolishPauseTimer = () => Polish.pauseTimer();
