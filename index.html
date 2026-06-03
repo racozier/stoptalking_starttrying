@@ -384,8 +384,7 @@
 
       <!-- Sub-tabs -->
       <div class="study-subtabs">
-        <button class="study-subtab-btn active" data-subtab="overview">Overview</button>
-        <button class="study-subtab-btn" data-subtab="classes">Classes</button>
+        <button class="study-subtab-btn active" data-subtab="overview">WGU</button>
         <button class="study-subtab-btn" data-subtab="polish">Polish</button>
       </div>
 
@@ -485,20 +484,6 @@
       </div><!-- /overview pane -->
 
       <!-- ── Classes Pane ──────────────────────────────────────────────── -->
-      <div class="study-subtab-pane" data-subtab-pane="classes">
-        <div style="display:flex;justify-content:center;margin-bottom:12px">
-          <button class="btn btn-primary" style="padding:8px 24px;font-size:0.85rem" onclick="StudyOpenAddClass()">+ Add Class</button>
-        </div>
-        <div class="classes-filter">
-          <button class="class-filter-btn active" data-class-filter="all" onclick="StudySetClassFilter('all')">All</button>
-          <button class="class-filter-btn" data-class-filter="in_progress" onclick="StudySetClassFilter('in_progress')">In Progress</button>
-          <button class="class-filter-btn" data-class-filter="passed" onclick="StudySetClassFilter('passed')">Passed</button>
-          <button class="class-filter-btn" data-class-filter="not_started" onclick="StudySetClassFilter('not_started')">Not Started</button>
-        </div>
-        <div class="classes-list" id="classes-list">
-          <div class="empty-state"><p>Loading…</p></div>
-        </div>
-      </div>
 
       <!-- ── Polish Pane ──────────────────────────────────────────────── -->
       <div class="study-subtab-pane" data-subtab-pane="polish">
@@ -1033,6 +1018,30 @@
 </div>
 
 <!-- ── Add Class Modal ─────────────────────────────────────────────────── -->
+<div class="modal-backdrop modal-fullscreen" id="modal-classes">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>Classes</h3>
+      <button class="modal-close-btn" onclick="App.closeAllModals()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;justify-content:center;margin-bottom:12px">
+        <button class="btn btn-primary" style="padding:8px 24px;font-size:0.85rem" onclick="StudyOpenAddClass()">+ Add Class</button>
+      </div>
+      <div class="classes-filter">
+        <button class="class-filter-btn active" data-class-filter="all" onclick="StudySetClassFilter('all')">All</button>
+        <button class="class-filter-btn" data-class-filter="in_progress" onclick="StudySetClassFilter('in_progress')">In Progress</button>
+        <button class="class-filter-btn" data-class-filter="passed" onclick="StudySetClassFilter('passed')">Passed</button>
+        <button class="class-filter-btn" data-class-filter="not_started" onclick="StudySetClassFilter('not_started')">Not Started</button>
+      </div>
+      <div class="classes-list" id="classes-list">
+        <div class="empty-state"><p>Loading…</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="modal-add-class">
   <div class="modal-sheet">
     <div class="modal-handle"></div>

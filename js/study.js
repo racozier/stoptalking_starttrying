@@ -26,8 +26,12 @@ window.Study = {
   async renderSubTab(tab) {
     this._applyPolishTheme(tab === 'polish');
     if (tab === 'overview') await this.renderOverview();
-    else if (tab === 'classes') await this.renderClasses();
     else if (tab === 'polish') await Polish.render();
+  },
+
+  async openClassesModal() {
+    App.openModal('modal-classes');
+    await this.renderClasses();
   },
 
   _applyPolishTheme(on) {
@@ -106,9 +110,9 @@ window.Study = {
       ? `<div class="term-last-class">${lastPassedDisplay}</div>
          <div class="term-passed-row">🎉 <span class="term-passed-label">Passed</span></div>
          <div class="term-passed-date">Completed on ${lastPassedDateStr}</div>
-         <button class="link-btn term-view-all" onclick="Study.switchSubTab('classes')">View All Classes ›</button>`
+         <button class="link-btn term-view-all" onclick="Study.openClassesModal()">View All Classes ›</button>`
       : `<div class="term-no-pass">No classes passed yet</div>
-         <button class="link-btn term-view-all" onclick="Study.switchSubTab('classes')">View All Classes ›</button>`;
+         <button class="link-btn term-view-all" onclick="Study.openClassesModal()">View All Classes ›</button>`;
 
     const el = document.getElementById('study-progress-card');
     if (!el) return;
@@ -758,6 +762,7 @@ window.StudyPauseTimer = () => Study.pauseTimer();
 window.StudyStopTimer = () => Study.stopTimer();
 window.StudyMarkPassed = (id) => Study.markPassed(id);
 window.StudyOpenAddClass = () => Study.openAddClassModal();
+window.StudyOpenClassesModal = () => Study.openClassesModal();
 window.StudySaveClass = () => Study.saveClass();
 window.StudyFilterSessions = () => Study.filterSessions();
 window.StudyOpenManualLog = () => Study.openManualLogModal();
