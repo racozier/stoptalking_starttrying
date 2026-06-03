@@ -1350,13 +1350,16 @@ h3 { font-size: 1rem; font-weight: 600; }
 .progress-pct { font-size: 0.78rem; font-weight: 700; color: var(--accent); }
 
 /* ── Study Term Card ──────────────────────────────────────────────────────── */
+.progress-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.progress-slide-dots { display: flex; align-items: center; gap: 5px; }
+.slide-dot { width: 7px; height: 7px; border-radius: 50%; border: none; background: var(--border); cursor: pointer; padding: 0; transition: background 0.2s, transform 0.2s; }
+.slide-dot.active { background: var(--accent); transform: scale(1.25); }
 .term-section-label {
   font-size: 0.68rem;
   font-weight: 700;
   color: var(--subtext);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: 10px;
 }
 .term-card-body {
   display: flex;

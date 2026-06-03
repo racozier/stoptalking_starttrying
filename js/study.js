@@ -1,6 +1,7 @@
 window.Study = {
   _subTab: 'overview',
   _timerInterval: null,
+  _progressView: 'degree',
   _sessionFilter: { classId: '', dateFrom: '', dateTo: '' },
   _calendarYear: new Date().getFullYear(),
   _calendarMonth: new Date().getMonth(),
@@ -61,11 +62,17 @@ window.Study = {
     ]);
   },
 
+  setProgressView(view) {
+    this._progressView = view;
+    this.renderTermProgress();
+  },
+
   async renderTermProgress() {
     const classes = await window.db.classes.getAll();
     const termEnd = await window.db.settings.get('currentTermEnd', '2026-10-31');
     const termName = await window.db.settings.get('currentTermName', 'Term 1');
 
+    // Term stats
     const currentTermName = classes.find((x) => x.status === 'in_progress')?.term
       || classes[0]?.term
       || termName;
@@ -75,7 +82,12 @@ window.Study = {
     const termPassed = termClasses.filter((c) => c.status === 'passed').length;
     const termPct = termTotal > 0 ? Math.round((termPassed / termTotal) * 100) : 0;
 
-    // Time progress: estimate term start as 6 months before end
+    // Degree stats
+    const degreeTotal = classes.length;
+    const degreePassed = classes.filter((c) => c.status === 'passed').length;
+    const degreePct = degreeTotal > 0 ? Math.round((degreePassed / degreeTotal) * 100) : 0;
+
+    // Time progress
     const now = new Date();
     const termEndDate = new Date(termEnd);
     const termStartDate = new Date(termEndDate);
@@ -83,21 +95,14 @@ window.Study = {
     const timePct = Math.min(100, Math.max(0, Math.round(((now - termStartDate) / (termEndDate - termStartDate)) * 100)));
     const termEndStr = termEndDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    // Last passed class in this term
-    const passedClasses = termClasses
+    // Last passed class (any term)
+    const passedClasses = classes
       .filter((c) => c.status === 'passed' && c.passedDate)
       .sort((a, b) => new Date(b.passedDate) - new Date(a.passedDate));
     const lastPassed = passedClasses[0] || null;
-    const lastPassedName = lastPassed ? lastPassed.name : null;
     const lastPassedDateStr = lastPassed
       ? new Date(lastPassed.passedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
       : null;
-
-    // SVG circle ring
-    const r = 24;
-    const circ = +(2 * Math.PI * r).toFixed(2);
-    const offset = +(circ * (1 - termPct / 100)).toFixed(2);
-
     const lastPassedDisplay = lastPassed
       ? `${App.escapeHtml(lastPassed.name)} - ${App.escapeHtml(lastPassed.code || '')}`
       : null;
@@ -107,13 +112,29 @@ window.Study = {
          <div class="term-passed-row">🎉 <span class="term-passed-label">Passed</span></div>
          <div class="term-passed-date">Completed on ${lastPassedDateStr}</div>
          <button class="link-btn term-view-all" onclick="Study.openClassesModal()">View All Classes ›</button>`
-      : `<div class="term-no-pass">No classes passed yet</div>
+      : `<div class="term-no-pass">No classes yet</div>
          <button class="link-btn term-view-all" onclick="Study.openClassesModal()">View All Classes ›</button>`;
+
+    const isDegree = this._progressView === 'degree';
+    const pct = isDegree ? degreePct : termPct;
+    const countNum = isDegree ? degreePassed : termPassed;
+    const countDen = isDegree ? degreeTotal : termTotal;
+    const label = isDegree ? 'DEGREE PROGRESS' : 'CURRENT TERM PROGRESS';
+
+    const r = 24;
+    const circ = +(2 * Math.PI * r).toFixed(2);
+    const offset = +(circ * (1 - pct / 100)).toFixed(2);
 
     const el = document.getElementById('study-progress-card');
     if (!el) return;
     el.innerHTML = `
-      <div class="term-section-label">CURRENT TERM PROGRESS</div>
+      <div class="progress-card-header">
+        <div class="term-section-label">${label}</div>
+        <div class="progress-slide-dots">
+          <button class="slide-dot${isDegree ? ' active' : ''}" onclick="StudySetProgressView('degree')" title="Degree Progress"></button>
+          <button class="slide-dot${!isDegree ? ' active' : ''}" onclick="StudySetProgressView('term')" title="Term Progress"></button>
+        </div>
+      </div>
       <div class="term-card-body">
         <div class="term-left">
           <div class="term-circle-row">
@@ -124,17 +145,17 @@ window.Study = {
                 stroke-dasharray="${circ}"
                 stroke-dashoffset="${offset}"
                 transform="rotate(-90 28 28)"/>
-              <text x="28" y="33" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700" font-family="Outfit,sans-serif">${termPct}%</text>
+              <text x="28" y="33" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700" font-family="Outfit,sans-serif">${pct}%</text>
             </svg>
             <div class="term-count-wrap">
-              <div class="term-count">${termPassed}/${termTotal}</div>
+              <div class="term-count">${countNum}/${countDen}</div>
               <div class="term-count-label">CLASSES COMPLETED</div>
             </div>
           </div>
-          <div class="term-time-wrap">
+          ${!isDegree ? `<div class="term-time-wrap">
             <div class="term-time-bar"><div class="term-time-fill" style="width:${timePct}%"></div></div>
             <div class="term-time-label">Term ends ${termEndStr}</div>
-          </div>
+          </div>` : ''}
         </div>
         <div class="term-divider">|</div>
         <div class="term-right">${rightHtml}</div>
@@ -764,5 +785,6 @@ window.StudyFilterSessions = () => Study.filterSessions();
 window.StudyOpenManualLog = () => Study.openManualLogModal();
 window.StudySaveManualSession = () => Study.saveManualSession();
 window.StudySetClassFilter = (f) => Study.setClassFilter(f);
+window.StudySetProgressView = (v) => Study.setProgressView(v);
 window.StudyStartTimerFlow = () => Study.openTimerClassPicker();
 window.StudyConfirmStartTimer = () => Study.confirmStartTimer();
