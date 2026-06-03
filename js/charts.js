@@ -20,16 +20,16 @@ window.Charts = {
         labels,
         datasets: [{
           data: vals,
-          borderColor: 'rgba(139, 92, 246, 0.9)',
+          borderColor: 'rgba(37, 99, 235, 0.9)',
           borderWidth: 2,
           pointRadius: vals.map((_, i) => (i === vals.length - 1 ? 3 : 0)),
-          pointBackgroundColor: 'rgba(139, 92, 246, 1)',
+          pointBackgroundColor: 'rgba(37, 99, 235, 1)',
           tension: 0.5,
           fill: true,
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(139, 92, 246, 0.16)');
-            g.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+            g.addColorStop(0, 'rgba(37, 99, 235, 0.16)');
+            g.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
             return g;
           },
         }],
@@ -85,7 +85,7 @@ window.Charts = {
         datasets: [{
           data,
           backgroundColor: data.map((v) =>
-            v > 0 ? 'rgba(124, 58, 237, 0.85)' : 'rgba(124, 58, 237, 0.15)'
+            v > 0 ? 'rgba(37, 99, 235, 0.85)' : 'rgba(37, 99, 235, 0.15)'
           ),
           borderRadius: 4,
           borderSkipped: false,
@@ -152,15 +152,15 @@ window.Charts = {
         }),
         datasets: [{
           data: sorted.map((d) => d.value),
-          borderColor: 'rgba(124, 58, 237, 0.9)',
+          borderColor: 'rgba(37, 99, 235, 0.9)',
           borderWidth: 2,
           pointRadius: 0,
           tension: 0.3,
           fill: true,
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0, 0, 0, ctx2.chart.height);
-            g.addColorStop(0, 'rgba(124, 58, 237, 0.3)');
-            g.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
+            g.addColorStop(0, 'rgba(37, 99, 235, 0.3)');
+            g.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
             return g;
           },
         }],
@@ -201,9 +201,9 @@ window.Charts = {
         datasets: [{
           data,
           backgroundColor: data.map((v) => {
-            if (v <= 0) return 'rgba(124, 58, 237, 0.15)';
+            if (v <= 0) return 'rgba(37, 99, 235, 0.15)';
             if (dailyGoalHours !== null && v >= dailyGoalHours) return 'rgba(249, 115, 22, 0.85)';
-            return 'rgba(124, 58, 237, 0.7)';
+            return 'rgba(37, 99, 235, 0.7)';
           }),
           borderRadius: 5,
           borderSkipped: false,

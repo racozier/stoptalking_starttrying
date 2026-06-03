@@ -112,7 +112,7 @@ window.Fitness = {
     return `
     <div class="activity-card workout-card" data-id="${w.id}">
       <div class="activity-card-header">
-        <div class="activity-icon-wrap icon-workout"><i data-lucide="dumbbell" style="width:18px;height:18px;stroke:#C084FC;fill:none"></i></div>
+        <div class="activity-icon-wrap icon-workout"><i data-lucide="dumbbell" style="width:18px;height:18px;stroke:#FDA4AF;fill:none"></i></div>
         <div class="activity-meta">
           <div class="activity-date-label">${dateLabel} · ${timeLabel}</div>
           <div class="activity-title run-title">${App.escapeHtml(w.name)}</div>

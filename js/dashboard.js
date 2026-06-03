@@ -167,7 +167,7 @@ window.Dashboard = {
     const dayKm = weekDates.map((d) => allRuns.filter((r) => r.date.startsWith(d)).reduce((s, r) => s + r.distance, 0));
     const dayStudy = weekDates.map((d) => allStudy.filter((s) => s.date.startsWith(d) && s.subject !== 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
     const dayPolish = weekDates.map((d) => allStudy.filter((s) => s.date.startsWith(d) && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
-    Charts.createMiniBarChart('week-workout-mini-chart', dayWorkouts, '#7C3AED');
+    Charts.createMiniBarChart('week-workout-mini-chart', dayWorkouts, '#9B1C1C');
     Charts.createMiniBarChart('week-run-mini-chart', dayKm, '#0EA5E9');
     Charts.createMiniBarChart('week-study-mini-chart', dayStudy, '#0D9488');
     Charts.createMiniBarChart('week-polish-mini-chart', dayPolish, '#CA8A04');
@@ -203,7 +203,7 @@ window.Dashboard = {
     const mRunBars = weeksInMonth.map(({ start, end }) => allRuns.filter((r) => r.date >= start && r.date <= end + 'T').reduce((s, r) => s + r.distance, 0));
     const mStudyBars = weeksInMonth.map(({ start, end }) => allStudy.filter((s) => s.date >= start && s.date <= end + 'T' && s.subject !== 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
     const mPolishBars = weeksInMonth.map(({ start, end }) => allStudy.filter((s) => s.date >= start && s.date <= end + 'T' && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
-    Charts.createMiniBarChart('month-workout-mini-chart', mWorkoutBars, '#7C3AED');
+    Charts.createMiniBarChart('month-workout-mini-chart', mWorkoutBars, '#9B1C1C');
     Charts.createMiniBarChart('month-run-mini-chart', mRunBars, '#0EA5E9');
     Charts.createMiniBarChart('month-study-mini-chart', mStudyBars, '#0D9488');
     Charts.createMiniBarChart('month-polish-mini-chart', mPolishBars, '#CA8A04');
@@ -230,7 +230,7 @@ window.Dashboard = {
     const atRunBars = last6Months.map((m) => allRuns.filter((r) => r.date.startsWith(m)).reduce((s, r) => s + r.distance, 0));
     const atStudyBars = last6Months.map((m) => allStudy.filter((s) => s.date.startsWith(m) && s.subject !== 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
     const atPolishBars = last6Months.map((m) => allStudy.filter((s) => s.date.startsWith(m) && s.subject === 'Polish Language').reduce((t, s) => t + s.durationMinutes, 0) / 60);
-    Charts.createMiniBarChart('alltime-workout-mini-chart', atWorkoutBars, '#7C3AED');
+    Charts.createMiniBarChart('alltime-workout-mini-chart', atWorkoutBars, '#9B1C1C');
     Charts.createMiniBarChart('alltime-run-mini-chart', atRunBars, '#0EA5E9');
     Charts.createMiniBarChart('alltime-study-mini-chart', atStudyBars, '#0D9488');
     Charts.createMiniBarChart('alltime-polish-mini-chart', atPolishBars, '#CA8A04');
