@@ -33,6 +33,17 @@ window.Notes = {
     if (searchInput) {
       searchInput.addEventListener('input', () => this.renderGrid(searchInput.value));
     }
+    document.addEventListener('selectionchange', () => {
+      const body = document.getElementById('note-body');
+      if (!body) return;
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        if (body.contains(range.commonAncestorContainer)) {
+          this._savedRange = range.cloneRange();
+        }
+      }
+    });
   },
 
   async render() {
@@ -244,7 +255,9 @@ window.Notes = {
     this._currentNoteId = noteId;
     this._photos = [];
     this._audioDataUrl = null;
+    this._savedRange = null;
     if (this._isRecordingAudio) this._stopRecording();
+    this.closeFormatBar();
 
     const modal = document.getElementById('modal-note-editor');
     if (!modal) return;
@@ -418,8 +431,55 @@ window.Notes = {
   },
 
   execFormat(cmd, value = null) {
-    document.getElementById('note-body')?.focus();
+    const body = document.getElementById('note-body');
+    if (body) {
+      body.focus();
+      if (this._savedRange) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(this._savedRange);
+      }
+    }
     document.execCommand(cmd, false, value);
+  },
+
+  toggleFormatBar() {
+    const bar = document.getElementById('note-format-bar');
+    const main = document.getElementById('note-bottombar-main');
+    if (!bar || !main) return;
+    const isOpen = bar.classList.contains('open');
+    if (isOpen) {
+      bar.classList.remove('open');
+      main.style.display = 'flex';
+    } else {
+      this.closeAddMenu();
+      bar.classList.add('open');
+      main.style.display = 'none';
+    }
+  },
+
+  closeFormatBar() {
+    const bar = document.getElementById('note-format-bar');
+    const main = document.getElementById('note-bottombar-main');
+    if (bar) bar.classList.remove('open');
+    if (main) main.style.display = 'flex';
+  },
+
+  cycleFontSize() {
+    const body = document.getElementById('note-body');
+    if (body) {
+      body.focus();
+      if (this._savedRange) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(this._savedRange);
+      }
+    }
+    const sizes = ['3', '4', '5', '6'];
+    const current = document.queryCommandValue('fontSize') || '3';
+    const idx = sizes.indexOf(current);
+    const next = sizes[(idx + 1) % sizes.length];
+    document.execCommand('fontSize', false, next);
   },
 
   // ─── Audio Recording (MediaRecorder) ─────────────────────────────────────
@@ -725,7 +785,10 @@ window.Notes = Notes;
 window.NotesSave = () => Notes.saveNote(true);
 window.NotesDelete = () => Notes.deleteNote();
 window.NotesTogglePin = () => Notes.togglePin();
-window.NotesExecFormat = (cmd) => Notes.execFormat(cmd);
+window.NotesExecFormat = (cmd, val) => Notes.execFormat(cmd, val);
+window.NotesToggleFormatBar = () => Notes.toggleFormatBar();
+window.NotesCloseFormatBar = () => Notes.closeFormatBar();
+window.NotesCycleFontSize = () => Notes.cycleFontSize();
 window.NotesToggleVoice = () => Notes.toggleVoiceRecording();
 window.NotesInsertChecklist = () => Notes.insertChecklist();
 window.NotesTriggerPhoto = () => Notes.triggerPhotoInput();
