@@ -44,7 +44,7 @@ window.SettingsModule = {
     await window.db.settings.set('units', units);
     App._units = units;
     const claudeKey = get('settings-claude-key').trim();
-    if (claudeKey) await window.db.settings.set('claudeApiKey', claudeKey);
+    await window.db.settings.set('claudeApiKey', claudeKey || null);
     App.showToast('Settings saved!', 'success');
     App.updateGreeting();
     if (App.currentTab === 'study') await Study.render();
