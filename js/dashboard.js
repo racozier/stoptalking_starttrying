@@ -606,7 +606,7 @@ async function openQuickStudyModal(subject) {
     if (classGroup) classGroup.style.display = 'none';
   } else {
     if (classGroup) classGroup.style.display = '';
-    const classes = await window.db.classes.getAll();
+    const classes = (await window.db.classes.getAll()).filter((c) => c.status === 'in_progress');
     const select = modal.querySelector('#qs-class-select');
     if (select) {
       select.innerHTML = '<option value="">General / no class</option>' +
