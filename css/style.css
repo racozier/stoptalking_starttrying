@@ -2393,7 +2393,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .polish-front-eyebrow { font-size: 0.6rem; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
 .polish-front-title { font-size: 1rem; font-weight: 700; color: var(--text); }
 .polish-front-date { font-size: 0.63rem; color: var(--subtext); margin-top: 4px; }
-.polish-front-right { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
+.polish-front-right { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; padding-right: 10px; }
 .polish-flag { font-size: 1.8rem; line-height: 1; }
 .polish-tap-hint { font-size: 0.5rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.06em; }
 
