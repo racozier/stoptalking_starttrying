@@ -1295,6 +1295,39 @@ h3 { font-size: 1rem; font-weight: 600; }
 .strava-activity-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--surface2); border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
 .strava-activity-item input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }
 
+/* GPX Import */
+[data-gpx-state="idle"] .gpx-preview,
+[data-gpx-state="idle"] .gpx-error { display: none; }
+[data-gpx-state="preview"] .gpx-dropzone,
+[data-gpx-state="preview"] .gpx-error { display: none; }
+[data-gpx-state="error"] .gpx-dropzone,
+[data-gpx-state="error"] .gpx-preview { display: none; }
+
+.gpx-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 4px;
+}
+.gpx-dropzone:hover { border-color: var(--accent); background: rgba(37,99,235,0.05); }
+.gpx-drop-icon { font-size: 2rem; margin-bottom: 8px; }
+.gpx-drop-label { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.gpx-drop-sub { font-size: 0.72rem; color: var(--subtext); }
+
+.gpx-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 4px; }
+.gpx-stat-col { background: var(--surface2); border-radius: 8px; padding: 10px 6px; text-align: center; }
+.gpx-stat-val { font-size: 1.1rem; font-weight: 800; color: var(--text); line-height: 1.1; }
+.gpx-stat-lbl { font-size: 0.6rem; font-weight: 600; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+.gpx-hr-row { text-align: center; margin: 6px 0 0; min-height: 20px; }
+.gpx-hr-badge { display: inline-block; background: rgba(239,68,68,0.12); color: #F87171; border-radius: 20px; font-size: 0.7rem; font-weight: 700; padding: 3px 10px; }
+.gpx-change-link { background: none; border: none; color: var(--subtext); font-size: 0.72rem; cursor: pointer; font-family: 'Outfit', sans-serif; padding: 0; margin-top: 4px; display: block; }
+.gpx-change-link:hover { color: var(--text); }
+.gpx-error { padding: 20px 0; text-align: center; }
+.gpx-error-msg { font-size: 0.82rem; color: #F87171; margin-bottom: 10px; }
+
 /* ── Study Tab ────────────────────────────────────────────────────────────── */
 .study-subtabs { display: flex; background: var(--surface2); border-radius: 12px; padding: 4px; gap: 4px; margin-bottom: 16px; }
 .study-subtab-btn { flex: 1; padding: 9px 4px; border: none; border-radius: 8px; background: transparent; color: var(--subtext); font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; }

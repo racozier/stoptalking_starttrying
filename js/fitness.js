@@ -552,31 +552,14 @@ window.Fitness = {
     this._editRunId = null;
     const h3 = modal.querySelector('.modal-header h3');
     if (h3) h3.textContent = 'Log Run';
-    // Default to manual tab
-    this.switchRunTab('manual');
+    this.switchRunTab('gpx');
+    this.resetGpx();
     modal.querySelector('#run-date-input').value = new Date().toISOString().slice(0, 16);
     modal.querySelector('#run-distance-input').value = '';
     modal.querySelector('#run-time-input').value = '';
     modal.querySelector('#run-calories-input').value = '';
     modal.querySelector('#run-elevation-input').value = '';
     modal.querySelector('#run-name-input').value = '';
-
-    // Check if Strava is connected
-    const tokens = await window.db.strava.getTokens();
-    const stravaConnected = modal.querySelector('.strava-connected');
-    const stravaDisconnected = modal.querySelector('.strava-disconnected');
-    if (stravaConnected) stravaConnected.style.display = tokens ? 'block' : 'none';
-    if (stravaDisconnected) stravaDisconnected.style.display = tokens ? 'none' : 'block';
-
-    if (tokens) {
-      const syncStatus = modal.querySelector('#strava-sync-status');
-      if (syncStatus) {
-        syncStatus.textContent = tokens.lastSync
-          ? `Last synced ${App.formatDate(tokens.lastSync, { relative: true })}`
-          : 'Never synced';
-      }
-    }
-
     App.openModal('modal-log-run');
   },
 
@@ -644,6 +627,175 @@ window.Fitness = {
     else if (App.currentTab === 'dashboard') await Dashboard.render();
   },
 
+  // ─── GPX Import ────────────────────────────────────────────────────────────
+  _gpxData: null,
+
+  _haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const toR = Math.PI / 180;
+    const dLat = (lat2 - lat1) * toR;
+    const dLon = (lon2 - lon1) * toR;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * toR) * Math.cos(lat2 * toR) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  },
+
+  _parseGpx(xmlText) {
+    const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+    if (doc.querySelector('parsererror')) throw new Error('Invalid GPX file — could not parse XML');
+
+    const trkpts = [...doc.querySelectorAll('trkpt')];
+    if (trkpts.length < 2) throw new Error('GPX file contains no track points');
+
+    const points = trkpts.map((pt) => {
+      const lat = parseFloat(pt.getAttribute('lat'));
+      const lon = parseFloat(pt.getAttribute('lon'));
+      const ele = parseFloat(pt.querySelector('ele')?.textContent) || 0;
+      const time = pt.querySelector('time')?.textContent || null;
+      const hrEl = pt.getElementsByTagNameNS('*', 'hr')[0] || pt.querySelector('hr');
+      const hr = hrEl ? parseInt(hrEl.textContent) : null;
+      return { lat, lon, ele, time, hr };
+    });
+
+    // Distance
+    let dist = 0;
+    for (let i = 1; i < points.length; i++) {
+      dist += this._haversine(points[i - 1].lat, points[i - 1].lon, points[i].lat, points[i].lon);
+    }
+    dist = Math.round(dist * 100) / 100;
+    if (dist <= 0) throw new Error('Could not calculate distance — check track points');
+
+    // Duration
+    const t0 = points[0].time ? new Date(points[0].time) : null;
+    const t1 = points[points.length - 1].time ? new Date(points[points.length - 1].time) : null;
+    const durationSeconds = (t0 && t1 && t1 > t0) ? Math.round((t1 - t0) / 1000) : null;
+
+    // Elevation gain
+    let elevGain = 0;
+    for (let i = 1; i < points.length; i++) {
+      const d = points[i].ele - points[i - 1].ele;
+      if (d > 0.1) elevGain += d;
+    }
+    elevGain = Math.round(elevGain);
+
+    // Avg HR
+    const hrVals = points.map((p) => p.hr).filter((h) => h !== null && !isNaN(h) && h > 0);
+    const avgHR = hrVals.length > 0 ? Math.round(hrVals.reduce((a, b) => a + b, 0) / hrVals.length) : null;
+
+    // Downsample polyline to ~300 points max
+    const step = Math.max(1, Math.floor(points.length / 300));
+    const polyline = [];
+    for (let i = 0; i < points.length; i += step) polyline.push([points[i].lat, points[i].lon]);
+    const last = points[points.length - 1];
+    if (polyline[polyline.length - 1][0] !== last.lat) polyline.push([last.lat, last.lon]);
+
+    const gpxName = doc.querySelector('trk > name')?.textContent?.trim()
+      || doc.querySelector('metadata > name')?.textContent?.trim()
+      || '';
+
+    return { dist, durationSeconds, elevGain, avgHR, date: t0 ? t0.toISOString() : new Date().toISOString(), polyline, gpxName };
+  },
+
+  handleGpxFile(input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const rawName = file.name.replace(/\.gpx$/i, '').replace(/[_-]/g, ' ');
+    input.value = '';
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        this._gpxData = this._parseGpx(e.target.result);
+        this._showGpxPreview(rawName);
+      } catch (err) {
+        this._showGpxError(err.message);
+      }
+    };
+    reader.readAsText(file);
+  },
+
+  _showGpxPreview(fallbackName) {
+    const d = this._gpxData;
+    const pane = document.getElementById('gpx-pane');
+    if (pane) pane.dataset.gpxState = 'preview';
+
+    document.getElementById('gpx-dist').textContent = d.dist;
+    const dur = d.durationSeconds;
+    if (dur) {
+      const h = Math.floor(dur / 3600);
+      const m = Math.floor((dur % 3600) / 60);
+      const s = dur % 60;
+      document.getElementById('gpx-time').textContent = h > 0
+        ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+        : `${m}:${String(s).padStart(2, '0')}`;
+    } else {
+      document.getElementById('gpx-time').textContent = '--';
+    }
+    if (dur && d.dist > 0) {
+      const paceS = dur / d.dist;
+      const pm = Math.floor(paceS / 60);
+      const ps = Math.round(paceS % 60);
+      document.getElementById('gpx-pace').textContent = `${pm}:${String(ps).padStart(2, '0')}`;
+    } else {
+      document.getElementById('gpx-pace').textContent = '--';
+    }
+    document.getElementById('gpx-elev').textContent = d.elevGain > 0 ? `+${d.elevGain}` : '--';
+
+    const hrRow = document.getElementById('gpx-hr-row');
+    if (hrRow) hrRow.innerHTML = d.avgHR ? `<span class="gpx-hr-badge">♥ ${d.avgHR} bpm avg</span>` : '';
+
+    const nameInput = document.getElementById('gpx-name-input');
+    if (nameInput) {
+      const autoName = d.gpxName || fallbackName || `Run ${new Date(d.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`;
+      nameInput.value = autoName;
+    }
+    const notesInput = document.getElementById('gpx-notes-input');
+    if (notesInput) notesInput.value = '';
+  },
+
+  _showGpxError(msg) {
+    const pane = document.getElementById('gpx-pane');
+    if (pane) pane.dataset.gpxState = 'error';
+    const el = document.getElementById('gpx-error-msg');
+    if (el) el.textContent = msg || 'Could not parse GPX file.';
+  },
+
+  resetGpx() {
+    this._gpxData = null;
+    const pane = document.getElementById('gpx-pane');
+    if (pane) pane.dataset.gpxState = 'idle';
+  },
+
+  async saveGpxRun() {
+    if (!this._gpxData) { App.showToast('Please select a GPX file first.', 'error'); return; }
+    const name = document.getElementById('gpx-name-input')?.value.trim() || 'Run';
+    const notes = document.getElementById('gpx-notes-input')?.value.trim() || '';
+    const d = this._gpxData;
+
+    const paceSecsPerKm = d.durationSeconds ? d.durationSeconds / d.dist : 0;
+    const pm = Math.floor(paceSecsPerKm / 60);
+    const ps = Math.round(paceSecsPerKm % 60);
+
+    await window.db.runs.add({
+      date: d.date,
+      name,
+      distance: d.dist,
+      durationSeconds: d.durationSeconds || 0,
+      paceSecsPerKm,
+      paceFormatted: d.durationSeconds ? `${pm}:${String(ps).padStart(2, '0')}` : '--',
+      calories: null,
+      elevation: d.elevGain || null,
+      avgHR: d.avgHR || null,
+      polyline: d.polyline,
+      source: 'gpx',
+      notes,
+    });
+
+    this._gpxData = null;
+    App.closeAllModals();
+    App.showToast('Run imported!', 'success');
+    if (App.currentTab === 'fitness') await Fitness.render();
+    else if (App.currentTab === 'dashboard') await Dashboard.render();
+  },
+
   async loadStravaActivities() {
     const btn = document.getElementById('strava-load-btn');
     if (btn) btn.disabled = true;
@@ -698,9 +850,16 @@ window.Fitness = Fitness;
 // Expose helpers to HTML
 window.FitnessAddExercise = () => Fitness.addExerciseRow();
 window.FitnessSaveWorkout = () => Fitness.saveWorkout();
-window.FitnessSaveRun = () => Fitness.saveManualRun();
+window.FitnessSaveRun = () => {
+  const modal = document.getElementById('modal-log-run');
+  const activeTab = modal?.querySelector('.run-tab-btn.active')?.dataset?.runTab;
+  if (activeTab === 'gpx') Fitness.saveGpxRun();
+  else Fitness.saveManualRun();
+};
 window.FitnessSwitchRunTab = (t) => Fitness.switchRunTab(t);
 window.FitnessUpdatePace = () => Fitness.updatePacePreview();
+window.FitnessHandleGpx = (input) => Fitness.handleGpxFile(input);
+window.FitnessResetGpx = () => Fitness.resetGpx();
 window.FitnessLoadStrava = () => Fitness.loadStravaActivities();
 window.FitnessImportStrava = () => Fitness.importSelectedStrava();
 window.FitnessConnectStrava = () => Strava.startOAuth();

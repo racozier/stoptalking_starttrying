@@ -911,23 +911,39 @@
     </div>
     <div class="modal-body">
       <div class="run-tab-btns">
-        <button class="run-tab-btn" data-run-tab="strava" onclick="FitnessSwitchRunTab('strava')">Import from Strava</button>
-        <button class="run-tab-btn active" data-run-tab="manual" onclick="FitnessSwitchRunTab('manual')">Manual Entry</button>
+        <button class="run-tab-btn active" data-run-tab="gpx" onclick="FitnessSwitchRunTab('gpx')">Import GPX</button>
+        <button class="run-tab-btn" data-run-tab="manual" onclick="FitnessSwitchRunTab('manual')">Manual Entry</button>
       </div>
 
-      <!-- Strava pane -->
-      <div class="run-tab-pane" data-run-pane="strava">
-        <div class="strava-disconnected">
-          <p class="sub" style="margin-bottom:12px">Connect Strava to import your runs automatically.</p>
-          <button class="btn btn-primary" style="background:#FC4C02;width:100%" onclick="FitnessConnectStrava()">Connect Strava</button>
+      <!-- GPX pane -->
+      <div class="run-tab-pane active" data-run-pane="gpx" id="gpx-pane" data-gpx-state="idle">
+        <div class="gpx-dropzone" id="gpx-dropzone" onclick="document.getElementById('gpx-file-input').click()">
+          <div class="gpx-drop-icon">📂</div>
+          <div class="gpx-drop-label">Tap to select a GPX file</div>
+          <div class="gpx-drop-sub">FitoTrack, Garmin, or any GPX 1.1 export</div>
+          <input type="file" id="gpx-file-input" accept=".gpx,.GPX" style="display:none" onchange="FitnessHandleGpx(this)" />
         </div>
-        <div class="strava-connected" style="display:none">
-          <div class="flex-between mb-12">
-            <span class="sub" id="strava-sync-status">Never synced</span>
-            <button class="link-btn" id="strava-load-btn" onclick="FitnessLoadStrava()">Load Activities</button>
+        <div class="gpx-preview" id="gpx-preview">
+          <div class="gpx-stats-grid">
+            <div class="gpx-stat-col"><div class="gpx-stat-val" id="gpx-dist">--</div><div class="gpx-stat-lbl">km</div></div>
+            <div class="gpx-stat-col"><div class="gpx-stat-val" id="gpx-time">--</div><div class="gpx-stat-lbl">time</div></div>
+            <div class="gpx-stat-col"><div class="gpx-stat-val" id="gpx-pace">--</div><div class="gpx-stat-lbl">/km</div></div>
+            <div class="gpx-stat-col"><div class="gpx-stat-val" id="gpx-elev">--</div><div class="gpx-stat-lbl">elev +m</div></div>
           </div>
-          <div id="strava-activities-list"></div>
-          <button class="btn btn-primary" id="strava-import-btn" style="width:100%;margin-top:10px" onclick="FitnessImportStrava()">Import Selected</button>
+          <div class="gpx-hr-row" id="gpx-hr-row"></div>
+          <div class="form-group" style="margin-top:12px">
+            <label>Run Name</label>
+            <input type="text" class="form-input" id="gpx-name-input" placeholder="Morning Run" />
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea class="form-textarea" id="gpx-notes-input" rows="2" placeholder="Optional…"></textarea>
+          </div>
+          <button class="gpx-change-link" onclick="FitnessResetGpx()">← Choose a different file</button>
+        </div>
+        <div class="gpx-error" id="gpx-error">
+          <div class="gpx-error-msg" id="gpx-error-msg">Could not parse GPX file.</div>
+          <button class="link-btn" onclick="FitnessResetGpx()">Try again</button>
         </div>
       </div>
 
