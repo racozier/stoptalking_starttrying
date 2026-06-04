@@ -621,12 +621,10 @@ window.Notes = {
     if (isOpen) {
       bar.classList.remove('open');
       main.style.display = 'flex';
-      // Restore editing ability when format bar is closed
-      if (body) body.contentEditable = 'true';
     } else {
       this.closeAddMenu();
+      // Save selection so execCommand fallback can restore it
       if (body) {
-        // Save current selection before locking the body
         const sel = window.getSelection();
         if (sel && sel.rangeCount > 0) {
           const range = sel.getRangeAt(0);
@@ -634,11 +632,6 @@ window.Notes = {
             this._savedRange = range.cloneRange();
           }
         }
-        // Setting contentEditable false prevents any touch on the body
-        // from refocusing it (and showing the keyboard) while formatting.
-        // DOM manipulation still works on non-editable content.
-        body.contentEditable = 'false';
-        body.blur();
       }
       bar.classList.add('open');
       main.style.display = 'none';
@@ -648,10 +641,8 @@ window.Notes = {
   closeFormatBar() {
     const bar = document.getElementById('note-format-bar');
     const main = document.getElementById('note-bottombar-main');
-    const body = document.getElementById('note-body');
     if (bar) bar.classList.remove('open');
     if (main) main.style.display = 'flex';
-    if (body) body.contentEditable = 'true';
   },
 
   _currentFontSize() {
