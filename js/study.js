@@ -543,8 +543,11 @@ window.Study = {
             <span class="status-badge ${statusClass[cls.status] || ''}">${statusLabels[cls.status] || cls.status}</span>
           </div>
           <div class="class-hours">${App.formatMinutes(totalMin)} studied</div>
-          ${isPassed && cls.passedDate
-            ? `<div class="class-passed-date">Completed ${App.formatDate(cls.passedDate)}</div>`
+          ${isPassed
+            ? `<div class="class-dates-row">
+                <span class="class-started-date">${cls.startDate ? `Started ${App.formatDate(cls.startDate)}` : ''}</span>
+                <span class="class-passed-date">${cls.passedDate ? `Completed ${App.formatDate(cls.passedDate)}` : ''}</span>
+               </div>`
             : ''}
           ${cls.status === 'not_started'
             ? `<button class="btn-begin-course" onclick="Study.beginCourse(${cls.id})">Begin Course →</button>`
@@ -626,7 +629,8 @@ window.Study = {
   async beginCourse(classId) {
     const cls = await window.db.classes.get(classId);
     if (!cls) return;
-    await window.db.classes.update({ ...cls, status: 'in_progress' });
+    const startDate = cls.startDate || new Date().toISOString().split('T')[0];
+    await window.db.classes.update({ ...cls, status: 'in_progress', startDate });
     App.showToast(`${cls.code} started!`, 'success');
     await this.renderClasses();
   },
@@ -666,7 +670,6 @@ window.Study = {
     modal.querySelector('#class-name-input').value = '';
     modal.querySelector('#class-code-input').value = '';
     modal.querySelector('#class-credits-input').value = '3';
-    modal.querySelector('#class-term-input').value = 'Term 1';
     modal.querySelector('#class-status-select').value = 'not_started';
     App.openModal('modal-add-class');
   },
@@ -675,11 +678,13 @@ window.Study = {
     const name = document.getElementById('class-name-input')?.value.trim();
     const code = document.getElementById('class-code-input')?.value.trim();
     const credits = parseInt(document.getElementById('class-credits-input')?.value) || 3;
-    const term = document.getElementById('class-term-input')?.value.trim() || 'Term 1';
+    const settings = await window.db.settings.getAll();
+    const term = settings.currentTermName || 'Term 1';
     const status = document.getElementById('class-status-select')?.value || 'not_started';
+    const startDate = status === 'in_progress' ? new Date().toISOString().split('T')[0] : null;
 
     if (!name) { App.showToast('Enter a class name.', 'error'); return; }
-    await window.db.classes.add({ name, code, credits, term, status, startDate: null, passedDate: null });
+    await window.db.classes.add({ name, code, credits, term, status, startDate, passedDate: null });
     App.closeAllModals();
     App.showToast('Class added!', 'success');
     await this.renderClasses();

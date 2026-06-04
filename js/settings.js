@@ -11,7 +11,6 @@ window.SettingsModule = {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
     set('settings-name', settings.displayName || 'Richie');
     set('settings-term-name', settings.currentTermName || '');
-    set('settings-term-end', settings.currentTermEnd || '');
     set('settings-timezone', settings.timezone || 'Europe/Warsaw');
     set('settings-units', settings.units || 'metric');
 
@@ -48,9 +47,11 @@ window.SettingsModule = {
 
   async saveSettings() {
     const get = (id) => document.getElementById(id)?.value || '';
+    const termEndDates = { 'Term 1': '2026-04-30', 'Term 2': '2026-10-31', 'Term 3': '2027-04-30' };
+    const termName = get('settings-term-name');
     await window.db.settings.set('displayName', get('settings-name') || 'Richie');
-    await window.db.settings.set('currentTermName', get('settings-term-name'));
-    await window.db.settings.set('currentTermEnd', get('settings-term-end'));
+    await window.db.settings.set('currentTermName', termName);
+    await window.db.settings.set('currentTermEnd', termEndDates[termName] || '');
     const tz = get('settings-timezone') || 'Europe/Warsaw';
     await window.db.settings.set('timezone', tz);
     App._timezone = tz;
