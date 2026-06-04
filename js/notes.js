@@ -1211,10 +1211,17 @@ window.Notes = {
   },
 
   _showPinEntry(callback) {
-    this._pinCallback = callback;
+    const pin = localStorage.getItem('st2_pin');
     const input = document.getElementById('pin-entry-input');
     const error = document.getElementById('pin-entry-error');
-    if (input) input.value = '';
+    if (!pin) {
+      if (input) input.style.display = 'none';
+      if (error) { error.textContent = 'No PIN set. Go to Settings → Security to configure one.'; error.style.display = 'block'; }
+      App.openModal('modal-pin-entry');
+      return;
+    }
+    this._pinCallback = callback;
+    if (input) { input.style.display = ''; input.value = ''; }
     if (error) error.style.display = 'none';
     App.openModal('modal-pin-entry');
     setTimeout(() => input?.focus(), 200);

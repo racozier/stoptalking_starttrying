@@ -835,10 +835,10 @@ function renderTlNoteSection() {
     section.innerHTML = `
       <div class="card-notes-section">
         <div class="card-notes-header">
-          <div class="card-notes-toggle">
+          <button class="card-notes-toggle" onclick="this.closest('.card-notes-section').querySelector('.card-notes-body').classList.toggle('open'); this.querySelector('.card-notes-chevron').style.transform = this.closest('.card-notes-section').querySelector('.card-notes-body').classList.contains('open') ? '' : 'rotate(90deg)'">
             <span class="card-notes-label">Notes</span>
             <span class="card-notes-chevron">›</span>
-          </div>
+          </button>
           <button class="card-note-dots" onclick="showTlNoteMenu(event)">···</button>
         </div>
         <div class="card-notes-body open">
@@ -865,6 +865,7 @@ function showTlNoteMenu(e) {
     </div>`;
   sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
   document.body.appendChild(sheet);
+  requestAnimationFrame(() => sheet.classList.add('open'));
 }
 window.showTlNoteMenu = showTlNoteMenu;
 
