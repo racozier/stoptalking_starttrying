@@ -2832,10 +2832,10 @@ h3 { font-size: 1rem; font-weight: 600; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0 8px;
+  margin-bottom: 16px;
 }
 .habits-title {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text);
   margin: 0;
@@ -2986,7 +2986,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 /* ── Dot Grid ── */
 .habit-dot-grid {
   display: grid;
-  grid-template-columns: repeat(18, 1fr);
+  grid-template-columns: repeat(21, 1fr);
   gap: 2px;
   width: 100%;
 }

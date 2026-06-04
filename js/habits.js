@@ -174,10 +174,10 @@ window.Habits = {
     const today = new Date();
     const dayOfWeek = (today.getDay() + 6) % 7; // 0=Mon
     const startDate = new Date(today);
-    startDate.setDate(today.getDate() - dayOfWeek - 17 * 7);
+    startDate.setDate(today.getDate() - dayOfWeek - 20 * 7);
 
     let html = '';
-    for (let week = 0; week < 18; week++) {
+    for (let week = 0; week < 21; week++) {
       html += '<div class="habit-dot-col">';
       for (let day = 0; day < 7; day++) {
         const d = new Date(startDate);
