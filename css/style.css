@@ -185,7 +185,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   padding: 10px 14px 4px;
   gap: 12px;
 }
-.app-logo { font-size: 2rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; line-height: 1; flex-shrink: 0; }
+.app-logo { font-size: 2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1; flex-shrink: 0; }
 
 /* Flip container — height fits two lines of 2rem motto */
 .greeting-flip-container {
@@ -2579,8 +2579,9 @@ h3 { font-size: 1rem; font-weight: 600; }
 .tl-expand-cal-btn:hover { color: var(--text); }
 .tl-expand-cal-btn svg { stroke: currentColor; }
 .tl-add-event-btn {
-  display: inline-block;
-  margin-top: 12px;
+  display: block;
+  width: fit-content;
+  margin: 12px auto 0;
   padding: 6px 14px;
   background: none;
   border: 1px dashed var(--border);
@@ -2593,21 +2594,6 @@ h3 { font-size: 1rem; font-weight: 600; }
   letter-spacing: 0.03em;
 }
 .tl-add-event-btn:hover { color: var(--text); border-color: var(--subtext); }
-.quick-actions-wrap {
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 16px;
-  padding: 10px 10px 12px;
-  position: relative;
-}
-.quick-actions-label {
-  display: block;
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.55);
-  margin-bottom: 8px;
-}
 .tl-return-today-btn {
   background: none;
   border: none;
