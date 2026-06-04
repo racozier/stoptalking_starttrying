@@ -278,8 +278,8 @@ window.Notes = {
     if (!modal) return;
 
     // Reset any keyboard-adjusted height from a previous session
-    const sheet = modal.querySelector('.modal-sheet');
-    if (sheet) { sheet.style.height = ''; sheet.style.maxHeight = ''; }
+    const vpSheet = modal.querySelector('.modal-sheet');
+    if (vpSheet) { vpSheet.style.height = ''; vpSheet.style.maxHeight = ''; }
 
     let note = null;
     if (noteId) {
@@ -296,6 +296,9 @@ window.Notes = {
     if (body) body.innerHTML = note?.content || '';
     if (pinBtn) pinBtn.classList.toggle('pinned', note?.pinned || false);
     if (drawingSection) drawingSection.style.display = 'none';
+
+    // Upgrade checklist items and set up drag handlers
+    this._setupAllTaskHandlers();
 
     // Tags
     if (tagsContainer) {
@@ -347,20 +350,13 @@ window.Notes = {
         if (!taskItem) return;
         e.preventDefault();
         const textSpan = taskItem.querySelector('.task-text');
-        if (textSpan && textSpan.textContent.replace(/ /g, '').trim() === '') {
+        if (!textSpan || textSpan.textContent.trim() === '') {
+          const isLast = body.querySelectorAll('.task-item').length === 1;
           taskItem.remove();
+          if (isLast) { const ar = body.querySelector('.task-add-row'); if (ar) ar.remove(); }
           return;
         }
-        const newItem = document.createElement('div');
-        newItem.className = 'task-item';
-        newItem.innerHTML = '<input type="checkbox" class="task-check"><span class="task-text"> </span>';
-        taskItem.after(newItem);
-        const newText = newItem.querySelector('.task-text');
-        const range = document.createRange();
-        range.selectNodeContents(newText);
-        range.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(range);
+        this._addTaskItemAfter(taskItem);
       };
       body.addEventListener('keydown', body._checklistKeyHandler);
     }
@@ -411,7 +407,14 @@ window.Notes = {
         else cb.removeAttribute('checked');
       });
     }
-    const contentHtml = body?.innerHTML || '';
+    // Strip UI-only task-add-row before saving
+    let contentHtml = body?.innerHTML || '';
+    if (contentHtml.includes('task-add-row')) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = contentHtml;
+      tmp.querySelectorAll('.task-add-row').forEach((el) => el.remove());
+      contentHtml = tmp.innerHTML;
+    }
 
     // Drawing
     let drawing = null;
@@ -785,21 +788,162 @@ window.Notes = {
   insertChecklist() {
     const body = document.getElementById('note-body');
     if (!body) return;
-    body.focus();
-    document.execCommand('insertHTML', false,
-      '<div class="task-item"><input type="checkbox" class="task-check"><span class="task-text">&nbsp;New task</span></div>');
-    this.closeAddMenu();
-    // Move cursor into the task text
-    const tasks = body.querySelectorAll('.task-item .task-text');
-    const last = tasks[tasks.length - 1];
-    if (last) {
-      const range = document.createRange();
-      const sel = window.getSelection();
-      range.selectNodeContents(last);
-      range.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(range);
+    let addRow = body.querySelector('.task-add-row');
+    if (!addRow) {
+      addRow = this._createTaskAddRow();
+      body.appendChild(addRow);
     }
+    const newItem = this._createTaskItem('');
+    addRow.parentNode.insertBefore(newItem, addRow);
+    this._setupTaskDrag(newItem);
+    const text = newItem.querySelector('.task-text');
+    if (text) text.focus();
+    this.closeAddMenu();
+  },
+
+  _createTaskItem(textContent) {
+    const item = document.createElement('div');
+    item.className = 'task-item';
+    const handle = document.createElement('span');
+    handle.className = 'task-drag-handle';
+    handle.setAttribute('contenteditable', 'false');
+    handle.textContent = '⠿';
+    const check = document.createElement('input');
+    check.type = 'checkbox';
+    check.className = 'task-check';
+    check.setAttribute('contenteditable', 'false');
+    const span = document.createElement('span');
+    span.className = 'task-text';
+    if (textContent) span.textContent = textContent;
+    const del = document.createElement('button');
+    del.className = 'task-del-btn';
+    del.setAttribute('contenteditable', 'false');
+    del.textContent = '✕';
+    del.addEventListener('pointerdown', (e) => e.preventDefault());
+    del.addEventListener('click', () => this._deleteTaskItem(del));
+    item.appendChild(handle);
+    item.appendChild(check);
+    item.appendChild(span);
+    item.appendChild(del);
+    return item;
+  },
+
+  _createTaskAddRow() {
+    const row = document.createElement('div');
+    row.className = 'task-add-row';
+    row.setAttribute('contenteditable', 'false');
+    row.innerHTML = '<span class="task-add-plus">+</span><span>List item</span>';
+    row.addEventListener('pointerdown', (e) => e.preventDefault());
+    row.addEventListener('click', () => this._addTaskItem());
+    return row;
+  },
+
+  _addTaskItem() {
+    const body = document.getElementById('note-body');
+    if (!body) return;
+    let addRow = body.querySelector('.task-add-row');
+    if (!addRow) { addRow = this._createTaskAddRow(); body.appendChild(addRow); }
+    const newItem = this._createTaskItem('');
+    addRow.parentNode.insertBefore(newItem, addRow);
+    this._setupTaskDrag(newItem);
+    const text = newItem.querySelector('.task-text');
+    if (text) text.focus();
+  },
+
+  _addTaskItemAfter(afterItem) {
+    const body = document.getElementById('note-body');
+    if (!body) return;
+    const newItem = this._createTaskItem('');
+    const next = afterItem.nextSibling;
+    afterItem.parentNode.insertBefore(newItem, next || null);
+    this._setupTaskDrag(newItem);
+    const text = newItem.querySelector('.task-text');
+    if (text) text.focus();
+  },
+
+  _deleteTaskItem(btn) {
+    const item = btn.closest('.task-item');
+    if (!item) return;
+    const body = item.closest('#note-body');
+    item.remove();
+    if (body && !body.querySelector('.task-item')) {
+      const addRow = body.querySelector('.task-add-row');
+      if (addRow) addRow.remove();
+    }
+  },
+
+  _setupAllTaskHandlers() {
+    const body = document.getElementById('note-body');
+    if (!body) return;
+    body.querySelectorAll('.task-item').forEach((item) => {
+      if (!item.querySelector('.task-drag-handle')) {
+        const h = document.createElement('span');
+        h.className = 'task-drag-handle';
+        h.setAttribute('contenteditable', 'false');
+        h.textContent = '⠿';
+        item.insertBefore(h, item.firstChild);
+      }
+      if (!item.querySelector('.task-del-btn')) {
+        const d = document.createElement('button');
+        d.className = 'task-del-btn';
+        d.setAttribute('contenteditable', 'false');
+        d.textContent = '✕';
+        d.addEventListener('pointerdown', (e) => e.preventDefault());
+        d.addEventListener('click', () => this._deleteTaskItem(d));
+        item.appendChild(d);
+      }
+      const check = item.querySelector('.task-check');
+      if (check) check.setAttribute('contenteditable', 'false');
+      this._setupTaskDrag(item);
+    });
+    if (body.querySelectorAll('.task-item').length > 0 && !body.querySelector('.task-add-row')) {
+      body.appendChild(this._createTaskAddRow());
+    }
+  },
+
+  _setupTaskDrag(item) {
+    const handle = item.querySelector('.task-drag-handle');
+    if (!handle || handle._dragReady) return;
+    handle._dragReady = true;
+    let dragging = false;
+    let startY = 0;
+    handle.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dragging = true;
+      startY = e.clientY;
+      handle.setPointerCapture(e.pointerId);
+      item.classList.add('task-dragging');
+    });
+    handle.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      item.style.setProperty('--drag-dy', (e.clientY - startY) + 'px');
+      const body = document.getElementById('note-body');
+      if (!body) return;
+      body.querySelectorAll('.task-item:not(.task-dragging)').forEach((o) => o.classList.remove('task-drag-above'));
+      for (const other of body.querySelectorAll('.task-item:not(.task-dragging)')) {
+        const rect = other.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) { other.classList.add('task-drag-above'); break; }
+      }
+    });
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      item.classList.remove('task-dragging');
+      item.style.removeProperty('--drag-dy');
+      const body = document.getElementById('note-body');
+      if (!body) return;
+      const target = body.querySelector('.task-item.task-drag-above');
+      if (target) {
+        body.insertBefore(item, target);
+      } else {
+        const addRow = body.querySelector('.task-add-row');
+        if (addRow) body.insertBefore(item, addRow);
+      }
+      body.querySelectorAll('.task-item').forEach((o) => o.classList.remove('task-drag-above'));
+    };
+    handle.addEventListener('pointerup', endDrag);
+    handle.addEventListener('pointercancel', endDrag);
   },
 
   // ─── Photos ───────────────────────────────────────────────────────────────

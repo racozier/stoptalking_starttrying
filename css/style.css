@@ -1922,10 +1922,79 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 
 /* ── Checklist in editor ─────────────────────────────────────────────────── */
-.task-item { display: flex; align-items: flex-start; gap: 8px; margin: 4px 0; }
-.task-check { width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0; margin-top: 3px; cursor: pointer; }
-.task-text { flex: 1; }
-.task-item:has(.task-check:checked) .task-text { text-decoration: line-through; opacity: 0.55; }
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  position: relative;
+  min-height: 38px;
+}
+.task-drag-handle {
+  color: var(--subtext);
+  cursor: grab;
+  padding: 4px 2px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+.task-drag-handle:active { cursor: grabbing; }
+.task-check {
+  width: 18px; height: 18px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.task-text { flex: 1; outline: none; word-break: break-word; min-width: 0; }
+.task-item:has(.task-check:checked) .task-text { text-decoration: line-through; opacity: 0.45; }
+.task-del-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--subtext);
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.task-item:focus-within .task-del-btn { opacity: 1; }
+.task-add-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0 8px 6px;
+  color: var(--subtext);
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  border-radius: 8px;
+}
+.task-add-row:active { color: var(--text); }
+.task-add-plus {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 300;
+  line-height: 1;
+}
+.task-item.task-dragging { opacity: 0.35; transform: translateY(var(--drag-dy, 0px)); }
+.task-item.task-drag-above::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -1px; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
 
 /* ── Audio Player in editor ──────────────────────────────────────────────── */
 .audio-player-card {
