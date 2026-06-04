@@ -781,6 +781,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .icon-workout { background: rgba(155,28,28,0.3);  color: #FDA4AF; }
 .icon-study   { background: rgba(13,148,136,0.2);  color: #2DD4BF; }
 .icon-note    { background: rgba(245,158,11,0.25); color: #FCD34D; }
+.icon-event   { background: rgba(139,92,246,0.2);  color: #A78BFA; }
 .icon-polish  { background: rgba(202,138,4,0.2);   color: #FDE68A; }
 [data-theme="light"] .icon-weight  { background: rgba(37,99,235,0.12);  color: #1D4ED8; }
 [data-theme="light"] .icon-run     { background: rgba(14,165,233,0.12); color: #0284C7; }
@@ -2577,6 +2578,22 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .tl-expand-cal-btn:hover { color: var(--text); }
 .tl-expand-cal-btn svg { stroke: currentColor; }
+.tl-add-event-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 9px 0;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  color: var(--subtext);
+  font-size: 0.78rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+}
+.tl-add-event-btn:hover { color: var(--text); border-color: var(--subtext); }
 .tl-return-today-btn {
   background: none;
   border: none;

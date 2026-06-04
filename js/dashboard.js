@@ -339,18 +339,15 @@ window.Dashboard = {
     const today = new Date().toISOString().split('T')[0];
     const dateStr = window._tlDate || today;
 
-    const [weights, workouts, runs, study] = await Promise.all([
-      window.db.weight.getAll(),
+    const [workouts, runs, study, customEvents] = await Promise.all([
       window.db.workouts.getAll(),
       window.db.runs.getAll(),
       window.db.study.getAll(),
+      window.db.events.getAll(),
     ]);
 
     const events = [];
 
-    weights.filter((w) => w.date.startsWith(dateStr)).forEach((w) => {
-      events.push({ time: w.date, lucide: 'scale', iconClass: 'icon-weight', title: 'Weight Logged', sub: `${w.value} kg`, type: 'weight', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
-    });
     runs.filter((r) => r.date.startsWith(dateStr)).forEach((r) => {
       events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id, polyline: r.polyline, hasNotes: !!(r.notes && r.notes.trim()) });
     });
@@ -361,7 +358,9 @@ window.Dashboard = {
       const isPolish = s.subject === 'Polish Language';
       events.push({ time: s.date, lucide: isPolish ? null : 'book-open', iconClass: isPolish ? 'icon-polish' : 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id, hasNotes: !!(s.notes && s.notes.trim()), isPolish });
     });
-
+    customEvents.filter((e) => e.date.startsWith(dateStr)).forEach((e) => {
+      events.push({ time: e.date, lucide: 'calendar', iconClass: 'icon-event', title: e.title, sub: e.notes || '', type: 'event', id: e.id });
+    });
 
     events.sort((a, b) => new Date(a.time) - new Date(b.time));
 
@@ -1280,3 +1279,31 @@ async function saveWeight() {
 }
 window.saveWeight = saveWeight;
 window.openLogWeightModal = openLogWeightModal;
+
+function openAddEventModal() {
+  const dateStr = window._tlDate || new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const localTime = `${dateStr}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const titleEl = document.getElementById('event-title-input');
+  const timeEl = document.getElementById('event-time-input');
+  const notesEl = document.getElementById('event-notes-input');
+  if (titleEl) titleEl.value = '';
+  if (timeEl) timeEl.value = localTime;
+  if (notesEl) notesEl.value = '';
+  App.openModal('modal-add-event');
+  setTimeout(() => titleEl?.focus(), 200);
+}
+
+async function saveCustomEvent() {
+  const title = document.getElementById('event-title-input')?.value.trim();
+  if (!title) return;
+  const timeVal = document.getElementById('event-time-input')?.value;
+  const notes = document.getElementById('event-notes-input')?.value.trim() || '';
+  const date = timeVal ? new Date(timeVal).toISOString() : new Date().toISOString();
+  await window.db.events.add({ date, title, notes });
+  App.closeAllModals();
+  if (App.currentTab === 'dashboard') await Dashboard.renderTimeline();
+}
+
+window.openAddEventModal = openAddEventModal;
+window.saveCustomEvent = saveCustomEvent;

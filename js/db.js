@@ -1,6 +1,6 @@
 // IndexedDB via idb library (loaded from CDN before this script)
 const DB_NAME = 'st2_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let _db = null;
 
@@ -39,6 +39,10 @@ async function getDB() {
       }
       if (!db.objectStoreNames.contains('strava_tokens')) {
         db.createObjectStore('strava_tokens');
+      }
+      if (!db.objectStoreNames.contains('events')) {
+        const ev = db.createObjectStore('events', { keyPath: 'id', autoIncrement: true });
+        ev.createIndex('date', 'date');
       }
     },
   });
@@ -269,10 +273,26 @@ window.db = {
     },
   },
 
+  events: {
+    async add(entry) {
+      const d = await getDB();
+      return d.add('events', entry);
+    },
+    async getAll() {
+      const d = await getDB();
+      const all = await d.getAllFromIndex('events', 'date');
+      return all.sort((a, b) => new Date(b.date) - new Date(a.date));
+    },
+    async delete(id) {
+      const d = await getDB();
+      return d.delete('events', id);
+    },
+  },
+
   async exportAll() {
     const d = await getDB();
     const result = {};
-    const stores = ['weight', 'workouts', 'runs', 'study_sessions', 'classes', 'notes'];
+    const stores = ['weight', 'workouts', 'runs', 'study_sessions', 'classes', 'notes', 'events'];
     for (const store of stores) {
       result[store] = await d.getAll(store);
     }
@@ -285,7 +305,7 @@ window.db = {
 
   async importAll(data) {
     const d = await getDB();
-    const stores = ['weight', 'workouts', 'runs', 'study_sessions', 'classes', 'notes'];
+    const stores = ['weight', 'workouts', 'runs', 'study_sessions', 'classes', 'notes', 'events'];
     for (const store of stores) {
       if (!data[store]) continue;
       const tx = d.transaction(store, 'readwrite');
