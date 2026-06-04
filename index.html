@@ -1417,50 +1417,111 @@
 
 <!-- ── Habit Modal ──────────────────────────────────────────────────────── -->
 <div id="modal-habit" class="modal-backdrop">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="habit-modal-title">Add Habit</h3>
-      <button class="modal-close" onclick="App.closeAllModals()">×</button>
+  <div class="modal-habit-sheet">
+    <div class="habit-modal-header">
+      <button class="habit-modal-back" onclick="App.closeAllModals()">←</button>
+      <span class="habit-modal-title" id="habit-modal-title">Add Habit</span>
+      <button class="habit-modal-save-btn" onclick="Habits.saveHabit()">Save ✓</button>
     </div>
-    <div class="modal-body">
+    <div class="habit-form-section">
       <input type="hidden" id="habit-modal-id" />
-      <div class="form-group">
-        <label class="form-label">Name</label>
-        <input class="form-input" id="habit-modal-name" type="text" placeholder="e.g. Drink 8 glasses of water" />
+      <div class="habit-form-field">
+        <input class="habit-form-input" id="habit-modal-name" type="text" placeholder="Enter Habit Title" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Emoji (optional)</label>
-        <input class="form-input" id="habit-modal-emoji" type="text" placeholder="💧" maxlength="2" style="max-width:80px" />
+      <div class="habit-form-field">
+        <input class="habit-form-input" id="habit-modal-desc" type="text" placeholder="Enter Description (optional)" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Frequency</label>
-        <select class="form-input" id="habit-modal-freq" onchange="Habits.freqChanged(this.value)">
+      <div class="habit-form-field">
+        <select class="habit-form-input" id="habit-modal-freq" onchange="Habits.freqChanged(this.value)">
           <option value="daily">Daily</option>
           <option value="weekly">Weekly (x times per week)</option>
         </select>
       </div>
-      <div class="form-group" id="habit-modal-target-row" style="display:none">
-        <label class="form-label">Times per week</label>
-        <input class="form-input" id="habit-modal-target" type="number" min="1" max="7" value="3" style="max-width:80px" />
+      <div class="habit-form-field" id="habit-modal-target-row" style="display:none">
+        <input class="habit-form-input" id="habit-modal-target" type="number" min="1" max="7" value="3" placeholder="Times per week" />
       </div>
-      <div class="form-group">
-        <label class="form-label">Color</label>
-        <div class="habit-color-swatches">
-          <button class="habit-color-swatch selected" data-color="#3B82F6" style="background:#3B82F6" onclick="Habits.selectColor('#3B82F6')"></button>
-          <button class="habit-color-swatch" data-color="#10B981" style="background:#10B981" onclick="Habits.selectColor('#10B981')"></button>
-          <button class="habit-color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="Habits.selectColor('#F59E0B')"></button>
-          <button class="habit-color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="Habits.selectColor('#EF4444')"></button>
-          <button class="habit-color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="Habits.selectColor('#8B5CF6')"></button>
-          <button class="habit-color-swatch" data-color="#EC4899" style="background:#EC4899" onclick="Habits.selectColor('#EC4899')"></button>
-          <button class="habit-color-swatch" data-color="#06B6D4" style="background:#06B6D4" onclick="Habits.selectColor('#06B6D4')"></button>
-          <button class="habit-color-swatch" data-color="#F97316" style="background:#F97316" onclick="Habits.selectColor('#F97316')"></button>
-        </div>
-        <input type="hidden" id="habit-modal-color" value="#3B82F6" />
+      <div class="habit-picker-row">
+        <button class="habit-picker-cell" onclick="Habits.toggleColorPicker()">
+          <div class="habit-picker-circle" id="habit-color-preview" style="background:#3B82F6"></div>
+          <span>Color</span>
+        </button>
+        <button class="habit-picker-cell" onclick="Habits.toggleEmojiPicker()">
+          <div class="habit-picker-emoji-circle" id="habit-emoji-preview">💧</div>
+          <span>Icon</span>
+        </button>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
-      <button class="btn btn-primary" onclick="Habits.saveHabit()">Save</button>
+      <div class="habit-palette-row" id="habit-color-palette" style="display:none">
+          <button class="habit-color-option selected" data-color="#3B82F6" style="background:#3B82F6" onclick="Habits.selectColor('#3B82F6')"></button>
+          <button class="habit-color-option" data-color="#2563EB" style="background:#2563EB" onclick="Habits.selectColor('#2563EB')"></button>
+          <button class="habit-color-option" data-color="#60A5FA" style="background:#60A5FA" onclick="Habits.selectColor('#60A5FA')"></button>
+          <button class="habit-color-option" data-color="#93C5FD" style="background:#93C5FD" onclick="Habits.selectColor('#93C5FD')"></button>
+          <button class="habit-color-option" data-color="#10B981" style="background:#10B981" onclick="Habits.selectColor('#10B981')"></button>
+          <button class="habit-color-option" data-color="#059669" style="background:#059669" onclick="Habits.selectColor('#059669')"></button>
+          <button class="habit-color-option" data-color="#34D399" style="background:#34D399" onclick="Habits.selectColor('#34D399')"></button>
+          <button class="habit-color-option" data-color="#6EE7B7" style="background:#6EE7B7" onclick="Habits.selectColor('#6EE7B7')"></button>
+          <button class="habit-color-option" data-color="#F59E0B" style="background:#F59E0B" onclick="Habits.selectColor('#F59E0B')"></button>
+          <button class="habit-color-option" data-color="#D97706" style="background:#D97706" onclick="Habits.selectColor('#D97706')"></button>
+          <button class="habit-color-option" data-color="#FBBF24" style="background:#FBBF24" onclick="Habits.selectColor('#FBBF24')"></button>
+          <button class="habit-color-option" data-color="#FDE68A" style="background:#FDE68A" onclick="Habits.selectColor('#FDE68A')"></button>
+          <button class="habit-color-option" data-color="#F97316" style="background:#F97316" onclick="Habits.selectColor('#F97316')"></button>
+          <button class="habit-color-option" data-color="#EA580C" style="background:#EA580C" onclick="Habits.selectColor('#EA580C')"></button>
+          <button class="habit-color-option" data-color="#FB923C" style="background:#FB923C" onclick="Habits.selectColor('#FB923C')"></button>
+          <button class="habit-color-option" data-color="#FED7AA" style="background:#FED7AA" onclick="Habits.selectColor('#FED7AA')"></button>
+          <button class="habit-color-option" data-color="#EF4444" style="background:#EF4444" onclick="Habits.selectColor('#EF4444')"></button>
+          <button class="habit-color-option" data-color="#DC2626" style="background:#DC2626" onclick="Habits.selectColor('#DC2626')"></button>
+          <button class="habit-color-option" data-color="#F87171" style="background:#F87171" onclick="Habits.selectColor('#F87171')"></button>
+          <button class="habit-color-option" data-color="#FECACA" style="background:#FECACA" onclick="Habits.selectColor('#FECACA')"></button>
+          <button class="habit-color-option" data-color="#EC4899" style="background:#EC4899" onclick="Habits.selectColor('#EC4899')"></button>
+          <button class="habit-color-option" data-color="#DB2777" style="background:#DB2777" onclick="Habits.selectColor('#DB2777')"></button>
+          <button class="habit-color-option" data-color="#F472B6" style="background:#F472B6" onclick="Habits.selectColor('#F472B6')"></button>
+          <button class="habit-color-option" data-color="#FBCFE8" style="background:#FBCFE8" onclick="Habits.selectColor('#FBCFE8')"></button>
+          <button class="habit-color-option" data-color="#8B5CF6" style="background:#8B5CF6" onclick="Habits.selectColor('#8B5CF6')"></button>
+          <button class="habit-color-option" data-color="#7C3AED" style="background:#7C3AED" onclick="Habits.selectColor('#7C3AED')"></button>
+          <button class="habit-color-option" data-color="#A78BFA" style="background:#A78BFA" onclick="Habits.selectColor('#A78BFA')"></button>
+          <button class="habit-color-option" data-color="#DDD6FE" style="background:#DDD6FE" onclick="Habits.selectColor('#DDD6FE')"></button>
+          <button class="habit-color-option" data-color="#06B6D4" style="background:#06B6D4" onclick="Habits.selectColor('#06B6D4')"></button>
+          <button class="habit-color-option" data-color="#0891B2" style="background:#0891B2" onclick="Habits.selectColor('#0891B2')"></button>
+          <button class="habit-color-option" data-color="#22D3EE" style="background:#22D3EE" onclick="Habits.selectColor('#22D3EE')"></button>
+          <button class="habit-color-option" data-color="#A5F3FC" style="background:#A5F3FC" onclick="Habits.selectColor('#A5F3FC')"></button>
+          <button class="habit-color-option" data-color="#14B8A6" style="background:#14B8A6" onclick="Habits.selectColor('#14B8A6')"></button>
+          <button class="habit-color-option" data-color="#0D9488" style="background:#0D9488" onclick="Habits.selectColor('#0D9488')"></button>
+          <button class="habit-color-option" data-color="#2DD4BF" style="background:#2DD4BF" onclick="Habits.selectColor('#2DD4BF')"></button>
+      </div>
+      <div class="habit-emoji-grid" id="habit-emoji-palette" style="display:none">
+          <button class="habit-emoji-option selected" data-emoji="💧" onclick="Habits.selectEmoji('💧')">💧</button>
+          <button class="habit-emoji-option" data-emoji="🏃" onclick="Habits.selectEmoji('🏃')">🏃</button>
+          <button class="habit-emoji-option" data-emoji="💪" onclick="Habits.selectEmoji('💪')">💪</button>
+          <button class="habit-emoji-option" data-emoji="📚" onclick="Habits.selectEmoji('📚')">📚</button>
+          <button class="habit-emoji-option" data-emoji="🧘" onclick="Habits.selectEmoji('🧘')">🧘</button>
+          <button class="habit-emoji-option" data-emoji="🥗" onclick="Habits.selectEmoji('🥗')">🥗</button>
+          <button class="habit-emoji-option" data-emoji="😴" onclick="Habits.selectEmoji('😴')">😴</button>
+          <button class="habit-emoji-option" data-emoji="🎯" onclick="Habits.selectEmoji('🎯')">🎯</button>
+          <button class="habit-emoji-option" data-emoji="✍️" onclick="Habits.selectEmoji('✍️')">✍️</button>
+          <button class="habit-emoji-option" data-emoji="🏋️" onclick="Habits.selectEmoji('🏋️')">🏋️</button>
+          <button class="habit-emoji-option" data-emoji="🚴" onclick="Habits.selectEmoji('🚴')">🚴</button>
+          <button class="habit-emoji-option" data-emoji="🧠" onclick="Habits.selectEmoji('🧠')">🧠</button>
+          <button class="habit-emoji-option" data-emoji="💊" onclick="Habits.selectEmoji('💊')">💊</button>
+          <button class="habit-emoji-option" data-emoji="🥤" onclick="Habits.selectEmoji('🥤')">🥤</button>
+          <button class="habit-emoji-option" data-emoji="🌟" onclick="Habits.selectEmoji('🌟')">🌟</button>
+          <button class="habit-emoji-option" data-emoji="🔥" onclick="Habits.selectEmoji('🔥')">🔥</button>
+          <button class="habit-emoji-option" data-emoji="⚡" onclick="Habits.selectEmoji('⚡')">⚡</button>
+          <button class="habit-emoji-option" data-emoji="🎵" onclick="Habits.selectEmoji('🎵')">🎵</button>
+          <button class="habit-emoji-option" data-emoji="🧹" onclick="Habits.selectEmoji('🧹')">🧹</button>
+          <button class="habit-emoji-option" data-emoji="💰" onclick="Habits.selectEmoji('💰')">💰</button>
+          <button class="habit-emoji-option" data-emoji="🛌" onclick="Habits.selectEmoji('🛌')">🛌</button>
+          <button class="habit-emoji-option" data-emoji="☀️" onclick="Habits.selectEmoji('☀️')">☀️</button>
+          <button class="habit-emoji-option" data-emoji="🌿" onclick="Habits.selectEmoji('🌿')">🌿</button>
+          <button class="habit-emoji-option" data-emoji="🍎" onclick="Habits.selectEmoji('🍎')">🍎</button>
+          <button class="habit-emoji-option" data-emoji="🚶" onclick="Habits.selectEmoji('🚶')">🚶</button>
+          <button class="habit-emoji-option" data-emoji="🧗" onclick="Habits.selectEmoji('🧗')">🧗</button>
+          <button class="habit-emoji-option" data-emoji="⏰" onclick="Habits.selectEmoji('⏰')">⏰</button>
+          <button class="habit-emoji-option" data-emoji="📝" onclick="Habits.selectEmoji('📝')">📝</button>
+          <button class="habit-emoji-option" data-emoji="🎨" onclick="Habits.selectEmoji('🎨')">🎨</button>
+          <button class="habit-emoji-option" data-emoji="🏊" onclick="Habits.selectEmoji('🏊')">🏊</button>
+          <button class="habit-emoji-option" data-emoji="🤸" onclick="Habits.selectEmoji('🤸')">🤸</button>
+      </div>
+      <input type="hidden" id="habit-modal-color" value="#3B82F6" />
+      <input type="hidden" id="habit-modal-emoji" value="💧" />
     </div>
   </div>
 </div>
@@ -1561,6 +1622,17 @@
 <script src="js/notes.js"></script>
 <script src="js/habits.js"></script>
 <script src="js/settings.js"></script>
+
+
+<!-- ── Habit Note Panel ──────────────────────────────────────────────────── -->
+<div id="habit-note-panel" class="habit-note-panel">
+  <div class="habit-note-panel-header">
+    <button class="habit-note-panel-back" onclick="Habits.closeNotePanel()">←</button>
+    <span class="habit-note-panel-title" id="habit-note-panel-title">Note</span>
+    <button class="habit-note-panel-save" onclick="Habits.saveNote()">Save</button>
+  </div>
+  <textarea id="habit-note-textarea" class="habit-note-textarea" placeholder="Add a note about this habit..."></textarea>
+</div>
 
 </body>
 </html>
