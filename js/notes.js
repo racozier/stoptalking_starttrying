@@ -299,8 +299,22 @@ window.Notes = {
   renderNoteCardSmall(note) {
     const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
     const hasPhoto = note.photos?.length > 0;
+    if (note.locked) {
+      return `
+    <div class="note-card-small note-card-locked" data-id="${note.id}" data-locked="1" style="${bgStyle}">
+      <div class="note-lock-cover">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span class="note-lock-label">Locked</span>
+      </div>
+      <div class="note-card-blur-content">
+        ${hasPhoto ? `<img class="note-card-small-photo" src="${note.photos[0].dataUrl}" alt="">` : ''}
+        ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
+        <div class="note-card-date">${App.formatDate(note.updated, { relative: true })}</div>
+      </div>
+    </div>`;
+    }
     return `
-    <div class="note-card-small${note.locked ? ' note-card-locked' : ''}" data-id="${note.id}" data-locked="${note.locked ? '1' : '0'}" style="${bgStyle}">
+    <div class="note-card-small" data-id="${note.id}" data-locked="0" style="${bgStyle}">
       ${hasPhoto ? `<img class="note-card-small-photo" src="${note.photos[0].dataUrl}" alt="">` : ''}
       ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
       <div class="note-card-date">${App.formatDate(note.updated, { relative: true })}</div>
