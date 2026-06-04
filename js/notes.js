@@ -1,15 +1,24 @@
 const NOTE_COLORS = [
-  { id: 'default', bg: null,      label: 'Default' },
-  { id: 'red',     bg: '#5c2020', label: 'Red' },
-  { id: 'coral',   bg: '#5c3315', label: 'Coral' },
-  { id: 'yellow',  bg: '#4d3c08', label: 'Yellow' },
-  { id: 'teal',    bg: '#0b3d38', label: 'Teal' },
-  { id: 'blue',    bg: '#0d2d5e', label: 'Blue' },
-  { id: 'green',   bg: '#1b3d1b', label: 'Green' },
-  { id: 'purple',  bg: '#321563', label: 'Purple' },
-  { id: 'pink',    bg: '#5a1a3a', label: 'Pink' },
-  { id: 'gray',    bg: '#2d2d2d', label: 'Gray' },
+  { id: 'default', bg: null,      lightBg: null,      label: 'Default' },
+  { id: 'red',     bg: '#5c2020', lightBg: '#FFD6D6', label: 'Red' },
+  { id: 'coral',   bg: '#5c3315', lightBg: '#FFE0CC', label: 'Coral' },
+  { id: 'yellow',  bg: '#4d3c08', lightBg: '#FFF3C4', label: 'Yellow' },
+  { id: 'teal',    bg: '#0b3d38', lightBg: '#C8F0EB', label: 'Teal' },
+  { id: 'blue',    bg: '#0d2d5e', lightBg: '#CCDEFF', label: 'Blue' },
+  { id: 'green',   bg: '#1b3d1b', lightBg: '#C8EDCA', label: 'Green' },
+  { id: 'purple',  bg: '#321563', lightBg: '#E4D4FF', label: 'Purple' },
+  { id: 'pink',    bg: '#5a1a3a', lightBg: '#FFD4EE', label: 'Pink' },
+  { id: 'gray',    bg: '#2d2d2d', lightBg: '#E4E4E4', label: 'Gray' },
 ];
+
+function resolveNoteColor(stored) {
+  if (!stored) return null;
+  if (document.documentElement.getAttribute('data-theme') === 'light') {
+    const def = NOTE_COLORS.find((c) => c.bg === stored);
+    if (def?.lightBg) return def.lightBg;
+  }
+  return stored;
+}
 
 window.Notes = {
   _currentNoteId: null,
@@ -188,7 +197,7 @@ window.Notes = {
     if (grid) {
       grid.innerHTML = NOTE_COLORS.map((c) =>
         `<button class="note-color-swatch${c.bg === null ? ' swatch-default' : ''}"
-          style="${c.bg ? `background:${c.bg}` : ''}"
+          style="${c.bg ? `background:${resolveNoteColor(c.bg)}` : ''}"
           onclick="NotesApplyColor('${c.id}')"
           title="${c.label}">
           ${c.bg === null ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' : ''}
@@ -257,7 +266,7 @@ window.Notes = {
   },
 
   renderNoteCard(note) {
-    const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
+    const bgStyle = note.color ? `background:${resolveNoteColor(note.color)};border-color:${resolveNoteColor(note.color)}` : '';
     const hasPhotos = note.photos?.length > 0;
     const hasAudio = !!note.audio;
     const tagsHtml = (note.tags || []).map((t) => `<span class="tag-chip">${App.escapeHtml(t)}</span>`).join('');
@@ -297,7 +306,7 @@ window.Notes = {
   },
 
   renderNoteCardSmall(note) {
-    const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
+    const bgStyle = note.color ? `background:${resolveNoteColor(note.color)};border-color:${resolveNoteColor(note.color)}` : '';
     const hasPhoto = note.photos?.length > 0;
     if (note.locked) {
       return `
@@ -377,7 +386,7 @@ window.Notes = {
 
     // Apply note color to editor background
     const sheet = modal.querySelector('.modal-sheet');
-    if (sheet) sheet.style.background = note?.color || '';
+    if (sheet) sheet.style.background = resolveNoteColor(note?.color) || '';
 
     // Set lock button state
     this._noteLocked = note?.locked || false;
