@@ -2832,22 +2832,22 @@ h3 { font-size: 1rem; font-weight: 600; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 16px 8px;
+  padding: 10px 0 8px;
 }
 .habits-title {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--text);
   margin: 0;
 }
 .habits-add-btn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--accent);
   color: #fff;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2863,46 +2863,46 @@ h3 { font-size: 1rem; font-weight: 600; }
 .habits-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 0 12px 80px;
+  gap: 10px;
+  padding: 0 0 80px;
 }
 
 /* ── Habit Card ── */
 .habit-card {
   background: var(--card);
   border-radius: 14px;
-  padding: 14px 12px 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  padding: 10px 10px 9px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   overflow: hidden;
 }
 .habit-card-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   gap: 8px;
 }
 .habit-card-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   flex: 1;
   min-width: 0;
 }
 .habit-emoji-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
 }
 .habit-info { min-width: 0; }
 .habit-name {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
@@ -2910,24 +2910,35 @@ h3 { font-size: 1rem; font-weight: 600; }
   text-overflow: ellipsis;
 }
 .habit-freq {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--subtext);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 .habit-card-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-shrink: 0;
 }
+.habit-streak-chip {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--subtext);
+  padding: 0 2px;
+  height: 36px;
+  min-width: 32px;
+}
+.habit-streak-chip.active { color: #F97316; }
 .habit-note-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--surface);
   border: none;
   color: var(--subtext);
-  font-size: 0.85rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2936,13 +2947,13 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .habit-note-btn.has-note { color: var(--accent); }
 .habit-check-circle {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 2.5px solid var(--habit-color, var(--accent));
-  background: transparent;
-  color: var(--habit-color, var(--accent));
-  font-size: 1.15rem;
+  border: none;
+  background: var(--surface);
+  color: var(--subtext);
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2957,7 +2968,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   color: #fff;
 }
 .habit-weekly-badge {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
   line-height: 1;
 }
@@ -2965,7 +2976,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   background: none;
   border: none;
   color: var(--subtext);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   padding: 4px 2px;
   letter-spacing: 2px;
@@ -2975,14 +2986,13 @@ h3 { font-size: 1rem; font-weight: 600; }
 .habit-dot-grid {
   display: grid;
   grid-template-columns: repeat(13, 1fr);
-  gap: 4px;
+  gap: 3px;
   width: 100%;
-  margin-bottom: 4px;
 }
 .habit-dot-col {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 .habit-dot {
   aspect-ratio: 1;
@@ -2994,7 +3004,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   background: var(--habit-color, var(--accent));
   opacity: 0.9;
 }
-.habit-dot.future { opacity: 0.25; }
+.habit-dot.future { opacity: 0.2; }
 
 /* ── Habit Add/Edit Modal (full-height bottom sheet) ── */
 #modal-habit.modal-backdrop { align-items: flex-end; }

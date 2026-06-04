@@ -38,7 +38,7 @@ window.Habits = {
     }
     el.innerHTML = `
       <div class="habits-header">
-        <h2 class="habits-title">Habits</h2>
+        <h2 class="habits-title">Quick Habit Tracker</h2>
         <button class="habits-add-btn" onclick="Habits.openAddModal()">＋</button>
       </div>
       <div class="habits-list" id="habits-list">
@@ -49,6 +49,43 @@ window.Habits = {
     `;
   },
 
+  _calcStreak(logs, today, isDaily, targetPerWeek) {
+    if (!logs.length) return 0;
+    const logSet = new Set(logs);
+    if (isDaily) {
+      let streak = 0;
+      const d = new Date(today);
+      if (!logSet.has(today)) d.setDate(d.getDate() - 1);
+      while (streak < 1000) {
+        if (!logSet.has(d.toISOString().split('T')[0])) break;
+        streak++;
+        d.setDate(d.getDate() - 1);
+      }
+      return streak;
+    } else {
+      // Weekly: consecutive weeks meeting target
+      let streak = 0;
+      const d = new Date(today);
+      const dow = (d.getDay() + 6) % 7;
+      d.setDate(d.getDate() - dow);
+      while (streak < 200) {
+        const weekDates = Array.from({ length: 7 }, (_, i) => {
+          const wd = new Date(d);
+          wd.setDate(d.getDate() + i);
+          return wd.toISOString().split('T')[0];
+        });
+        const count = weekDates.filter(wd => logSet.has(wd)).length;
+        if (count < targetPerWeek) {
+          if (streak === 0) { d.setDate(d.getDate() - 7); continue; }
+          break;
+        }
+        streak++;
+        d.setDate(d.getDate() - 7);
+      }
+      return streak;
+    }
+  },
+
   _renderHabitCard(habit) {
     const today = new Date().toISOString().split('T')[0];
     const logs = this._logs[habit.id] || [];
@@ -56,27 +93,25 @@ window.Habits = {
     const isDaily = habit.frequency === 'daily';
     const color = habit.color || '#3B82F6';
     const emoji = habit.emoji || '⭐';
+    const target = habit.targetPerWeek || 1;
 
-    let isDone, checkLabel;
+    let isDone, checkInner;
     if (isDaily) {
       isDone = logSet.has(today);
-      checkLabel = isDone ? '✓' : '';
+      checkInner = '✓';
     } else {
       const weekDates = App.getWeekDates();
       const doneCount = weekDates.filter(d => logSet.has(d)).length;
-      const target = habit.targetPerWeek || 1;
       isDone = doneCount >= target;
-      checkLabel = `<span class="habit-weekly-badge">${doneCount}/${target}</span>`;
+      checkInner = isDone ? '✓' : `<span class="habit-weekly-badge">${doneCount}/${target}</span>`;
     }
 
-    const freq = isDaily ? 'Daily' : `${habit.targetPerWeek}× / week`;
+    const streak = this._calcStreak(logs, today, isDaily, target);
+    const freq = isDaily ? 'Daily' : `${target}× / week`;
     const desc = habit.description ? App.escapeHtml(habit.description) : freq;
     const hasNote = !!habit.note;
     const dotGrid = this._buildDotGrid(logs);
-
-    const toggleFn = isDaily
-      ? `Habits.toggleToday(${habit.id})`
-      : `Habits.toggleWeekly(${habit.id})`;
+    const toggleFn = isDaily ? `Habits.toggleToday(${habit.id})` : `Habits.toggleWeekly(${habit.id})`;
 
     return `
       <div class="habit-card" style="--habit-color:${color}" data-id="${habit.id}">
@@ -89,14 +124,15 @@ window.Habits = {
             </div>
           </div>
           <div class="habit-card-actions">
+            <div class="habit-streak-chip${streak > 0 ? ' active' : ''}">🔥${streak}</div>
             <button class="habit-note-btn${hasNote ? ' has-note' : ''}" onclick="Habits.openNotePanel(${habit.id})" title="Note">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/>
                 <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
               </svg>
             </button>
             <button class="habit-check-circle${isDone ? ' done' : ''}" onclick="${toggleFn}" style="--habit-color:${color}">
-              ${isDone ? '✓' : checkLabel}
+              ${checkInner}
             </button>
             <button class="habit-dots-btn" onclick="Habits.showMenu(event,${habit.id})">···</button>
           </div>
