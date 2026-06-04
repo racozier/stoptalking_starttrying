@@ -590,6 +590,10 @@ window.Study = {
 
       row.addEventListener('touchend', (e) => {
         const dx = e.changedTouches[0].clientX - startX;
+        if (row.classList.contains('swipe-open') && deleteBtn.contains(e.target)) {
+          // Tap landed on the revealed delete button — let click fire
+          return;
+        }
         if (dx < -50) {
           card.style.transform = 'translateX(-72px)';
           row.classList.add('swipe-open');
