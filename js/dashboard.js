@@ -451,8 +451,7 @@ async function renderWeightExpandChart(period) {
   const sorted = [...allWeights].sort((a, b) => new Date(a.date) - new Date(b.date));
   const now = new Date();
   let cutoff = null;
-  if (period === '3D') cutoff = new Date(now - 3 * 864e5);
-  else if (period === '1W') cutoff = new Date(now - 7 * 864e5);
+  if (period === '1W') cutoff = new Date(now - 7 * 864e5);
   else if (period === '1M') cutoff = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
   else if (period === '3M') cutoff = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
   const data = cutoff ? sorted.filter((w) => new Date(w.date) >= cutoff) : sorted;

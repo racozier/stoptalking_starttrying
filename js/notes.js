@@ -243,13 +243,13 @@ window.Notes = {
     const allLocked = notes.every((n) => n?.locked);
     if (allLocked) {
       this._showPinEntry(async () => {
-        for (const n of notes) if (n) await window.db.notes.update({ ...n, locked: false });
+        for (const n of notes) if (n) await window.db.notes.update({ ...n, locked: false }, { preserveUpdated: true });
         this.exitSelectionMode();
         await this.renderGrid();
         App.showToast('Notes unlocked.', 'success');
       });
     } else {
-      for (const n of notes) if (n) await window.db.notes.update({ ...n, locked: true });
+      for (const n of notes) if (n) await window.db.notes.update({ ...n, locked: true }, { preserveUpdated: true });
       this.exitSelectionMode();
       await this.renderGrid();
       App.showToast('Notes locked.', 'success');
