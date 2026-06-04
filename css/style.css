@@ -2422,6 +2422,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .tl-exercise-row:last-child { border-bottom: none; }
 .tl-ex-name { font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 80px; }
 .tl-ex-sets { font-size: 0.78rem; color: var(--subtext); }
+.tl-set-sep { color: var(--border); font-weight: 300; }
 .tl-no-data { font-size: 0.8rem; color: var(--subtext); margin: 6px 0 0; }
 
 /* ── Quick Study elapsed display ─────────────────────────────────────────── */

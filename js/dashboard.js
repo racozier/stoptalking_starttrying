@@ -911,7 +911,7 @@ async function openTlDetail(type, id) {
     const exList = (w.exercises || []).map((ex) => `
       <div class="tl-exercise-row">
         <div class="tl-ex-name">${App.escapeHtml(ex.name)}</div>
-        <div class="tl-ex-sets">${(ex.sets || []).map((s) => `${s.reps}×${s.weight}kg`).join('  ')}</div>
+        <div class="tl-ex-sets">${(ex.sets || []).map((s) => `${s.reps}×${s.weight}kg`).join(' <span class="tl-set-sep">|</span> ')}</div>
       </div>`).join('');
     statsEl.innerHTML = `
       <div class="tl-detail-stat-row"><span>${w.setCount || 0} sets</span><span>${w.exerciseCount || 0} exercises</span></div>
