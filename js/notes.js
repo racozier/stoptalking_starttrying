@@ -431,12 +431,92 @@ window.Notes = {
   },
 
   execFormat(cmd, value = null) {
+    // Inline toggles (bold/italic/underline/strikethrough) use direct DOM
+    // wrapping so the body is never focused and the mobile keyboard stays down.
+    const wrapMap = { bold: 'strong', italic: 'em', underline: 'u', strikeThrough: 's' };
+    if (!value && wrapMap[cmd]) {
+      this._toggleInlineWrap(wrapMap[cmd]);
+      return;
+    }
+    // Block / structural commands still need execCommand
     if (this._savedRange) {
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(this._savedRange);
     }
     document.execCommand(cmd, false, value);
+    const sel2 = window.getSelection();
+    if (sel2 && sel2.rangeCount > 0) this._savedRange = sel2.getRangeAt(0).cloneRange();
+  },
+
+  // Wrap / unwrap selected text in an inline element without using execCommand
+  // (avoids auto-focus of contenteditable which shows the mobile keyboard).
+  _toggleInlineWrap(tagName) {
+    if (this._savedRange) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(this._savedRange);
+    }
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+    const body = document.getElementById('note-body');
+    if (!body) return;
+
+    // Check if selection is already inside a matching element → unwrap
+    let container = range.commonAncestorContainer;
+    if (container.nodeType === Node.TEXT_NODE) container = container.parentElement;
+    let existing = null;
+    let el = container;
+    while (el && el !== body) {
+      if (el.tagName && el.tagName.toLowerCase() === tagName) { existing = el; break; }
+      el = el.parentElement;
+    }
+
+    if (existing) {
+      // Unwrap: replace element with its children
+      const frag = document.createDocumentFragment();
+      while (existing.firstChild) frag.appendChild(existing.firstChild);
+      existing.parentNode.replaceChild(frag, existing);
+    } else {
+      // Wrap selected content in new element
+      try {
+        const newEl = document.createElement(tagName);
+        newEl.appendChild(range.extractContents());
+        range.insertNode(newEl);
+        const newRange = document.createRange();
+        newRange.selectNodeContents(newEl);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+      } catch (_) {
+        // Fallback for complex cross-element selections
+        const fbMap = { strong: 'bold', em: 'italic', u: 'underline', s: 'strikeThrough' };
+        if (fbMap[tagName]) document.execCommand(fbMap[tagName], false, null);
+      }
+    }
+
+    // After wrapping in s/strike, ensure font[size] sits outside, not inside
+    if (tagName === 's' || tagName === 'strike') this._fixStrikethroughNesting();
+
+    const updated = window.getSelection();
+    if (updated && updated.rangeCount > 0) this._savedRange = updated.getRangeAt(0).cloneRange();
+  },
+
+  // When <s> wraps a <font size>, the line-through is positioned at <s>'s
+  // (parent) font size, not the larger/smaller font[size] size — causing the
+  // line to drift. Restructure <s><font>…</font></s> → <font><s>…</s></font>.
+  _fixStrikethroughNesting() {
+    const body = document.getElementById('note-body');
+    if (!body) return;
+    body.querySelectorAll('s > font[size], strike > font[size]').forEach((fontEl) => {
+      const strikeEl = fontEl.parentElement;
+      if (!strikeEl || !strikeEl.parentElement) return;
+      const parent = strikeEl.parentElement;
+      const newStrike = document.createElement(strikeEl.tagName.toLowerCase());
+      while (fontEl.firstChild) newStrike.appendChild(fontEl.firstChild);
+      fontEl.appendChild(newStrike);
+      parent.replaceChild(fontEl, strikeEl);
+    });
   },
 
   toggleFormatBar() {
@@ -497,7 +577,9 @@ window.Notes = {
     const current = this._currentFontSize();
     const next = Math.max(1, Math.min(7, current + delta));
     document.execCommand('fontSize', false, String(next));
-    // Refresh saved range so the next step operates on the updated DOM
+    // Restructure any <s><font> → <font><s> the size change may have created
+    this._fixStrikethroughNesting();
+    // Refresh saved range after all DOM mutations
     const sel2 = window.getSelection();
     if (sel2 && sel2.rangeCount > 0) {
       this._savedRange = sel2.getRangeAt(0).cloneRange();
