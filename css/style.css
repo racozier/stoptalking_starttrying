@@ -2998,7 +2998,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .habit-dot {
   aspect-ratio: 1;
   border-radius: 2px;
-  background: var(--surface);
+  background: var(--surface2);
   width: 100%;
 }
 .habit-dot.logged {
