@@ -227,7 +227,7 @@ window.Dashboard = {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
     set('week-workouts', `<strong>${thisWorkouts.length}</strong>`);
     set('week-workouts-delta', delta(thisWorkouts.length, prevWorkouts.length));
-    set('week-km', `<strong>${thisDist.toFixed(1)}</strong>`);
+    set('week-km', `<strong>${thisDist.toFixed(1)}</strong> km`);
     set('week-km-delta', delta(thisDist, prevDist, (v) => `${Math.abs(v).toFixed(1)}km`));
     set('week-study', `<strong>${thisStudyHours}h</strong>`);
     set('week-study-delta', delta(thisStudyHours, prevStudyHours, (v) => `${Math.abs(v).toFixed(1)}h`));
@@ -254,7 +254,7 @@ window.Dashboard = {
     const monthPolishHours = Math.round(monthPolish.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
 
     set('month-workouts', `<strong>${monthWorkouts.length}</strong>`);
-    set('month-km', `<strong>${monthDist.toFixed(1)}</strong>`);
+    set('month-km', `<strong>${monthDist.toFixed(1)}</strong> km`);
     set('month-study', `<strong>${monthStudyHours}h</strong>`);
     set('month-polish', `<strong>${monthPolishHours}h</strong>`);
 
@@ -287,7 +287,7 @@ window.Dashboard = {
     const atPolishHours = Math.round(atPolish.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
 
     set('alltime-workouts', `<strong>${allWorkouts.length}</strong>`);
-    set('alltime-km', `<strong>${atDist.toFixed(1)}</strong>`);
+    set('alltime-km', `<strong>${atDist.toFixed(1)}</strong> km`);
     set('alltime-study', `<strong>${atStudyHours}h</strong>`);
     set('alltime-polish', `<strong>${atPolishHours}h</strong>`);
 
