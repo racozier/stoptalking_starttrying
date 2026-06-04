@@ -235,6 +235,27 @@ window.Notes = {
     App.showToast('Updated.', 'success');
   },
 
+  async toggleSelectionLock() {
+    const pin = localStorage.getItem('st2_pin');
+    if (!pin) { App.showToast('Set a PIN in Settings → Security first.', 'info'); return; }
+    const ids = [...this._selectedIds];
+    const notes = await Promise.all(ids.map((id) => window.db.notes.get(id)));
+    const allLocked = notes.every((n) => n?.locked);
+    if (allLocked) {
+      this._showPinEntry(async () => {
+        for (const n of notes) if (n) await window.db.notes.update({ ...n, locked: false });
+        this.exitSelectionMode();
+        await this.renderGrid();
+        App.showToast('Notes unlocked.', 'success');
+      });
+    } else {
+      for (const n of notes) if (n) await window.db.notes.update({ ...n, locked: true });
+      this.exitSelectionMode();
+      await this.renderGrid();
+      App.showToast('Notes locked.', 'success');
+    }
+  },
+
   renderNoteCard(note) {
     const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
     const hasPhotos = note.photos?.length > 0;
@@ -1164,7 +1185,8 @@ window.Notes = {
         this._noteLocked = false;
         const btn = document.getElementById('note-lock-btn');
         if (btn) btn.classList.remove('locked');
-        App.showToast('Note unlocked permanently.', 'success');
+        this.saveNote(false);
+        App.showToast('Note unlocked.', 'success');
       });
     } else {
       this._noteLocked = true;
@@ -1190,7 +1212,7 @@ window.Notes = {
     const entered = input?.value || '';
     const correct = localStorage.getItem('st2_pin') || '';
     if (entered === correct && entered !== '') {
-      App.closeAllModals();
+      document.getElementById('modal-pin-entry')?.classList.remove('open');
       const cb = this._pinCallback;
       this._pinCallback = null;
       if (cb) cb();
@@ -1222,6 +1244,7 @@ window.NotesClearDrawing = () => Notes.clearDrawing();
 window.NotesHandleTagInput = (e) => Notes.handleTagInput(e);
 window.NotesExitSelection = () => Notes.exitSelectionMode();
 window.NotesSelectionPin = () => Notes.applySelectionPin();
+window.NotesSelectionLock = () => Notes.toggleSelectionLock();
 window.NotesOpenColorPicker = () => Notes.openColorPicker();
 window.NotesApplyColor = (id) => Notes.applyColor(id);
 window.NotesDeleteSelected = () => Notes.deleteSelected();
