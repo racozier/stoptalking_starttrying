@@ -473,15 +473,35 @@ window.Notes = {
     if (main) main.style.display = 'flex';
   },
 
+  _currentFontSize() {
+    const body = document.getElementById('note-body');
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || !body) return 3;
+    let el = sel.getRangeAt(0).commonAncestorContainer;
+    if (el.nodeType === Node.TEXT_NODE) el = el.parentElement;
+    while (el && el !== body) {
+      if (el.tagName === 'FONT' && el.getAttribute('size')) {
+        return parseInt(el.getAttribute('size'), 10);
+      }
+      el = el.parentElement;
+    }
+    return 3;
+  },
+
   _fontSizeStep(delta) {
     if (this._savedRange) {
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(this._savedRange);
     }
-    const current = parseInt(document.queryCommandValue('fontSize'), 10) || 3;
+    const current = this._currentFontSize();
     const next = Math.max(1, Math.min(7, current + delta));
     document.execCommand('fontSize', false, String(next));
+    // Refresh saved range so the next step operates on the updated DOM
+    const sel2 = window.getSelection();
+    if (sel2 && sel2.rangeCount > 0) {
+      this._savedRange = sel2.getRangeAt(0).cloneRange();
+    }
   },
 
   increaseFontSize() { this._fontSizeStep(1); },

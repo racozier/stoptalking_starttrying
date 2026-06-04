@@ -186,7 +186,7 @@ window.Fitness = {
       </div>
       ${hasMap
         ? `<div class="run-map" id="run-map-${r.id}"></div>`
-        : `<div class="run-map-placeholder"><span>No route data</span></div>`
+        : r.source !== 'manual' ? `<div class="run-map-placeholder"><span>No route data</span></div>` : ''
       }
       ${(r.elevation || r.avgHR) ? `<div class="run-map-stats">
         ${r.elevation ? `<span>↑ ${r.elevation} m elev</span>` : ''}

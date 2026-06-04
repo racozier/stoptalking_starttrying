@@ -1889,9 +1889,8 @@ h3 { font-size: 1rem; font-weight: 600; }
 #note-body font[size="5"] { font-size: 2.2rem; }
 #note-body font[size="6"] { font-size: 3.2rem; }
 #note-body font[size="7"] { font-size: 4.5rem; }
-/* Strikethrough must survive font-size nesting */
+/* Strikethrough must render even when nested inside font[size] */
 #note-body s, #note-body strike, #note-body del { text-decoration: line-through !important; }
-#note-body font[size] { text-decoration: inherit; }
 .note-card-small {
   user-select: none;
   -webkit-user-select: none;
