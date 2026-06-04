@@ -292,7 +292,6 @@ window.Fitness = {
     sheet.innerHTML = `
       <div class="action-sheet">
         <button class="action-sheet-item" onclick="Fitness._menuAct('edit','${type}',${id})">Edit</button>
-        <button class="action-sheet-item" onclick="Fitness._menuAct('note','${type}',${id})">Add Note</button>
         <button class="action-sheet-item action-sheet-danger" onclick="Fitness._menuAct('delete','${type}',${id})">Delete</button>
         <button class="action-sheet-cancel" onclick="document.getElementById('activity-action-sheet').remove()">Cancel</button>
       </div>`;

@@ -2463,13 +2463,11 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .tl-add-note-btn {
   background: none;
-  border: 1px dashed rgba(255,255,255,0.15);
-  border-radius: 8px;
+  border: none;
   color: var(--subtext);
   font-family: 'Outfit', sans-serif;
   font-size: 0.8rem;
-  padding: 8px 12px;
-  width: 100%;
+  padding: 4px 0;
   cursor: pointer;
   text-align: left;
 }
