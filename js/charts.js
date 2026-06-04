@@ -17,26 +17,17 @@ window.Charts = {
     const { tick, tick2, grid } = this._colors();
     const sorted = [...data].reverse();
     const vals = sorted.map((d) => d.value);
-    // Labels: today and weekly steps back (−7, −14, −21, −28 days).
-    // Data before the −28 anchor is plotted but unlabelled.
-    // Month name shown only on the first labelled entry of each month.
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const anchorDates = new Set(
-      [0, 7, 14, 21, 28].map((n) => {
-        const d = new Date(today); d.setDate(d.getDate() - n);
-        return d.toISOString().slice(0, 10);
-      })
-    );
-    let lastLabelMonth = '';
-    const labels = sorted.map((d) => {
-      const dateStr = d.date.slice(0, 10);
-      if (!anchorDates.has(dateStr)) return '';
+    // Only label the oldest and newest entry in the data
+    const fmt = (dateStr) => {
       const dt = new Date(dateStr);
-      const m = dt.toLocaleDateString('en-GB', { month: 'short' });
-      const day = dt.getDate();
-      const showMonth = m !== lastLabelMonth;
-      if (showMonth) lastLabelMonth = m;
-      return showMonth ? `${day} ${m}` : String(day);
+      return `${dt.getDate()} ${dt.toLocaleDateString('en-GB', { month: 'short' })}`;
+    };
+    const firstDate = sorted[0]?.date.slice(0, 10);
+    const lastDate = sorted[sorted.length - 1]?.date.slice(0, 10);
+    const labels = sorted.map((d, i) => {
+      if (i === 0) return fmt(firstDate);
+      if (i === sorted.length - 1) return fmt(lastDate);
+      return '';
     });
     canvas._chart = new Chart(ctx, {
       type: 'line',
