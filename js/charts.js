@@ -17,17 +17,26 @@ window.Charts = {
     const { tick, tick2, grid } = this._colors();
     const sorted = [...data].reverse();
     const vals = sorted.map((d) => d.value);
-    // Show label only on weekly anchor days (1, 8, 15, 22); prefix month on change
-    const ANCHORS = new Set([1, 8, 15, 22]);
-    let lastMonth = '';
+    // Labels: today and weekly steps back (−7, −14, −21, −28 days).
+    // Data before the −28 anchor is plotted but unlabelled.
+    // Month name shown only on the first labelled entry of each month.
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const anchorDates = new Set(
+      [0, 7, 14, 21, 28].map((n) => {
+        const d = new Date(today); d.setDate(d.getDate() - n);
+        return d.toISOString().slice(0, 10);
+      })
+    );
+    let lastLabelMonth = '';
     const labels = sorted.map((d) => {
-      const dt = new Date(d.date);
+      const dateStr = d.date.slice(0, 10);
+      if (!anchorDates.has(dateStr)) return '';
+      const dt = new Date(dateStr);
       const m = dt.toLocaleDateString('en-GB', { month: 'short' });
       const day = dt.getDate();
-      const monthChanged = m !== lastMonth;
-      if (monthChanged) lastMonth = m;
-      if (ANCHORS.has(day) || monthChanged) return `${day} ${m}`;
-      return '';
+      const showMonth = m !== lastLabelMonth;
+      if (showMonth) lastLabelMonth = m;
+      return showMonth ? `${day} ${m}` : String(day);
     });
     canvas._chart = new Chart(ctx, {
       type: 'line',
