@@ -1,4 +1,4 @@
-const CACHE_NAME = 'st2-v49';
+const CACHE_NAME = 'st2-v50';
 const STRAVA_ORIGIN = 'https://www.strava.com';
 const ANTHROPIC_ORIGIN = 'https://api.anthropic.com';
 const GEMINI_ORIGIN = 'https://generativelanguage.googleapis.com';

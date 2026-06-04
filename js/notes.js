@@ -44,6 +44,21 @@ window.Notes = {
         }
       }
     });
+    // When the soft keyboard opens, visualViewport shrinks. Resize the modal
+    // sheet to match so the flex layout keeps the bottom toolbar above the keyboard.
+    if (window.visualViewport) {
+      const onVp = () => {
+        const modal = document.getElementById('modal-note-editor');
+        if (!modal || !modal.classList.contains('open')) return;
+        const sheet = modal.querySelector('.modal-sheet');
+        if (!sheet) return;
+        const h = Math.round(window.visualViewport.height);
+        sheet.style.height = h + 'px';
+        sheet.style.maxHeight = h + 'px';
+      };
+      window.visualViewport.addEventListener('resize', onVp);
+      window.visualViewport.addEventListener('scroll', onVp);
+    }
   },
 
   async render() {
@@ -261,6 +276,10 @@ window.Notes = {
 
     const modal = document.getElementById('modal-note-editor');
     if (!modal) return;
+
+    // Reset any keyboard-adjusted height from a previous session
+    const sheet = modal.querySelector('.modal-sheet');
+    if (sheet) { sheet.style.height = ''; sheet.style.maxHeight = ''; }
 
     let note = null;
     if (noteId) {
