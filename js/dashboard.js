@@ -827,69 +827,46 @@ window.calGotoDay = calGotoDay;
 let _tlDetailType = '', _tlDetailId = 0;
 let _tlCurrentNotes = '';
 
-const _pencilSvg = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-const _trashSvg  = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
 
 function renderTlNoteSection() {
   const section = document.getElementById('tl-notes-section');
   if (!section) return;
   if (_tlCurrentNotes) {
     section.innerHTML = `
-      <div class="tl-note-swipe-wrap">
-        <button class="tl-note-edit-reveal" onclick="tlEditNote()" aria-label="Edit note">
-          ${_pencilSvg}
-        </button>
-        <div class="tl-note-card" id="tl-note-card-inner">
-          <div class="tl-note-card-text">${App.escapeHtml(_tlCurrentNotes)}</div>
+      <div class="card-notes-section">
+        <div class="card-notes-header">
+          <div class="card-notes-toggle">
+            <span class="card-notes-label">Notes</span>
+            <span class="card-notes-chevron">›</span>
+          </div>
+          <button class="card-note-dots" onclick="showTlNoteMenu(event)">···</button>
         </div>
-        <button class="tl-note-delete-reveal" onclick="tlDeleteNote()" aria-label="Delete note">${_trashSvg}</button>
+        <div class="card-notes-body open">
+          <div class="card-note-text">${App.escapeHtml(_tlCurrentNotes)}</div>
+        </div>
       </div>`;
-    initNoteSwipe();
   } else {
     section.innerHTML = `<button class="tl-add-note-btn" onclick="tlEditNote()">+ Add note</button>`;
   }
 }
 window.renderTlNoteSection = renderTlNoteSection;
 
-function initNoteSwipe() {
-  const wrap = document.querySelector('.tl-note-swipe-wrap');
-  const card = document.getElementById('tl-note-card-inner');
-  if (!wrap || !card) return;
-  let startX = 0, dragging = false;
-  const THRESHOLD = 55;
-
-  card.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    dragging = true;
-    card.style.transition = 'none';
-  }, { passive: true });
-
-  card.addEventListener('touchmove', (e) => {
-    if (!dragging) return;
-    const dx = e.touches[0].clientX - startX; // positive = right, negative = left
-    if (dx < 0) {
-      card.style.transform = `translateX(${Math.max(dx, -(THRESHOLD + 10))}px)`;
-    } else if (dx > 0) {
-      card.style.transform = `translateX(${Math.min(dx, THRESHOLD + 10)}px)`;
-    }
-  }, { passive: true });
-
-  card.addEventListener('touchend', (e) => {
-    dragging = false;
-    card.style.transition = 'transform 0.2s ease';
-    const dx = e.changedTouches[0].clientX - startX;
-    if (dx < -(THRESHOLD / 2)) {
-      // Snapped left → delete
-      card.style.transform = `translateX(-${THRESHOLD}px)`;
-    } else if (dx > THRESHOLD / 2) {
-      // Swiped right past threshold → edit
-      card.style.transform = '';
-      tlEditNote();
-    } else {
-      card.style.transform = '';
-    }
-  }, { passive: true });
+function showTlNoteMenu(e) {
+  e.stopPropagation();
+  document.getElementById('tl-note-action-sheet')?.remove();
+  const sheet = document.createElement('div');
+  sheet.id = 'tl-note-action-sheet';
+  sheet.className = 'action-sheet-backdrop';
+  sheet.innerHTML = `
+    <div class="action-sheet">
+      <button class="action-sheet-item" onclick="document.getElementById('tl-note-action-sheet')?.remove(); tlEditNote()">Edit Note</button>
+      <button class="action-sheet-item action-sheet-danger" onclick="document.getElementById('tl-note-action-sheet')?.remove(); tlDeleteNote()">Delete Note</button>
+      <button class="action-sheet-cancel" onclick="document.getElementById('tl-note-action-sheet').remove()">Cancel</button>
+    </div>`;
+  sheet.addEventListener('click', (ev) => { if (ev.target === sheet) sheet.remove(); });
+  document.body.appendChild(sheet);
 }
+window.showTlNoteMenu = showTlNoteMenu;
 
 async function openTlDetail(type, id) {
   _tlDetailType = type;
@@ -1177,6 +1154,7 @@ async function deleteTlEntry() {
   else if (type === 'run') await window.db.runs.delete(id);
   else if (type === 'study') await window.db.study.delete(id);
   else if (type === 'weight') await window.db.weight.delete(id);
+  else if (type === 'event') await window.db.events.delete(id);
   App.closeAllModals();
   App.showToast('Entry deleted.', 'success');
   if (App.currentTab === 'dashboard') await Dashboard.render();

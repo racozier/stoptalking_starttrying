@@ -2497,55 +2497,6 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .tl-edit-actions .btn { flex: 1; }
 
-/* ── Swipe note: left = delete, right = edit ─────────────────────────────── */
-.tl-note-swipe-wrap {
-  position: relative;
-  overflow: hidden;
-  border-radius: 10px;
-}
-.tl-note-card {
-  background: var(--surface2);
-  border-radius: 10px;
-  padding: 10px 12px;
-  position: relative;
-  z-index: 1;
-  will-change: transform;
-}
-/* Red delete zone — revealed by swiping LEFT */
-.tl-note-delete-reveal {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 55px;
-  background: var(--danger);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 0;
-  border-radius: 0 10px 10px 0;
-}
-.tl-note-delete-reveal svg { stroke: #fff; }
-/* Blue edit zone — revealed by swiping RIGHT */
-.tl-note-edit-reveal {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 55px;
-  background: var(--accent);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 0;
-  border-radius: 10px 0 0 10px;
-}
-.tl-note-edit-reveal svg { stroke: #fff; }
-
 /* ── Timeline date navigation header ─────────────────────────────────────── */
 .timeline-header {
   display: flex;
