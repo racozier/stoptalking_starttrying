@@ -245,9 +245,7 @@ window.Habits = {
     document.getElementById('habit-modal-target-row').style.display = 'none';
     this._setSelectedColor('#3B82F6');
     this._setSelectedEmoji('💧');
-    // Collapse pickers
     document.getElementById('habit-color-palette').style.display = 'none';
-    document.getElementById('habit-emoji-palette').style.display = 'none';
     App.openModal('modal-habit');
   },
 
@@ -264,7 +262,6 @@ window.Habits = {
     this._setSelectedColor(habit.color || '#3B82F6');
     this._setSelectedEmoji(habit.emoji || '💧');
     document.getElementById('habit-color-palette').style.display = 'none';
-    document.getElementById('habit-emoji-palette').style.display = 'none';
     App.openModal('modal-habit');
   },
 
@@ -278,10 +275,8 @@ window.Habits = {
   },
 
   _setSelectedEmoji(emoji) {
-    document.querySelectorAll('.habit-emoji-option').forEach(s => {
-      s.classList.toggle('selected', s.dataset.emoji === emoji);
-    });
-    document.getElementById('habit-modal-emoji').value = emoji;
+    const input = document.getElementById('habit-modal-emoji');
+    if (input) input.value = emoji;
     const preview = document.getElementById('habit-emoji-preview');
     if (preview) preview.textContent = emoji;
   },
@@ -290,22 +285,17 @@ window.Habits = {
     this._setSelectedColor(color);
   },
 
-  selectEmoji(emoji) {
-    this._setSelectedEmoji(emoji);
+  emojiTyped(val) {
+    // Grab the last grapheme cluster (handles multi-byte emoji)
+    const emoji = [...val].slice(-2).join('') || val || '⭐';
+    const preview = document.getElementById('habit-emoji-preview');
+    if (preview) preview.textContent = emoji;
   },
 
   toggleColorPicker() {
     const palette = document.getElementById('habit-color-palette');
     const isVisible = palette.style.display !== 'none';
     palette.style.display = isVisible ? 'none' : 'flex';
-    document.getElementById('habit-emoji-palette').style.display = 'none';
-  },
-
-  toggleEmojiPicker() {
-    const palette = document.getElementById('habit-emoji-palette');
-    const isVisible = palette.style.display !== 'none';
-    palette.style.display = isVisible ? 'none' : 'grid';
-    document.getElementById('habit-color-palette').style.display = 'none';
   },
 
   freqChanged(val) {
@@ -320,7 +310,8 @@ window.Habits = {
     const frequency = document.getElementById('habit-modal-freq').value;
     const targetPerWeek = parseInt(document.getElementById('habit-modal-target').value) || 3;
     const color = document.getElementById('habit-modal-color').value || '#3B82F6';
-    const emoji = document.getElementById('habit-modal-emoji').value || '💧';
+    const rawEmoji = document.getElementById('habit-modal-emoji').value.trim();
+    const emoji = rawEmoji || document.getElementById('habit-emoji-preview')?.textContent || '⭐';
 
     const habit = { name, description, frequency, targetPerWeek, color, emoji };
     if (id) {

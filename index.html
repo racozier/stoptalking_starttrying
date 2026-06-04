@@ -1445,10 +1445,16 @@
           <div class="habit-picker-circle" id="habit-color-preview" style="background:#3B82F6"></div>
           <span>Color</span>
         </button>
-        <button class="habit-picker-cell" onclick="Habits.toggleEmojiPicker()">
+        <label class="habit-picker-cell" for="habit-modal-emoji">
           <div class="habit-picker-emoji-circle" id="habit-emoji-preview">💧</div>
-          <span>Icon</span>
-        </button>
+          <div class="habit-emoji-cell-text">
+            <span class="habit-picker-cell-label">Icon</span>
+            <span class="habit-picker-cell-sub">any emoji</span>
+          </div>
+          <input type="text" id="habit-modal-emoji" class="habit-emoji-type-input"
+                 value="💧" maxlength="4" placeholder="💧"
+                 oninput="Habits.emojiTyped(this.value)" />
+        </label>
       </div>
       <div class="habit-palette-row" id="habit-color-palette" style="display:none">
           <button class="habit-color-option selected" data-color="#3B82F6" style="background:#3B82F6" onclick="Habits.selectColor('#3B82F6')"></button>
@@ -1487,41 +1493,7 @@
           <button class="habit-color-option" data-color="#0D9488" style="background:#0D9488" onclick="Habits.selectColor('#0D9488')"></button>
           <button class="habit-color-option" data-color="#2DD4BF" style="background:#2DD4BF" onclick="Habits.selectColor('#2DD4BF')"></button>
       </div>
-      <div class="habit-emoji-grid" id="habit-emoji-palette" style="display:none">
-          <button class="habit-emoji-option selected" data-emoji="💧" onclick="Habits.selectEmoji('💧')">💧</button>
-          <button class="habit-emoji-option" data-emoji="🏃" onclick="Habits.selectEmoji('🏃')">🏃</button>
-          <button class="habit-emoji-option" data-emoji="💪" onclick="Habits.selectEmoji('💪')">💪</button>
-          <button class="habit-emoji-option" data-emoji="📚" onclick="Habits.selectEmoji('📚')">📚</button>
-          <button class="habit-emoji-option" data-emoji="🧘" onclick="Habits.selectEmoji('🧘')">🧘</button>
-          <button class="habit-emoji-option" data-emoji="🥗" onclick="Habits.selectEmoji('🥗')">🥗</button>
-          <button class="habit-emoji-option" data-emoji="😴" onclick="Habits.selectEmoji('😴')">😴</button>
-          <button class="habit-emoji-option" data-emoji="🎯" onclick="Habits.selectEmoji('🎯')">🎯</button>
-          <button class="habit-emoji-option" data-emoji="✍️" onclick="Habits.selectEmoji('✍️')">✍️</button>
-          <button class="habit-emoji-option" data-emoji="🏋️" onclick="Habits.selectEmoji('🏋️')">🏋️</button>
-          <button class="habit-emoji-option" data-emoji="🚴" onclick="Habits.selectEmoji('🚴')">🚴</button>
-          <button class="habit-emoji-option" data-emoji="🧠" onclick="Habits.selectEmoji('🧠')">🧠</button>
-          <button class="habit-emoji-option" data-emoji="💊" onclick="Habits.selectEmoji('💊')">💊</button>
-          <button class="habit-emoji-option" data-emoji="🥤" onclick="Habits.selectEmoji('🥤')">🥤</button>
-          <button class="habit-emoji-option" data-emoji="🌟" onclick="Habits.selectEmoji('🌟')">🌟</button>
-          <button class="habit-emoji-option" data-emoji="🔥" onclick="Habits.selectEmoji('🔥')">🔥</button>
-          <button class="habit-emoji-option" data-emoji="⚡" onclick="Habits.selectEmoji('⚡')">⚡</button>
-          <button class="habit-emoji-option" data-emoji="🎵" onclick="Habits.selectEmoji('🎵')">🎵</button>
-          <button class="habit-emoji-option" data-emoji="🧹" onclick="Habits.selectEmoji('🧹')">🧹</button>
-          <button class="habit-emoji-option" data-emoji="💰" onclick="Habits.selectEmoji('💰')">💰</button>
-          <button class="habit-emoji-option" data-emoji="🛌" onclick="Habits.selectEmoji('🛌')">🛌</button>
-          <button class="habit-emoji-option" data-emoji="☀️" onclick="Habits.selectEmoji('☀️')">☀️</button>
-          <button class="habit-emoji-option" data-emoji="🌿" onclick="Habits.selectEmoji('🌿')">🌿</button>
-          <button class="habit-emoji-option" data-emoji="🍎" onclick="Habits.selectEmoji('🍎')">🍎</button>
-          <button class="habit-emoji-option" data-emoji="🚶" onclick="Habits.selectEmoji('🚶')">🚶</button>
-          <button class="habit-emoji-option" data-emoji="🧗" onclick="Habits.selectEmoji('🧗')">🧗</button>
-          <button class="habit-emoji-option" data-emoji="⏰" onclick="Habits.selectEmoji('⏰')">⏰</button>
-          <button class="habit-emoji-option" data-emoji="📝" onclick="Habits.selectEmoji('📝')">📝</button>
-          <button class="habit-emoji-option" data-emoji="🎨" onclick="Habits.selectEmoji('🎨')">🎨</button>
-          <button class="habit-emoji-option" data-emoji="🏊" onclick="Habits.selectEmoji('🏊')">🏊</button>
-          <button class="habit-emoji-option" data-emoji="🤸" onclick="Habits.selectEmoji('🤸')">🤸</button>
-      </div>
       <input type="hidden" id="habit-modal-color" value="#3B82F6" />
-      <input type="hidden" id="habit-modal-emoji" value="💧" />
     </div>
   </div>
 </div>
