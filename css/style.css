@@ -1222,7 +1222,6 @@ h3 { font-size: 1rem; font-weight: 600; }
   max-height: 100dvh;
   height: 100dvh;
   border-radius: 0;
-  overflow: hidden;
 }
 
 /* ── Forms ────────────────────────────────────────────────────────────────── */
@@ -1750,6 +1749,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  padding-bottom: 80px;
 }
 .note-body {
   flex: 1;
@@ -1777,15 +1777,20 @@ h3 { font-size: 1rem; font-weight: 600; }
 .drawing-canvas-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 #drawing-canvas { display: block; width: 100%; touch-action: none; }
 
-/* Bottom toolbar */
+/* Bottom toolbar — fixed so it always floats above the keyboard */
 .note-editor-bottombar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1200;
   display: flex;
   align-items: center;
   padding: 8px 12px;
   padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
   border-top: 1px solid var(--border);
+  background: var(--surface);
   gap: 4px;
-  flex-shrink: 0;
 }
 .note-add-wrap { position: relative; margin-right: 8px; }
 .note-add-btn {
