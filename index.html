@@ -32,7 +32,7 @@
 
 <!-- ── Splash Screen ──────────────────────────────────────────────────── -->
 <div id="app-splash" onclick="App.hideSplash()">
-  <!-- Mountain/sky scene -->
+  <!-- User wallpaper (shown when splash.jpg exists), SVG fallback behind it -->
   <svg class="splash-bg-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
@@ -51,21 +51,21 @@
         <stop offset="100%" stop-color="#060c10"/>
       </linearGradient>
     </defs>
-    <!-- Sky -->
     <rect width="390" height="844" fill="url(#skyGrad)"/>
-    <!-- Back mountains -->
     <path d="M0,560 L40,440 L90,490 L150,370 L200,420 L255,340 L310,400 L355,360 L390,410 L390,844 L0,844 Z" fill="url(#mtnBack)"/>
-    <!-- Front mountains -->
     <path d="M0,660 L55,530 L110,600 L175,490 L230,560 L285,500 L340,540 L390,510 L390,844 L0,844 Z" fill="url(#mtnFront)"/>
-    <!-- Subtle horizon glow -->
     <ellipse cx="195" cy="510" rx="180" ry="40" fill="#e8903a" opacity="0.18"/>
   </svg>
+  <img class="splash-bg-img" src="splash.jpg" onerror="this.style.display='none'" alt="" />
 
   <!-- Sky text -->
   <div class="splash-stop">STOP TALKING</div>
 
   <!-- Mountain text -->
   <div class="splash-start">START TRYING</div>
+
+  <!-- Weather -->
+  <div class="splash-weather" id="splash-weather" style="display:none"></div>
 
   <!-- Quote -->
   <div class="splash-quote" id="splash-quote"></div>
@@ -852,7 +852,7 @@
           <div class="settings-row about-row" style="justify-content:center;flex-direction:column;align-items:flex-start">
             <div class="about-name">ST²</div>
             <div class="about-tagline">Stop Talking, Start Trying</div>
-            <div class="sub" style="margin-top:4px">v0.84</div>
+            <div class="sub" style="margin-top:4px">v0.85</div>
           </div>
         </div>
       </div>

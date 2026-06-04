@@ -203,6 +203,14 @@ h3 { font-size: 1rem; font-weight: 600; }
   height: 100%;
   object-fit: cover;
 }
+.splash-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
 .splash-stop {
   position: absolute;
   top: 28%;
@@ -231,15 +239,26 @@ h3 { font-size: 1rem; font-weight: 600; }
   z-index: 2;
   line-height: 1;
 }
+.splash-weather {
+  position: absolute;
+  bottom: 148px;
+  left: 0; right: 0;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+}
+.splash-weather-emoji { font-size: 1.1rem; line-height: 1; }
+.splash-weather-info { font-family: 'Outfit', sans-serif; font-size: 0.82rem; color: rgba(255,255,255,0.7); }
 .splash-quote {
   position: absolute;
-  bottom: 110px;
+  bottom: 96px;
   left: 28px; right: 28px;
   text-align: center;
   font-family: 'Outfit', sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-style: italic;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255,255,255,0.5);
   line-height: 1.5;
   z-index: 2;
 }

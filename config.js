@@ -28,6 +28,14 @@
  * If you make the repo public, add config.js to .gitignore and use a template file.
  */
 
+/**
+ * OpenWeatherMap — free tier, 1000 calls/day
+ * Get a free key at openweathermap.org/api
+ */
+const WEATHER_CONFIG = {
+  API_KEY: '', // paste your key here
+};
+
 const STRAVA_CONFIG = {
   CLIENT_ID: '',       // e.g. '12345'
   CLIENT_SECRET: '',   // e.g. 'abc123def456...'
