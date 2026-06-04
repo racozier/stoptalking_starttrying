@@ -44,8 +44,8 @@ window.App = {
     // Render Lucide icons in static HTML (nav, etc.)
     if (window.lucide) lucide.createIcons();
 
-    // Auto-hide splash after app is ready
-    setTimeout(() => this.hideSplash(), 1800);
+    // Show splash quote (app is ready behind it, waiting for tap)
+    this._setSplashQuote();
 
     // Close modals on backdrop click
     document.addEventListener('click', (e) => {
@@ -112,15 +112,31 @@ window.App = {
     const splash = document.getElementById('app-splash');
     if (!splash || splash.classList.contains('hidden')) return;
     splash.classList.add('hiding');
-    setTimeout(() => splash.classList.add('hidden'), 460);
+    setTimeout(() => splash.classList.add('hidden'), 510);
   },
 
   showSplash() {
     const splash = document.getElementById('app-splash');
     if (!splash) return;
+    this._setSplashQuote();
     splash.classList.remove('hidden', 'hiding');
-    clearTimeout(this._splashTimer);
-    this._splashTimer = setTimeout(() => this.hideSplash(), 2500);
+  },
+
+  _setSplashQuote() {
+    const quotes = [
+      "The secret of getting ahead is getting started.",
+      "Do something today that your future self will thank you for.",
+      "It's not about having time. It's about making time.",
+      "Push yourself, because no one else is going to do it for you.",
+      "Small steps every day lead to big results.",
+      "Your only limit is the one you set yourself.",
+      "Discipline is choosing between what you want now and what you want most.",
+      "The pain of discipline is far less than the pain of regret.",
+      "Success is the sum of small efforts, repeated day in and day out.",
+      "Don't watch the clock. Do what it does. Keep going.",
+    ];
+    const el = document.getElementById('splash-quote');
+    if (el) el.textContent = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
   },
 
   updateGreeting() {
