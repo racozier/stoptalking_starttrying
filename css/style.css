@@ -413,6 +413,8 @@ h3 { font-size: 1rem; font-weight: 600; }
 .streak-mv-dot.pre { background: rgba(255,255,255,0.12); }
 .streak-mv-dot.future { background: rgba(255,255,255,0.05); }
 [data-theme="light"] .streak-mv-dot { background: rgba(0,0,0,0.1); }
+[data-theme="light"] .streak-mv-dot.active { background: #F97316; }
+[data-theme="light"] .streak-mv-dot.inactive { background: rgba(124,58,237,0.22); }
 [data-theme="light"] .streak-mv-dot.future { background: rgba(0,0,0,0.04); }
 [data-theme="light"] .streak-mv-dot.pre { background: rgba(0,0,0,0.1); }
 
@@ -487,6 +489,8 @@ h3 { font-size: 1rem; font-weight: 600; }
 .streak-year-dot.pre { background: rgba(255,255,255,0.08); }
 .streak-year-dot.future { background: rgba(255,255,255,0.04); }
 [data-theme="light"] .streak-year-dot { background: rgba(0,0,0,0.08); }
+[data-theme="light"] .streak-year-dot.active { background: #F97316; }
+[data-theme="light"] .streak-year-dot.inactive { background: rgba(124,58,237,0.2); opacity: 1; }
 [data-theme="light"] .streak-year-dot.future { background: rgba(0,0,0,0.03); }
 [data-theme="light"] .streak-year-dot.pre { background: rgba(0,0,0,0.06); }
 .streak-dot-item { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; min-width: 0; }
@@ -778,6 +782,12 @@ h3 { font-size: 1rem; font-weight: 600; }
 .icon-study   { background: rgba(13,148,136,0.2);  color: #2DD4BF; }
 .icon-note    { background: rgba(245,158,11,0.25); color: #FCD34D; }
 .icon-polish  { background: rgba(202,138,4,0.2);   color: #FDE68A; }
+[data-theme="light"] .icon-weight  { background: rgba(37,99,235,0.12);  color: #1D4ED8; }
+[data-theme="light"] .icon-run     { background: rgba(14,165,233,0.12); color: #0284C7; }
+[data-theme="light"] .icon-workout { background: rgba(155,28,28,0.12);  color: #9B1C1C; }
+[data-theme="light"] .icon-study   { background: rgba(13,148,136,0.12); color: #0F766E; }
+[data-theme="light"] .icon-note    { background: rgba(245,158,11,0.12); color: #B45309; }
+[data-theme="light"] .icon-polish  { background: rgba(202,138,4,0.12);  color: #92400E; }
 
 /* Lucide SVG icons inside timeline circles */
 .timeline-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
@@ -1578,6 +1588,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .class-hours { font-size: 0.78rem; color: var(--subtext); }
 .class-passed-date { font-size: 0.75rem; color: var(--accent2); margin-top: 6px; }
 .btn-mark-passed { margin-top: 10px; padding: 8px 14px; background: rgba(120,184,108,0.15); color: var(--accent2); border: 1px solid var(--accent2); border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; width: 100%; }
+.btn-begin-course { margin-top: 10px; padding: 8px 14px; background: rgba(124,58,237,0.12); color: var(--accent); border: 1px solid var(--accent); border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; width: 100%; }
 .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
 .status-passed { background: rgba(120,184,108,0.15); color: var(--accent2); }
 .status-active { background: rgba(37,99,235,0.2); color: var(--accent); }
@@ -1878,6 +1889,9 @@ h3 { font-size: 1rem; font-weight: 600; }
 #note-body font[size="5"] { font-size: 2.2rem; }
 #note-body font[size="6"] { font-size: 3.2rem; }
 #note-body font[size="7"] { font-size: 4.5rem; }
+/* Strikethrough must survive font-size nesting */
+#note-body s, #note-body strike, #note-body del { text-decoration: line-through !important; }
+#note-body font[size] { text-decoration: inherit; }
 .note-card-small {
   user-select: none;
   -webkit-user-select: none;
@@ -2098,7 +2112,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   pointer-events: all;
 }
 .weight-expand-card {
-  background: #0F0E1D;
+  background: var(--surface);
   border: 1px solid rgba(120,80,240,0.2);
   border-radius: 20px 20px 0 0;
   padding: 16px 16px 28px;

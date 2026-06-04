@@ -546,7 +546,9 @@ window.Study = {
           ${isPassed && cls.passedDate
             ? `<div class="class-passed-date">Completed ${App.formatDate(cls.passedDate)}</div>`
             : ''}
-          ${!isPassed
+          ${cls.status === 'not_started'
+            ? `<button class="btn-begin-course" onclick="Study.beginCourse(${cls.id})">Begin Course →</button>`
+            : cls.status === 'in_progress'
             ? `<button class="btn-mark-passed" onclick="Study.markPassed(${cls.id})">Mark as Passed ✓</button>`
             : ''}
         </div>
@@ -619,6 +621,14 @@ window.Study = {
     this._classFilter = filter;
     document.querySelectorAll('.class-filter-btn').forEach((b) => b.classList.toggle('active', b.dataset.classFilter === filter));
     this.renderClasses();
+  },
+
+  async beginCourse(classId) {
+    const cls = await window.db.classes.get(classId);
+    if (!cls) return;
+    await window.db.classes.update({ ...cls, status: 'in_progress' });
+    App.showToast(`${cls.code} started!`, 'success');
+    await this.renderClasses();
   },
 
   async markPassed(classId) {
@@ -808,6 +818,7 @@ window.StudyPauseTimer = () => Study.pauseTimer();
 window.StudyTogglePauseResume = () => Study.togglePauseResume();
 window.StudyStopTimer = () => Study.stopTimer();
 window.StudyMarkPassed = (id) => Study.markPassed(id);
+window.StudyBeginCourse = (id) => Study.beginCourse(id);
 window.StudyOpenAddClass = () => Study.openAddClassModal();
 window.StudyOpenClassesModal = () => Study.openClassesModal();
 window.StudySaveClass = () => Study.saveClass();

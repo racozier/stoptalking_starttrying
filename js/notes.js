@@ -449,6 +449,18 @@ window.Notes = {
       main.style.display = 'flex';
     } else {
       this.closeAddMenu();
+      // Save selection then dismiss keyboard before showing format strip
+      const body = document.getElementById('note-body');
+      if (body) {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          if (body.contains(range.commonAncestorContainer)) {
+            this._savedRange = range.cloneRange();
+          }
+        }
+        body.blur();
+      }
       bar.classList.add('open');
       main.style.display = 'none';
     }

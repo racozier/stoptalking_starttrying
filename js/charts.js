@@ -1,10 +1,20 @@
 window.Charts = {
+  _colors() {
+    const light = document.documentElement.getAttribute('data-theme') === 'light';
+    return {
+      tick:  light ? 'rgba(0,0,0,0.55)'  : 'rgba(255,255,255,0.45)',
+      tick2: light ? 'rgba(0,0,0,0.45)'  : 'rgba(255,255,255,0.35)',
+      grid:  light ? 'rgba(0,0,0,0.08)'  : 'rgba(255,255,255,0.06)',
+    };
+  },
+
   // Sparkline for the weight card — month labels on X, one value on Y
   createWeightSparkline(canvasId, data) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (canvas._chart) canvas._chart.destroy();
+    const { tick, tick2, grid } = this._colors();
     const sorted = [...data].reverse();
     const vals = sorted.map((d) => d.value);
     // Deduplicate month labels — only show first day of each month
@@ -35,8 +45,6 @@ window.Charts = {
         }],
       },
       options: {
-        // Canvas is position:absolute inside its wrapper, so it can never drive
-        // the card height — responsive resizing is safe and has no feedback loop.
         responsive: true,
         maintainAspectRatio: false,
         animation: false,
@@ -46,25 +54,14 @@ window.Charts = {
           x: {
             display: true,
             grid: { display: false, drawTicks: false },
-            ticks: {
-              color: 'rgba(255,255,255,0.35)',
-              font: { size: 9 },
-              maxRotation: 0,
-              padding: 2,
-              autoSkip: false,
-            },
+            ticks: { color: tick2, font: { size: 9 }, maxRotation: 0, padding: 2, autoSkip: false },
             border: { display: false },
           },
           y: {
             display: true,
             position: 'left',
-            grid: { color: 'rgba(255,255,255,0.06)', drawTicks: false },
-            ticks: {
-              color: 'rgba(255,255,255,0.45)',
-              font: { size: 10, weight: '500' },
-              maxTicksLimit: 4,
-              padding: 4,
-            },
+            grid: { color: grid, drawTicks: false },
+            ticks: { color: tick, font: { size: 10, weight: '500' }, maxTicksLimit: 4, padding: 4 },
             border: { display: false },
           },
         },
@@ -78,6 +75,7 @@ window.Charts = {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (canvas._chart) canvas._chart.destroy();
+    const { tick2 } = this._colors();
     canvas._chart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -97,7 +95,7 @@ window.Charts = {
         animation: false,
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
         scales: {
-          x: { display: true, grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, border: { display: false } },
+          x: { display: true, grid: { display: false }, ticks: { color: tick2, font: { size: 9 } }, border: { display: false } },
           y: { display: false },
         },
       },
@@ -110,6 +108,7 @@ window.Charts = {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (canvas._chart) canvas._chart.destroy();
+    const { tick2 } = this._colors();
     canvas._chart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -129,7 +128,7 @@ window.Charts = {
         animation: false,
         plugins: { legend: { display: false }, tooltip: { enabled: false } },
         scales: {
-          x: { display: true, grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 9 } }, border: { display: false } },
+          x: { display: true, grid: { display: false }, ticks: { color: tick2, font: { size: 9 } }, border: { display: false } },
           y: { display: false },
         },
       },
@@ -142,6 +141,7 @@ window.Charts = {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (canvas._chart) canvas._chart.destroy();
+    const { tick, grid } = this._colors();
     const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
     canvas._chart = new Chart(ctx, {
       type: 'line',
@@ -173,14 +173,14 @@ window.Charts = {
         scales: {
           x: {
             display: true,
-            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-            ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 }, maxTicksLimit: 6 },
+            grid: { color: grid, drawBorder: false },
+            ticks: { color: tick, font: { size: 10 }, maxTicksLimit: 6 },
             border: { display: false },
           },
           y: {
             display: true,
-            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
-            ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } },
+            grid: { color: grid, drawBorder: false },
+            ticks: { color: tick, font: { size: 10 } },
             border: { display: false },
           },
         },
@@ -194,6 +194,7 @@ window.Charts = {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (canvas._chart) canvas._chart.destroy();
+    const { tick, tick2, grid } = this._colors();
     canvas._chart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -217,16 +218,12 @@ window.Charts = {
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } },
+            ticks: { color: tick2, font: { size: 10 } },
             border: { display: false },
           },
           y: {
-            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-            ticks: {
-              color: 'rgba(255,255,255,0.4)',
-              font: { size: 10 },
-              callback: (v) => v + 'h',
-            },
+            grid: { color: grid, drawBorder: false },
+            ticks: { color: tick, font: { size: 10 }, callback: (v) => v + 'h' },
             border: { display: false },
           },
         },
