@@ -17,12 +17,14 @@ window.Charts = {
     const { tick, tick2, grid } = this._colors();
     const sorted = [...data].reverse();
     const vals = sorted.map((d) => d.value);
-    // Deduplicate month labels — only show first day of each month
+    // Day number labels; prepend month abbreviation when the month changes
     let lastMonth = '';
     const labels = sorted.map((d) => {
-      const m = new Date(d.date).toLocaleDateString('en-GB', { month: 'short' });
-      if (m !== lastMonth) { lastMonth = m; return m; }
-      return '';
+      const dt = new Date(d.date);
+      const m = dt.toLocaleDateString('en-GB', { month: 'short' });
+      const day = dt.getDate();
+      if (m !== lastMonth) { lastMonth = m; return `${day} ${m}`; }
+      return String(day);
     });
     canvas._chart = new Chart(ctx, {
       type: 'line',

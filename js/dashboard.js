@@ -24,7 +24,9 @@ window.Dashboard = {
   },
 
   async renderWeightCard() {
-    const weights = await window.db.weight.getRecent(30);
+    const cutoff = new Date(Date.now() - 30 * 864e5).toISOString().split('T')[0];
+    const all = await window.db.weight.getAll();
+    const weights = all.filter((w) => w.date.slice(0, 10) >= cutoff);
     const el = document.getElementById('dash-weight');
     const lossEl = document.getElementById('dash-weight-loss');
     if (!el) return;
@@ -33,7 +35,6 @@ window.Dashboard = {
       const latest = weights[0];
       el.textContent = latest.value.toFixed(1);
 
-      const all = await window.db.weight.getAll();
       if (all.length > 1) {
         const oldest = all[all.length - 1];
         const loss = oldest.value - latest.value;
