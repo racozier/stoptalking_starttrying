@@ -1,6 +1,6 @@
 // IndexedDB via idb library (loaded from CDN before this script)
 const DB_NAME = 'st2_db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let _db = null;
 
@@ -43,6 +43,15 @@ async function getDB() {
       if (!db.objectStoreNames.contains('events')) {
         const ev = db.createObjectStore('events', { keyPath: 'id', autoIncrement: true });
         ev.createIndex('date', 'date');
+      }
+      if (!db.objectStoreNames.contains('habits')) {
+        db.createObjectStore('habits', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains('habitLogs')) {
+        const hl = db.createObjectStore('habitLogs', { keyPath: 'id', autoIncrement: true });
+        hl.createIndex('habitId', 'habitId');
+        hl.createIndex('date', 'date');
+        hl.createIndex('habitDate', ['habitId', 'date'], { unique: true });
       }
     },
   });
@@ -297,10 +306,77 @@ window.db = {
     },
   },
 
+  habits: {
+    async add(habit) {
+      const d = await getDB();
+      return d.add('habits', { ...habit, createdAt: new Date().toISOString() });
+    },
+    async getAll() {
+      const d = await getDB();
+      return d.getAll('habits');
+    },
+    async get(id) {
+      const d = await getDB();
+      return d.get('habits', id);
+    },
+    async update(habit) {
+      const d = await getDB();
+      return d.put('habits', habit);
+    },
+    async delete(id) {
+      const d = await getDB();
+      return d.delete('habits', id);
+    },
+  },
+
+  habitLogs: {
+    async log(habitId, date) {
+      const d = await getDB();
+      // date is YYYY-MM-DD string
+      try {
+        return await d.add('habitLogs', { habitId, date, loggedAt: new Date().toISOString() });
+      } catch (e) {
+        // unique constraint — already logged
+        return null;
+      }
+    },
+    async unlog(habitId, date) {
+      const d = await getDB();
+      const existing = await d.getFromIndex('habitLogs', 'habitDate', [habitId, date]);
+      if (existing) await d.delete('habitLogs', existing.id);
+    },
+    async isLogged(habitId, date) {
+      const d = await getDB();
+      const existing = await d.getFromIndex('habitLogs', 'habitDate', [habitId, date]);
+      return !!existing;
+    },
+    async getForHabit(habitId) {
+      const d = await getDB();
+      return d.getAllFromIndex('habitLogs', 'habitId', habitId);
+    },
+    async getForDate(date) {
+      const d = await getDB();
+      return d.getAllFromIndex('habitLogs', 'date', date);
+    },
+    async getCount(habitId, date) {
+      // For weekly habits: count logs for the week containing `date`
+      const logs = await window.db.habitLogs.getForHabit(habitId);
+      const d = new Date(date);
+      const day = d.getDay();
+      const monday = new Date(d);
+      monday.setDate(d.getDate() - ((day + 6) % 7));
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      const monStr = monday.toISOString().split('T')[0];
+      const sunStr = sunday.toISOString().split('T')[0];
+      return logs.filter(l => l.date >= monStr && l.date <= sunStr).length;
+    },
+  },
+
   async exportAll() {
     const d = await getDB();
     const result = {};
-    const stores = ['weight', 'workouts', 'runs', 'study_sessions', 'classes', 'notes', 'events'];
+    const stores = ['weight', 'workouts', 'runs', 'study_sessions', 'classes', 'notes', 'events', 'habits', 'habitLogs'];
     for (const store of stores) {
       result[store] = await d.getAll(store);
     }
@@ -313,7 +389,7 @@ window.db = {
 
   async importAll(data) {
     const d = await getDB();
-    const stores = ['weight', 'workouts', 'runs', 'study_sessions', 'classes', 'notes', 'events'];
+    const stores = ['weight', 'workouts', 'runs', 'study_sessions', 'classes', 'notes', 'events', 'habits', 'habitLogs'];
     for (const store of stores) {
       if (!data[store]) continue;
       const tx = d.transaction(store, 'readwrite');

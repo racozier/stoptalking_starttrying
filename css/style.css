@@ -2825,3 +2825,215 @@ h3 { font-size: 1rem; font-weight: 600; }
 .polish-saved-trans { font-size: 0.73rem; color: var(--subtext); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .polish-saved-remove { background: none; border: none; color: #EAB308; cursor: pointer; font-size: 15px; padding: 2px 4px; line-height: 1; opacity: 0.6; transition: opacity 0.15s, transform 0.15s; flex-shrink: 0; }
 .polish-saved-remove:hover { opacity: 1; transform: scale(1.2); }
+
+/* ─── Habits Tab ─────────────────────────────────────────────────────────── */
+.habits-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 8px;
+}
+.habits-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.habits-add-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.habits-empty {
+  text-align: center;
+  color: var(--subtext);
+  padding: 60px 24px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.habits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 12px 80px;
+}
+.habit-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  border-left: 4px solid var(--habit-color, var(--accent));
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.habit-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.habit-card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.habit-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.habit-info {
+  min-width: 0;
+}
+.habit-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.habit-freq {
+  font-size: 0.75rem;
+  color: var(--subtext);
+  margin-top: 2px;
+}
+.habit-card-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.habit-streak {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 40px;
+}
+.habit-streak-num {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--habit-color, var(--accent));
+  line-height: 1;
+}
+.habit-streak-label {
+  font-size: 0.6rem;
+  color: var(--subtext);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
+.habit-dots-btn {
+  background: none;
+  border: none;
+  color: var(--subtext);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  letter-spacing: 2px;
+}
+.habit-dot-grid {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.habit-dot-grid::-webkit-scrollbar { display: none; }
+.habit-dot-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.habit-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.habit-dot.logged {
+  background: var(--habit-color, var(--accent));
+  opacity: 0.85;
+}
+.habit-dot.future {
+  opacity: 0.3;
+}
+.habit-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.habit-check-btn {
+  padding: 7px 18px;
+  border-radius: 20px;
+  border: 1.5px solid var(--habit-color, var(--accent));
+  background: transparent;
+  color: var(--habit-color, var(--accent));
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.habit-check-btn.done {
+  background: var(--habit-color, var(--accent));
+  color: #fff;
+}
+.habit-weekly-tracker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: space-between;
+}
+.habit-weekly-count {
+  font-size: 0.8rem;
+  color: var(--subtext);
+}
+.habit-weekly-btns {
+  display: flex;
+  gap: 6px;
+}
+.habit-weekly-log, .habit-weekly-unlog {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--habit-color, var(--accent));
+  background: transparent;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+.habit-weekly-log { color: var(--habit-color, var(--accent)); }
+.habit-weekly-unlog { color: var(--subtext); border-color: var(--border); }
+.habit-color-swatches {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.habit-color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.habit-color-swatch.selected {
+  border-color: var(--text);
+  transform: scale(1.15);
+}

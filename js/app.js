@@ -22,6 +22,7 @@ window.App = {
       fitness: typeof Fitness !== 'undefined' ? Fitness : null,
       study: typeof Study !== 'undefined' ? Study : null,
       notes: typeof Notes !== 'undefined' ? Notes : null,
+      habits: typeof Habits !== 'undefined' ? Habits : null,
       settings: typeof SettingsModule !== 'undefined' ? SettingsModule : null,
     };
 

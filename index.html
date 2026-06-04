@@ -682,9 +682,15 @@
 
     </div><!-- /tab-notes -->
 
+    <!-- ================================================================
+         TAB 5 — HABITS
+         ================================================================ -->
+    <div id="tab-habits" class="tab-content">
+    </div><!-- /tab-habits -->
+
 
     <!-- ================================================================
-         TAB 5 — SETTINGS
+         TAB 6 — SETTINGS
          ================================================================ -->
     <div id="tab-settings" class="tab-content">
 
@@ -808,7 +814,7 @@
           <div class="settings-row about-row" style="justify-content:center;flex-direction:column;align-items:flex-start">
             <div class="about-name">ST²</div>
             <div class="about-tagline">Stop Talking, Start Trying</div>
-            <div class="sub" style="margin-top:4px">v0.90</div>
+            <div class="sub" style="margin-top:4px">v0.91</div>
           </div>
         </div>
       </div>
@@ -834,6 +840,10 @@
     <button class="nav-item" data-tab="notes">
       <i data-lucide="file-text"></i>
       Notes
+    </button>
+    <button class="nav-item" data-tab="habits">
+      <i data-lucide="flame"></i>
+      Habits
     </button>
     <button class="nav-item" data-tab="settings">
       <i data-lucide="settings"></i>
@@ -1405,6 +1415,56 @@
 </div>
 
 
+<!-- ── Habit Modal ──────────────────────────────────────────────────────── -->
+<div id="modal-habit" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="habit-modal-title">Add Habit</h3>
+      <button class="modal-close" onclick="App.closeAllModals()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="habit-modal-id" />
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input class="form-input" id="habit-modal-name" type="text" placeholder="e.g. Drink 8 glasses of water" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji (optional)</label>
+        <input class="form-input" id="habit-modal-emoji" type="text" placeholder="💧" maxlength="2" style="max-width:80px" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Frequency</label>
+        <select class="form-input" id="habit-modal-freq" onchange="Habits.freqChanged(this.value)">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly (x times per week)</option>
+        </select>
+      </div>
+      <div class="form-group" id="habit-modal-target-row" style="display:none">
+        <label class="form-label">Times per week</label>
+        <input class="form-input" id="habit-modal-target" type="number" min="1" max="7" value="3" style="max-width:80px" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <div class="habit-color-swatches">
+          <button class="habit-color-swatch selected" data-color="#3B82F6" style="background:#3B82F6" onclick="Habits.selectColor('#3B82F6')"></button>
+          <button class="habit-color-swatch" data-color="#10B981" style="background:#10B981" onclick="Habits.selectColor('#10B981')"></button>
+          <button class="habit-color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="Habits.selectColor('#F59E0B')"></button>
+          <button class="habit-color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="Habits.selectColor('#EF4444')"></button>
+          <button class="habit-color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="Habits.selectColor('#8B5CF6')"></button>
+          <button class="habit-color-swatch" data-color="#EC4899" style="background:#EC4899" onclick="Habits.selectColor('#EC4899')"></button>
+          <button class="habit-color-swatch" data-color="#06B6D4" style="background:#06B6D4" onclick="Habits.selectColor('#06B6D4')"></button>
+          <button class="habit-color-swatch" data-color="#F97316" style="background:#F97316" onclick="Habits.selectColor('#F97316')"></button>
+        </div>
+        <input type="hidden" id="habit-modal-color" value="#3B82F6" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="Habits.saveHabit()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── PIN Entry Modal ──────────────────────────────────────────────────── -->
 <div class="modal-backdrop" id="modal-pin-entry">
   <div class="modal-sheet">
@@ -1481,6 +1541,56 @@
   </div>
 </div>
 
+<!-- ── Habit Modal ──────────────────────────────────────────────────────── -->
+<div id="modal-habit" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="habit-modal-title">Add Habit</h3>
+      <button class="modal-close" onclick="App.closeAllModals()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="habit-modal-id" />
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input class="form-input" id="habit-modal-name" type="text" placeholder="e.g. Drink 8 glasses of water" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji (optional)</label>
+        <input class="form-input" id="habit-modal-emoji" type="text" placeholder="💧" maxlength="2" style="max-width:80px" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Frequency</label>
+        <select class="form-input" id="habit-modal-freq" onchange="Habits.freqChanged(this.value)">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly (x times per week)</option>
+        </select>
+      </div>
+      <div class="form-group" id="habit-modal-target-row" style="display:none">
+        <label class="form-label">Times per week</label>
+        <input class="form-input" id="habit-modal-target" type="number" min="1" max="7" value="3" style="max-width:80px" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <div class="habit-color-swatches">
+          <button class="habit-color-swatch selected" data-color="#3B82F6" style="background:#3B82F6" onclick="Habits.selectColor('#3B82F6')"></button>
+          <button class="habit-color-swatch" data-color="#10B981" style="background:#10B981" onclick="Habits.selectColor('#10B981')"></button>
+          <button class="habit-color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="Habits.selectColor('#F59E0B')"></button>
+          <button class="habit-color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="Habits.selectColor('#EF4444')"></button>
+          <button class="habit-color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="Habits.selectColor('#8B5CF6')"></button>
+          <button class="habit-color-swatch" data-color="#EC4899" style="background:#EC4899" onclick="Habits.selectColor('#EC4899')"></button>
+          <button class="habit-color-swatch" data-color="#06B6D4" style="background:#06B6D4" onclick="Habits.selectColor('#06B6D4')"></button>
+          <button class="habit-color-swatch" data-color="#F97316" style="background:#F97316" onclick="Habits.selectColor('#F97316')"></button>
+        </div>
+        <input type="hidden" id="habit-modal-color" value="#3B82F6" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="App.closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="Habits.saveHabit()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- ════════════════════════════════════════════════════════════════════════
      SCRIPTS (dependency order)
      ════════════════════════════════════════════════════════════════════════ -->
@@ -1499,6 +1609,7 @@
 <script src="js/study.js"></script>
 <script src="js/polish.js"></script>
 <script src="js/notes.js"></script>
+<script src="js/habits.js"></script>
 <script src="js/settings.js"></script>
 
 </body>

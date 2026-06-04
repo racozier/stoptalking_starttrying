@@ -1,4 +1,4 @@
-const CACHE_NAME = 'st2-v90';
+const CACHE_NAME = 'st2-v91';
 const STRAVA_ORIGIN = 'https://www.strava.com';
 const ANTHROPIC_ORIGIN = 'https://api.anthropic.com';
 const GEMINI_ORIGIN = 'https://generativelanguage.googleapis.com';
@@ -14,6 +14,7 @@ const STATIC_ASSETS = [
   './js/study.js',
   './js/polish.js',
   './js/notes.js',
+  './js/habits.js',
   './js/settings.js',
   './js/strava.js',
   './js/charts.js',
