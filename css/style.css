@@ -2869,10 +2869,11 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 /* ── Habit Card ── */
 .habit-card {
-  background: var(--card);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 10px 10px 9px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 .habit-card-top {
