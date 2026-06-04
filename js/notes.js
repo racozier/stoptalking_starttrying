@@ -304,6 +304,12 @@ window.Notes = {
 
     App.openModal('modal-note-editor');
 
+    // Don't auto-show keyboard when opening a note — user taps body to type
+    setTimeout(() => {
+      const b = document.getElementById('note-body');
+      if (b) { b.contentEditable = 'true'; b.blur(); }
+    }, 80);
+
     // Checklist Enter key handler
     if (body) {
       body._checklistKeyHandler && body.removeEventListener('keydown', body._checklistKeyHandler);
@@ -522,16 +528,18 @@ window.Notes = {
   toggleFormatBar() {
     const bar = document.getElementById('note-format-bar');
     const main = document.getElementById('note-bottombar-main');
+    const body = document.getElementById('note-body');
     if (!bar || !main) return;
     const isOpen = bar.classList.contains('open');
     if (isOpen) {
       bar.classList.remove('open');
       main.style.display = 'flex';
+      // Restore editing ability when format bar is closed
+      if (body) body.contentEditable = 'true';
     } else {
       this.closeAddMenu();
-      // Save selection then dismiss keyboard before showing format strip
-      const body = document.getElementById('note-body');
       if (body) {
+        // Save current selection before locking the body
         const sel = window.getSelection();
         if (sel && sel.rangeCount > 0) {
           const range = sel.getRangeAt(0);
@@ -539,6 +547,10 @@ window.Notes = {
             this._savedRange = range.cloneRange();
           }
         }
+        // Setting contentEditable false prevents any touch on the body
+        // from refocusing it (and showing the keyboard) while formatting.
+        // DOM manipulation still works on non-editable content.
+        body.contentEditable = 'false';
         body.blur();
       }
       bar.classList.add('open');
@@ -549,8 +561,10 @@ window.Notes = {
   closeFormatBar() {
     const bar = document.getElementById('note-format-bar');
     const main = document.getElementById('note-bottombar-main');
+    const body = document.getElementById('note-body');
     if (bar) bar.classList.remove('open');
     if (main) main.style.display = 'flex';
+    if (body) body.contentEditable = 'true';
   },
 
   _currentFontSize() {
@@ -574,16 +588,49 @@ window.Notes = {
       sel.removeAllRanges();
       sel.addRange(this._savedRange);
     }
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+    const body = document.getElementById('note-body');
     const current = this._currentFontSize();
     const next = Math.max(1, Math.min(7, current + delta));
-    document.execCommand('fontSize', false, String(next));
-    // Restructure any <s><font> → <font><s> the size change may have created
-    this._fixStrikethroughNesting();
-    // Refresh saved range after all DOM mutations
-    const sel2 = window.getSelection();
-    if (sel2 && sel2.rangeCount > 0) {
-      this._savedRange = sel2.getRangeAt(0).cloneRange();
+
+    // Find an existing <font> ancestor of the selection
+    let container = range.commonAncestorContainer;
+    if (container.nodeType === Node.TEXT_NODE) container = container.parentElement;
+    let existingFont = null;
+    let el = container;
+    while (el && el !== body) {
+      if (el.tagName === 'FONT') { existingFont = el; break; }
+      el = el.parentElement;
     }
+
+    let targetEl;
+    if (existingFont) {
+      // Update existing font element in-place — no DOM restructuring, selection intact
+      existingFont.setAttribute('size', String(next));
+      targetEl = existingFont;
+    } else {
+      // Wrap the selected content in a new <font size> element
+      try {
+        const newFont = document.createElement('font');
+        newFont.setAttribute('size', String(next));
+        newFont.appendChild(range.extractContents());
+        range.insertNode(newFont);
+        targetEl = newFont;
+      } catch (_) {
+        return; // bail on complex cross-element selections
+      }
+    }
+
+    this._fixStrikethroughNesting();
+
+    // Re-select the content of the resized element so text stays highlighted
+    const newRange = document.createRange();
+    newRange.selectNodeContents(targetEl);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+    this._savedRange = newRange.cloneRange();
   },
 
   increaseFontSize() { this._fontSizeStep(1); },
