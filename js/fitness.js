@@ -4,6 +4,54 @@ window.Fitness = {
   _stravaActivities: [],
   _leafletMaps: {},
 
+  _defaultUpper: ['Bench Press', 'Incline DB Press', 'Shoulder Press', 'Lateral Raises', 'Pull-ups', 'Barbell Rows', 'Bicep Curls', 'Tricep Pushdowns'],
+  _defaultLower: ['Squat', 'Deadlift', 'Romanian Deadlift', 'Leg Press', 'Lunges', 'Leg Curl', 'Calf Raises'],
+
+  _loadQuickExercises() {
+    try {
+      const stored = JSON.parse(localStorage.getItem('st2_quick_exercises') || '{}');
+      this._upperExercises = stored.upper || [...this._defaultUpper];
+      this._lowerExercises = stored.lower || [...this._defaultLower];
+    } catch (e) {
+      this._upperExercises = [...this._defaultUpper];
+      this._lowerExercises = [...this._defaultLower];
+    }
+  },
+
+  _saveQuickExercises() {
+    localStorage.setItem('st2_quick_exercises', JSON.stringify({ upper: this._upperExercises, lower: this._lowerExercises }));
+  },
+
+  _populateQuickDropdowns() {
+    ['upper', 'lower'].forEach((type) => {
+      const sel = document.getElementById(`quick-${type}-select`);
+      if (!sel) return;
+      const list = type === 'upper' ? this._upperExercises : this._lowerExercises;
+      sel.innerHTML = `<option value="">Select…</option>` +
+        list.map((e) => `<option value="${App.escapeHtml(e)}">${App.escapeHtml(e)}</option>`).join('') +
+        `<option value="__add__">＋ Add to list…</option>`;
+      sel.value = '';
+    });
+  },
+
+  quickAddFromSelect(type) {
+    const sel = document.getElementById(`quick-${type}-select`);
+    if (!sel || !sel.value) return;
+    if (sel.value === '__add__') {
+      const name = prompt(`New ${type === 'upper' ? 'upper' : 'lower'} body exercise:`);
+      if (name?.trim()) {
+        const list = type === 'upper' ? this._upperExercises : this._lowerExercises;
+        if (!list.includes(name.trim())) { list.push(name.trim()); this._saveQuickExercises(); }
+        this._populateQuickDropdowns();
+        this.addExerciseRow(name.trim());
+      }
+      sel.value = '';
+      return;
+    }
+    this.addExerciseRow(sel.value);
+    sel.value = '';
+  },
+
   async init() {
     document.querySelectorAll('.fitness-filter-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -387,32 +435,15 @@ window.Fitness = {
     const h3 = modal.querySelector('.modal-header h3');
     if (h3) h3.textContent = 'Log Workout';
 
-    // Populate quick-add exercise chips from history
-    const allWorkouts = await window.db.workouts.getAll();
-    const exerciseFreq = {};
-    allWorkouts.forEach((w) => (w.exercises || []).forEach((ex) => {
-      exerciseFreq[ex.name] = (exerciseFreq[ex.name] || 0) + 1;
-    }));
-    const topExercises = Object.entries(exerciseFreq)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([name]) => name);
-
-    const chipsContainer = modal.querySelector('.quick-add-chips');
-    if (chipsContainer) {
-      chipsContainer.innerHTML = topExercises.map((name) =>
-        `<button class="chip" onclick="Fitness.quickAddExercise('${App.escapeHtml(name)}')">${App.escapeHtml(name)}</button>`
-      ).join('');
-    }
-
     // Reset form
     modal.querySelector('#workout-name-input').value = '';
     modal.querySelector('#workout-date-input').value = new Date().toISOString().slice(0, 16);
     modal.querySelector('#workout-notes-input').value = '';
     modal.querySelector('#workout-exercises-list').innerHTML = '';
 
-    // Add one empty exercise to start
-    this.addExerciseRow();
+    // Populate quick-add dropdowns
+    this._loadQuickExercises();
+    this._populateQuickDropdowns();
 
     App.openModal('modal-log-workout');
   },

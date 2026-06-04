@@ -970,10 +970,16 @@
         <input type="datetime-local" class="form-input" id="workout-date-input" />
       </div>
 
-      <!-- Quick add chips (populated by JS) -->
-      <div style="margin-bottom:8px">
-        <label style="display:block;font-size:0.78rem;color:var(--subtext);margin-bottom:6px;font-weight:600">Quick Add</label>
-        <div class="quick-add-chips" style="min-height:32px"></div>
+      <!-- Quick add dropdowns -->
+      <div class="workout-quick-dropdowns">
+        <div class="workout-quick-col">
+          <label class="workout-quick-label">Upper Body</label>
+          <select class="form-input workout-quick-select" id="quick-upper-select" onchange="Fitness.quickAddFromSelect('upper')"></select>
+        </div>
+        <div class="workout-quick-col">
+          <label class="workout-quick-label">Lower Body</label>
+          <select class="form-input workout-quick-select" id="quick-lower-select" onchange="Fitness.quickAddFromSelect('lower')"></select>
+        </div>
       </div>
 
       <!-- Exercise list -->

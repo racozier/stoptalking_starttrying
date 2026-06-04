@@ -1282,6 +1282,10 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .chip:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
+.workout-quick-dropdowns { display: flex; gap: 10px; margin-bottom: 12px; }
+.workout-quick-col { flex: 1; min-width: 0; }
+.workout-quick-label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--subtext); margin-bottom: 4px; }
+.workout-quick-select { padding: 8px 10px; font-size: 0.82rem; }
 .exercise-entry {
   background: var(--surface2);
   border: 1px solid var(--border);
