@@ -34,6 +34,30 @@ window.Fitness = {
     });
   },
 
+  toggleManageList(type) {
+    const panel = document.getElementById(`manage-${type}`);
+    if (!panel) return;
+    const isOpen = panel.style.display !== 'none';
+    if (isOpen) { panel.style.display = 'none'; return; }
+    const list = type === 'upper' ? this._upperExercises : this._lowerExercises;
+    panel.innerHTML = list.map((e, i) =>
+      `<div class="workout-ex-manage-row">
+        <span>${App.escapeHtml(e)}</span>
+        <button class="workout-ex-manage-del" onclick="Fitness.removeFromList('${type}',${i})" title="Remove">✕</button>
+      </div>`
+    ).join('') || '<div style="font-size:0.75rem;color:var(--subtext);padding:4px 6px">No exercises yet</div>';
+    panel.style.display = 'flex';
+  },
+
+  removeFromList(type, index) {
+    const list = type === 'upper' ? this._upperExercises : this._lowerExercises;
+    list.splice(index, 1);
+    this._saveQuickExercises();
+    this._populateQuickDropdowns();
+    this.toggleManageList(type); // close
+    this.toggleManageList(type); // re-open refreshed
+  },
+
   quickAddFromSelect(type) {
     const sel = document.getElementById(`quick-${type}-select`);
     if (!sel || !sel.value) return;

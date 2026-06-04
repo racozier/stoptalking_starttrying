@@ -973,12 +973,20 @@
       <!-- Quick add dropdowns -->
       <div class="workout-quick-dropdowns">
         <div class="workout-quick-col">
-          <label class="workout-quick-label">Upper Body</label>
+          <div class="workout-quick-label-row">
+            <span class="workout-quick-label">Upper Body</span>
+            <button class="workout-quick-edit-btn" onclick="Fitness.toggleManageList('upper')">Edit</button>
+          </div>
           <select class="form-input workout-quick-select" id="quick-upper-select" onchange="Fitness.quickAddFromSelect('upper')"></select>
+          <div class="workout-ex-manage" id="manage-upper" style="display:none"></div>
         </div>
         <div class="workout-quick-col">
-          <label class="workout-quick-label">Lower Body</label>
+          <div class="workout-quick-label-row">
+            <span class="workout-quick-label">Lower Body</span>
+            <button class="workout-quick-edit-btn" onclick="Fitness.toggleManageList('lower')">Edit</button>
+          </div>
           <select class="form-input workout-quick-select" id="quick-lower-select" onchange="Fitness.quickAddFromSelect('lower')"></select>
+          <div class="workout-ex-manage" id="manage-lower" style="display:none"></div>
         </div>
       </div>
 

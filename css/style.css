@@ -1284,8 +1284,15 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 .workout-quick-dropdowns { display: flex; gap: 10px; margin-bottom: 12px; }
 .workout-quick-col { flex: 1; min-width: 0; }
-.workout-quick-label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--subtext); margin-bottom: 4px; }
-.workout-quick-select { padding: 8px 10px; font-size: 0.82rem; }
+.workout-quick-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.workout-quick-label { font-size: 0.8rem; font-weight: 500; color: var(--subtext); }
+.workout-quick-edit-btn { font-size: 0.72rem; color: var(--subtext); background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; }
+.workout-quick-edit-btn:hover { color: var(--text); }
+.workout-quick-select { padding: 8px 10px; font-size: 0.8rem; font-weight: 400; }
+.workout-ex-manage { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.workout-ex-manage-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: var(--text); padding: 4px 6px; background: var(--surface2); border-radius: 6px; }
+.workout-ex-manage-del { background: none; border: none; color: var(--subtext); cursor: pointer; font-size: 0.9rem; padding: 0 2px; line-height: 1; }
+.workout-ex-manage-del:hover { color: #F87171; }
 .exercise-entry {
   background: var(--surface2);
   border: 1px solid var(--border);
