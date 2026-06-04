@@ -1222,6 +1222,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   max-height: 100dvh;
   height: 100dvh;
   border-radius: 0;
+  overflow: hidden;
 }
 
 /* ── Forms ────────────────────────────────────────────────────────────────── */
@@ -1944,12 +1945,33 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .task-drag-handle:active { cursor: grabbing; }
 .task-check {
-  width: 18px; height: 18px;
-  accent-color: var(--accent);
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
   flex-shrink: 0;
   cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s;
 }
-.task-text { flex: 1; outline: none; word-break: break-word; min-width: 0; }
+.task-check:checked {
+  border-color: var(--accent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpolyline points='4,10 8,14 16,6' fill='none' stroke='%232563EB' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.task-text {
+  flex: 1;
+  outline: none;
+  word-break: break-word;
+  min-width: 0;
+  min-height: 1.6em;
+  cursor: text;
+  -webkit-user-modify: read-write;
+}
 .task-item:has(.task-check:checked) .task-text { text-decoration: line-through; opacity: 0.45; }
 .task-del-btn {
   flex-shrink: 0;
@@ -1957,11 +1979,11 @@ h3 { font-size: 1rem; font-weight: 600; }
   border: none;
   color: var(--subtext);
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 4px 8px;
   font-size: 1rem;
   line-height: 1;
   border-radius: 50%;
-  opacity: 0;
+  opacity: 0.45;
   transition: opacity 0.12s;
 }
 .task-item:focus-within .task-del-btn { opacity: 1; }

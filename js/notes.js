@@ -324,13 +324,18 @@ window.Notes = {
     const sheet = modal.querySelector('.modal-sheet');
     if (sheet) sheet.style.background = note?.color || '';
 
+    // Lock body before modal open so keyboard doesn't auto-show during animation
+    if (body) body.contentEditable = 'false';
     App.openModal('modal-note-editor');
 
-    // Don't auto-show keyboard when opening a note — user taps body to type
+    // After animation settles, restore editability without focusing
     setTimeout(() => {
+      if (document.activeElement && document.activeElement !== document.body) {
+        document.activeElement.blur();
+      }
       const b = document.getElementById('note-body');
-      if (b) { b.contentEditable = 'true'; b.blur(); }
-    }, 80);
+      if (b) b.contentEditable = 'true';
+    }, 300);
 
     // Checklist Enter key handler
     if (body) {
@@ -804,6 +809,7 @@ window.Notes = {
   _createTaskItem(textContent) {
     const item = document.createElement('div');
     item.className = 'task-item';
+    item.setAttribute('contenteditable', 'false');
     const handle = document.createElement('span');
     handle.className = 'task-drag-handle';
     handle.setAttribute('contenteditable', 'false');
@@ -814,13 +820,14 @@ window.Notes = {
     check.setAttribute('contenteditable', 'false');
     const span = document.createElement('span');
     span.className = 'task-text';
+    span.setAttribute('contenteditable', 'true');
     if (textContent) span.textContent = textContent;
     const del = document.createElement('button');
     del.className = 'task-del-btn';
     del.setAttribute('contenteditable', 'false');
     del.textContent = '✕';
     del.addEventListener('pointerdown', (e) => e.preventDefault());
-    del.addEventListener('click', () => this._deleteTaskItem(del));
+    del.onclick = () => this._deleteTaskItem(del);
     item.appendChild(handle);
     item.appendChild(check);
     item.appendChild(span);
@@ -876,6 +883,9 @@ window.Notes = {
     const body = document.getElementById('note-body');
     if (!body) return;
     body.querySelectorAll('.task-item').forEach((item) => {
+      // Ensure task-item is a non-editable atom; task-text is explicitly editable
+      item.setAttribute('contenteditable', 'false');
+
       if (!item.querySelector('.task-drag-handle')) {
         const h = document.createElement('span');
         h.className = 'task-drag-handle';
@@ -883,21 +893,40 @@ window.Notes = {
         h.textContent = '⠿';
         item.insertBefore(h, item.firstChild);
       }
-      if (!item.querySelector('.task-del-btn')) {
+
+      const check = item.querySelector('.task-check');
+      if (check) check.setAttribute('contenteditable', 'false');
+
+      const span = item.querySelector('.task-text');
+      if (span) span.setAttribute('contenteditable', 'true');
+
+      // Re-attach delete handler (lost when innerHTML is set)
+      const existingDel = item.querySelector('.task-del-btn');
+      if (existingDel) {
+        existingDel.setAttribute('contenteditable', 'false');
+        existingDel.addEventListener('pointerdown', (e) => e.preventDefault());
+        existingDel.onclick = () => this._deleteTaskItem(existingDel);
+      } else {
         const d = document.createElement('button');
         d.className = 'task-del-btn';
         d.setAttribute('contenteditable', 'false');
         d.textContent = '✕';
         d.addEventListener('pointerdown', (e) => e.preventDefault());
-        d.addEventListener('click', () => this._deleteTaskItem(d));
+        d.onclick = () => this._deleteTaskItem(d);
         item.appendChild(d);
       }
-      const check = item.querySelector('.task-check');
-      if (check) check.setAttribute('contenteditable', 'false');
+
       this._setupTaskDrag(item);
     });
-    if (body.querySelectorAll('.task-item').length > 0 && !body.querySelector('.task-add-row')) {
-      body.appendChild(this._createTaskAddRow());
+
+    const hasTasks = body.querySelectorAll('.task-item').length > 0;
+    const existingAddRow = body.querySelector('.task-add-row');
+    if (hasTasks) {
+      if (existingAddRow) {
+        existingAddRow.onclick = () => this._addTaskItem();
+      } else {
+        body.appendChild(this._createTaskAddRow());
+      }
     }
   },
 
