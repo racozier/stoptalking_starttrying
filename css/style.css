@@ -2844,8 +2844,8 @@ h3 { font-size: 1rem; font-weight: 600; }
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
+  background: var(--text);
+  color: var(--bg);
   border: none;
   font-size: 1.1rem;
   display: flex;
