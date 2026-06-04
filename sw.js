@@ -1,8 +1,7 @@
-const CACHE_NAME = 'st2-v86';
+const CACHE_NAME = 'st2-v87';
 const STRAVA_ORIGIN = 'https://www.strava.com';
 const ANTHROPIC_ORIGIN = 'https://api.anthropic.com';
 const GEMINI_ORIGIN = 'https://generativelanguage.googleapis.com';
-const OPENWEATHER_ORIGIN = 'https://api.openweathermap.org';
 
 const STATIC_ASSETS = [
   './',
@@ -21,7 +20,6 @@ const STATIC_ASSETS = [
   './config.js',
   './manifest.json',
   './icon.png',
-  './splash.jpg',
 ];
 
 self.addEventListener('install', (e) => {
@@ -51,8 +49,8 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Network-first for Strava + OpenWeatherMap
-  if (url.origin === STRAVA_ORIGIN || url.origin === OPENWEATHER_ORIGIN) {
+  // Network-first for Strava API calls
+  if (url.origin === STRAVA_ORIGIN) {
     e.respondWith(
       fetch(e.request).catch(() => new Response('{"error":"offline"}', {
         headers: { 'Content-Type': 'application/json' },
