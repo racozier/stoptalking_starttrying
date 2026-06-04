@@ -17,14 +17,17 @@ window.Charts = {
     const { tick, tick2, grid } = this._colors();
     const sorted = [...data].reverse();
     const vals = sorted.map((d) => d.value);
-    // Day number labels; prepend month abbreviation when the month changes
+    // Show label only on weekly anchor days (1, 8, 15, 22); prefix month on change
+    const ANCHORS = new Set([1, 8, 15, 22]);
     let lastMonth = '';
     const labels = sorted.map((d) => {
       const dt = new Date(d.date);
       const m = dt.toLocaleDateString('en-GB', { month: 'short' });
       const day = dt.getDate();
-      if (m !== lastMonth) { lastMonth = m; return `${day} ${m}`; }
-      return String(day);
+      const monthChanged = m !== lastMonth;
+      if (monthChanged) lastMonth = m;
+      if (ANCHORS.has(day) || monthChanged) return `${day} ${m}`;
+      return '';
     });
     canvas._chart = new Chart(ctx, {
       type: 'line',
