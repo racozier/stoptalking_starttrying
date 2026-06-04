@@ -1445,16 +1445,11 @@
           <div class="habit-picker-circle" id="habit-color-preview" style="background:#3B82F6"></div>
           <span>Color</span>
         </button>
-        <label class="habit-picker-cell" for="habit-modal-emoji">
+        <button class="habit-picker-cell" onclick="Habits.toggleEmojiPicker()">
           <div class="habit-picker-emoji-circle" id="habit-emoji-preview">💧</div>
-          <div class="habit-emoji-cell-text">
-            <span class="habit-picker-cell-label">Icon</span>
-            <span class="habit-picker-cell-sub">any emoji</span>
-          </div>
-          <input type="text" id="habit-modal-emoji" class="habit-emoji-type-input"
-                 value="💧" maxlength="4" placeholder="💧"
-                 oninput="Habits.emojiTyped(this.value)" />
-        </label>
+          <span>Icon</span>
+        </button>
+        <input type="hidden" id="habit-modal-emoji" value="💧" />
       </div>
       <div class="habit-palette-row" id="habit-color-palette" style="display:none">
           <button class="habit-color-option selected" data-color="#3B82F6" style="background:#3B82F6" onclick="Habits.selectColor('#3B82F6')"></button>
@@ -1492,6 +1487,14 @@
           <button class="habit-color-option" data-color="#14B8A6" style="background:#14B8A6" onclick="Habits.selectColor('#14B8A6')"></button>
           <button class="habit-color-option" data-color="#0D9488" style="background:#0D9488" onclick="Habits.selectColor('#0D9488')"></button>
           <button class="habit-color-option" data-color="#2DD4BF" style="background:#2DD4BF" onclick="Habits.selectColor('#2DD4BF')"></button>
+      </div>
+      <div class="habit-emoji-grid-panel" id="habit-emoji-grid" style="display:none">
+        <div class="habit-emoji-grid-nav">
+          <button class="habit-emoji-page-btn" id="habit-emoji-prev" onclick="Habits.emojiPageNav(-1)">‹</button>
+          <div class="habit-emoji-grid" id="habit-emoji-grid-cells"></div>
+          <button class="habit-emoji-page-btn" id="habit-emoji-next" onclick="Habits.emojiPageNav(1)">›</button>
+        </div>
+        <div class="habit-emoji-page-dots" id="habit-emoji-page-dots"></div>
       </div>
       <input type="hidden" id="habit-modal-color" value="#3B82F6" />
     </div>

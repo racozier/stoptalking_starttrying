@@ -11,17 +11,44 @@ const HABIT_COLORS = [
 ];
 
 const HABIT_EMOJIS = [
-  '💧','🏃','💪','📚','🧘','🥗','😴','🎯',
-  '✍️','🏋️','🚴','🧠','💊','🥤','🌟','🔥',
-  '⚡','🎵','🧹','💰','🛌','☀️','🌿','🍎',
-  '🚶','🧗','⏰','📝','🎨','🏊','🤸','🧘',
+  // Fitness
+  '🏃','💪','🏋️','🚴','🧘','🏊','🤸','🚶',
+  '🏄','🧗','⛹️','🥊','🏹','🤺','⛷️','🛹',
+  '🏂','🤼','🤾','🏇','🎽','🦵','🦶','🧎',
+  '🛼','🪂','🏌️','🏸','🏓','⚽','🏀','🎾',
+  // Health
+  '💊','🩺','🩹','😴','🛌','🧠','🫀','🫁',
+  '🦷','🧴','🪥','💉','🩻','🧬','🫶','❤️',
+  // Food & Drink
+  '💧','🥗','🍎','🥦','🍳','🥑','🍇','🍓',
+  '🥤','🍵','☕','🧃','🥛','🍚','🥩','🫐',
+  '🥕','🌽','🍊','🫒','🥐','🧇','🥚','🍿',
+  '🍫','🧁','🥞','🥓','🌮','🍱','🍜','🥟',
+  // Study & Work
+  '📚','✍️','📝','💻','📖','🔬','🧪','💡',
+  '🎓','🖊️','📐','🖥️','📌','📎','🗂️','📊',
+  '📈','🗒️','📋','🔧','📞','📧','🖨️','⌨️',
+  // Nature
+  '🌿','☀️','🌱','🌳','🌊','🏔️','🌅','🌙',
+  '⭐','🌺','🌸','🍃','🌍','❄️','🌈','🔆',
+  '🌻','🌼','🍀','🌾','🦋','🌴','🏕️','🌄',
+  // Arts & Activities
+  '🎵','🎨','🎮','🎸','🎹','🎭','📷','🎤',
+  '🎼','🎻','🥁','🎺','🎷','🎧','🎬','🎲',
+  // Goals & Life
+  '⏰','📅','🔥','🚀','✅','⚡','💫','🎯',
+  '🔑','🛡️','💰','💎','🏆','🥇','🎁','🧩',
+  '❌','⚔️','🌟','💸','🛒','🏠','🚗','✈️',
 ];
+
+const EMOJI_PAGE_SIZE = 32;
 
 window.Habits = {
   _habits: [],
   _logs: {},
   _initialized: false,
   _noteHabitId: null,
+  _emojiPage: 0,
 
   async init() {
     this._initialized = true;
@@ -245,7 +272,9 @@ window.Habits = {
     document.getElementById('habit-modal-target-row').style.display = 'none';
     this._setSelectedColor('#3B82F6');
     this._setSelectedEmoji('💧');
+    this._emojiPage = 0;
     document.getElementById('habit-color-palette').style.display = 'none';
+    document.getElementById('habit-emoji-grid').style.display = 'none';
     App.openModal('modal-habit');
   },
 
@@ -261,7 +290,9 @@ window.Habits = {
     document.getElementById('habit-modal-target-row').style.display = habit.frequency === 'weekly' ? '' : 'none';
     this._setSelectedColor(habit.color || '#3B82F6');
     this._setSelectedEmoji(habit.emoji || '💧');
+    this._emojiPage = 0;
     document.getElementById('habit-color-palette').style.display = 'none';
+    document.getElementById('habit-emoji-grid').style.display = 'none';
     App.openModal('modal-habit');
   },
 
@@ -285,17 +316,63 @@ window.Habits = {
     this._setSelectedColor(color);
   },
 
-  emojiTyped(val) {
-    // Grab the last grapheme cluster (handles multi-byte emoji)
-    const emoji = [...val].slice(-2).join('') || val || '⭐';
-    const preview = document.getElementById('habit-emoji-preview');
-    if (preview) preview.textContent = emoji;
+  toggleEmojiPicker() {
+    const panel = document.getElementById('habit-emoji-grid');
+    const isVisible = panel.style.display !== 'none';
+    if (isVisible) {
+      panel.style.display = 'none';
+    } else {
+      // Close color palette if open
+      document.getElementById('habit-color-palette').style.display = 'none';
+      panel.style.display = 'block';
+      this.renderEmojiGrid();
+    }
+  },
+
+  renderEmojiGrid() {
+    const cells = document.getElementById('habit-emoji-grid-cells');
+    const dots = document.getElementById('habit-emoji-page-dots');
+    const prevBtn = document.getElementById('habit-emoji-prev');
+    const nextBtn = document.getElementById('habit-emoji-next');
+    if (!cells) return;
+    const totalPages = Math.ceil(HABIT_EMOJIS.length / EMOJI_PAGE_SIZE);
+    const page = this._emojiPage;
+    const start = page * EMOJI_PAGE_SIZE;
+    const pageEmojis = HABIT_EMOJIS.slice(start, start + EMOJI_PAGE_SIZE);
+    const current = document.getElementById('habit-modal-emoji')?.value || '';
+    cells.innerHTML = pageEmojis.map(e =>
+      `<button class="habit-emoji-option${e === current ? ' selected' : ''}" onclick="Habits.selectEmoji('${e}')">${e}</button>`
+    ).join('');
+    if (prevBtn) prevBtn.disabled = page === 0;
+    if (nextBtn) nextBtn.disabled = page >= totalPages - 1;
+    if (dots) {
+      dots.innerHTML = Array.from({ length: totalPages }, (_, i) =>
+        `<span class="habit-emoji-page-dot${i === page ? ' active' : ''}"></span>`
+      ).join('');
+    }
+  },
+
+  emojiPageNav(dir) {
+    const totalPages = Math.ceil(HABIT_EMOJIS.length / EMOJI_PAGE_SIZE);
+    this._emojiPage = Math.max(0, Math.min(totalPages - 1, this._emojiPage + dir));
+    this.renderEmojiGrid();
+  },
+
+  selectEmoji(emoji) {
+    this._setSelectedEmoji(emoji);
+    document.getElementById('habit-emoji-grid').style.display = 'none';
   },
 
   toggleColorPicker() {
     const palette = document.getElementById('habit-color-palette');
     const isVisible = palette.style.display !== 'none';
-    palette.style.display = isVisible ? 'none' : 'flex';
+    if (isVisible) {
+      palette.style.display = 'none';
+    } else {
+      // Close emoji picker if open
+      document.getElementById('habit-emoji-grid').style.display = 'none';
+      palette.style.display = 'flex';
+    }
   },
 
   freqChanged(val) {

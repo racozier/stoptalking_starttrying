@@ -3083,33 +3083,6 @@ h3 { font-size: 1rem; font-weight: 600; }
   color: var(--text);
   font-weight: 500;
 }
-.habit-emoji-cell-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-width: 0;
-}
-.habit-picker-cell-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text);
-}
-.habit-picker-cell-sub {
-  font-size: 0.72rem;
-  color: var(--subtext);
-}
-.habit-emoji-type-input {
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 0.75rem;
-  color: var(--subtext);
-  width: 100%;
-  cursor: pointer;
-  padding: 0;
-  display: block;
-}
 .habit-picker-circle {
   width: 32px;
   height: 32px;
@@ -3151,26 +3124,66 @@ h3 { font-size: 1rem; font-weight: 600; }
   border-color: var(--text);
   transform: scale(1.12);
 }
-.habit-emoji-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  padding: 4px 0 16px;
+.habit-emoji-grid-panel {
+  padding: 8px 0 12px;
+  border-bottom: 1px solid var(--border);
 }
-.habit-emoji-option {
-  aspect-ratio: 1;
-  border-radius: 10px;
-  background: var(--card);
-  border: 2px solid transparent;
-  font-size: 1.2rem;
+.habit-emoji-grid-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.habit-emoji-page-btn {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1.3rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.1s;
+  border-radius: 8px;
   padding: 0;
+  transition: opacity 0.15s;
 }
-.habit-emoji-option.selected { border-color: var(--accent); }
+.habit-emoji-page-btn:disabled { opacity: 0.2; cursor: default; }
+.habit-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  flex: 1;
+}
+.habit-emoji-option {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: border-color 0.1s;
+}
+.habit-emoji-option.selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, var(--surface2)); }
+.habit-emoji-page-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.habit-emoji-page-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.15s;
+}
+.habit-emoji-page-dot.active { background: var(--accent); }
 
 /* ── Habit Note Panel (slides in from right) ── */
 .habit-note-panel {
