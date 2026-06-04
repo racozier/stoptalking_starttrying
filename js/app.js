@@ -44,6 +44,9 @@ window.App = {
     // Render Lucide icons in static HTML (nav, etc.)
     if (window.lucide) lucide.createIcons();
 
+    // Auto-hide splash after app is ready
+    setTimeout(() => this.hideSplash(), 1800);
+
     // Close modals on backdrop click
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('modal-backdrop')) {
@@ -103,6 +106,21 @@ window.App = {
     const themeColors = { dark: '#2563EB', darker: '#3B82F6', light: '#1D4ED8', midnight: '#3B82F6' };
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = themeColors[theme] || themeColors.dark;
+  },
+
+  hideSplash() {
+    const splash = document.getElementById('app-splash');
+    if (!splash || splash.classList.contains('hidden')) return;
+    splash.classList.add('hiding');
+    setTimeout(() => splash.classList.add('hidden'), 460);
+  },
+
+  showSplash() {
+    const splash = document.getElementById('app-splash');
+    if (!splash) return;
+    splash.classList.remove('hidden', 'hiding');
+    clearTimeout(this._splashTimer);
+    this._splashTimer = setTimeout(() => this.hideSplash(), 2500);
   },
 
   updateGreeting() {

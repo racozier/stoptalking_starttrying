@@ -6,7 +6,7 @@
   <meta name="description" content="ST² — Stop Talking, Start Trying. Personal life tracker." />
 
   <!-- PWA / Android -->
-  <meta name="theme-color" content="#0A0A0F" />
+  <meta name="theme-color" content="#000000" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="application-name" content="ST²" />
 
@@ -30,11 +30,19 @@
 </head>
 <body>
 
+<!-- ── Splash Screen ──────────────────────────────────────────────────── -->
+<div id="app-splash" onclick="App.hideSplash()">
+  <img class="splash-icon" src="icon.png" alt="ST²" />
+  <div class="splash-title">ST²</div>
+  <div class="splash-tagline">Stop Talking, Start Trying</div>
+  <div class="splash-tap">Tap to continue</div>
+</div>
+
 <div id="app">
 
   <!-- ── App Header ────────────────────────────────────────────────────── -->
   <div class="app-header" id="app-header">
-    <div class="app-logo">ST²</div>
+    <div class="app-logo" onclick="App.showSplash()">ST²</div>
     <div class="greeting-flip-container">
       <div class="greeting-flip-card" id="greeting-flip">
         <div class="greeting-flip-front">
@@ -808,7 +816,7 @@
           <div class="settings-row about-row" style="justify-content:center;flex-direction:column;align-items:flex-start">
             <div class="about-name">ST²</div>
             <div class="about-tagline">Stop Talking, Start Trying</div>
-            <div class="sub" style="margin-top:4px">v0.81</div>
+            <div class="sub" style="margin-top:4px">v0.83</div>
           </div>
         </div>
       </div>
