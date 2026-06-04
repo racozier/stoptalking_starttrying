@@ -1,4 +1,4 @@
-const CACHE_NAME = 'st2-v98';
+const CACHE_NAME = 'st2-v99';
 const STRAVA_ORIGIN = 'https://www.strava.com';
 const ANTHROPIC_ORIGIN = 'https://api.anthropic.com';
 const GEMINI_ORIGIN = 'https://generativelanguage.googleapis.com';
@@ -71,6 +71,9 @@ self.addEventListener('fetch', (e) => {
         }
         return response;
       });
-    }).catch(() => caches.match('./index.html'))
+    }).catch(() => {
+      if (e.request.mode === 'navigate') return caches.match('./index.html');
+      return new Response('', { status: 408 });
+    }))
   );
 });
