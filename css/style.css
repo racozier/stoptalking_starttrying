@@ -2985,18 +2985,18 @@ h3 { font-size: 1rem; font-weight: 600; }
 /* ── Dot Grid ── */
 .habit-dot-grid {
   display: grid;
-  grid-template-columns: repeat(13, 1fr);
-  gap: 3px;
+  grid-template-columns: repeat(18, 1fr);
+  gap: 2px;
   width: 100%;
 }
 .habit-dot-col {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 .habit-dot {
   aspect-ratio: 1;
-  border-radius: 3px;
+  border-radius: 2px;
   background: var(--surface);
   width: 100%;
 }
