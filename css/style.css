@@ -633,7 +633,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   gap: 8px;
   padding: 6px 0;
 }
-.today-act-row:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.06); }
+.today-act-row:not(:last-child) { border-bottom: 1px solid var(--border); }
 .today-act-icon {
   width: 24px;
   height: 24px;
@@ -673,7 +673,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   gap: 6px;
   padding: 5px 0;
 }
-.week-stat-row:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.06); }
+.week-stat-row:not(:last-child) { border-bottom: 1px solid var(--border); }
 .week-stat-icon {
   width: 24px;
   height: 24px;
