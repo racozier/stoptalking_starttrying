@@ -367,7 +367,7 @@ window.Dashboard = {
     if (events.length === 0) {
       const isToday = dateStr === today;
       container.innerHTML = isToday
-        ? '<div class="empty-state"><p>Nothing logged today yet.</p><p class="sub">Use the Quick Actions above to get started.</p></div>'
+        ? '<div class="empty-state"><p>Nothing logged today yet.</p></div>'
         : '<div class="empty-state"><p>Nothing logged on this day.</p></div>';
       return;
     }
