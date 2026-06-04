@@ -185,7 +185,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   padding: 10px 14px 4px;
   gap: 12px;
 }
-.app-logo { font-size: 2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1; flex-shrink: 0; }
+.app-logo { font-size: 2rem; font-weight: 800; color: var(--text); letter-spacing: -0.5px; line-height: 1; flex-shrink: 0; }
 
 /* Flip container — height fits two lines of 2rem motto */
 .greeting-flip-container {
