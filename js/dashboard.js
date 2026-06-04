@@ -942,6 +942,13 @@ async function openTlDetail(type, id) {
     statsEl.innerHTML = `
       <div class="tl-detail-stat-row"><span class="tl-big-val">${w.value} kg</span></div>`;
     _tlCurrentNotes = w.notes || '';
+  } else if (type === 'event') {
+    const ev = await window.db.events.get(id);
+    if (!ev) return;
+    titleEl.textContent = ev.title || 'Event';
+    statsEl.innerHTML = `<div class="tl-detail-stat-row"><span>${App.formatTime(ev.date)}</span></div>`;
+    if (editBtn) editBtn.style.display = 'none';
+    _tlCurrentNotes = ev.notes || '';
   } else {
     titleEl.textContent = 'Entry';
     statsEl.innerHTML = '';
@@ -1110,6 +1117,9 @@ async function tlSaveNote() {
   } else if (type === 'weight') {
     const w = await window.db.weight.get(id);
     if (w) await window.db.weight.update({ ...w, notes: newNotes });
+  } else if (type === 'event') {
+    const ev = await window.db.events.get(id);
+    if (ev) await window.db.events.update({ ...ev, notes: newNotes });
   }
   _tlCurrentNotes = newNotes;
   renderTlNoteSection();
@@ -1145,6 +1155,9 @@ async function tlDeleteNote() {
   } else if (type === 'weight') {
     const w = await window.db.weight.get(id);
     if (w) await window.db.weight.update({ ...w, notes: '' });
+  } else if (type === 'event') {
+    const ev = await window.db.events.get(id);
+    if (ev) await window.db.events.update({ ...ev, notes: '' });
   }
   _tlCurrentNotes = '';
   renderTlNoteSection();

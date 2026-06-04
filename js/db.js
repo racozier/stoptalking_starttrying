@@ -278,10 +278,18 @@ window.db = {
       const d = await getDB();
       return d.add('events', entry);
     },
+    async get(id) {
+      const d = await getDB();
+      return d.get('events', id);
+    },
     async getAll() {
       const d = await getDB();
       const all = await d.getAllFromIndex('events', 'date');
       return all.sort((a, b) => new Date(b.date) - new Date(a.date));
+    },
+    async update(entry) {
+      const d = await getDB();
+      return d.put('events', entry);
     },
     async delete(id) {
       const d = await getDB();
