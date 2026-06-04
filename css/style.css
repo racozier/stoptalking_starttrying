@@ -1927,6 +1927,53 @@ h3 { font-size: 1rem; font-weight: 600; }
   margin-bottom: 6px;
 }
 
+/* ── Locked note cards ───────────────────────────────────────────────────── */
+.note-card-locked { position: relative; overflow: hidden; }
+.note-card-blur-content { filter: blur(7px); user-select: none; pointer-events: none; }
+.note-lock-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(0,0,0,0.18);
+  border-radius: inherit;
+  z-index: 3;
+  cursor: pointer;
+  color: var(--subtext);
+}
+.note-lock-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* ── Note lock button (topbar) ───────────────────────────────────────────── */
+.note-lock-topbar-btn {
+  background: none; border: none; color: var(--subtext); cursor: pointer;
+  padding: 8px; display: flex; align-items: center; border-radius: 8px;
+}
+.note-lock-topbar-btn:hover { background: var(--surface2); }
+.note-lock-topbar-btn .lock-closed-icon { display: none; }
+.note-lock-topbar-btn.locked { color: var(--accent); }
+.note-lock-topbar-btn.locked .lock-open-icon { display: none; }
+.note-lock-topbar-btn.locked .lock-closed-icon { display: block; }
+
+/* ── PIN input ───────────────────────────────────────────────────────────── */
+.pin-input-big {
+  width: 100%;
+  max-width: 200px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  color: var(--text);
+  font-size: 2rem;
+  font-family: monospace;
+  letter-spacing: 8px;
+  text-align: center;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
 /* ── Checklist in editor ─────────────────────────────────────────────────── */
 .task-item {
   display: flex;

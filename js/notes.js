@@ -27,6 +27,8 @@ window.Notes = {
   _drawingMode: 'pen',
   _photos: [],
   _saveTimer: null,
+  _noteLocked: false,
+  _pinCallback: null,
 
   async init() {
     const searchInput = document.getElementById('notes-search');
@@ -132,8 +134,12 @@ window.Notes = {
     card.addEventListener('click', () => {
       if (longFired) { longFired = false; return; }
       if (this._longPressTimer !== null) return;
-      if (this._selectionMode) this.toggleNoteSelection(id);
-      else this.openEditor(id);
+      if (this._selectionMode) { this.toggleNoteSelection(id); return; }
+      if (card.dataset.locked === '1') {
+        this._showPinEntry(() => this.openEditor(id));
+        return;
+      }
+      this.openEditor(id);
     });
   },
 
@@ -246,6 +252,20 @@ window.Notes = {
       body += `<div class="note-card-audio-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Voice note</div>`;
     }
 
+    if (note.locked) {
+      return `
+    <div class="note-card note-card-locked" data-id="${note.id}" data-locked="1" style="${bgStyle}">
+      <div class="note-lock-cover">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span class="note-lock-label">Locked</span>
+      </div>
+      <div class="note-card-blur-content">
+        ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
+        ${body}
+      </div>
+      <div class="note-card-date">${App.formatDate(note.updated, { relative: true })}</div>
+    </div>`;
+    }
     return `
     <div class="note-card" data-id="${note.id}" style="${bgStyle}">
       ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
@@ -259,7 +279,7 @@ window.Notes = {
     const bgStyle = note.color ? `background:${note.color};border-color:${note.color}` : '';
     const hasPhoto = note.photos?.length > 0;
     return `
-    <div class="note-card-small" data-id="${note.id}" style="${bgStyle}">
+    <div class="note-card-small${note.locked ? ' note-card-locked' : ''}" data-id="${note.id}" data-locked="${note.locked ? '1' : '0'}" style="${bgStyle}">
       ${hasPhoto ? `<img class="note-card-small-photo" src="${note.photos[0].dataUrl}" alt="">` : ''}
       ${note.title ? `<div class="note-card-title">${App.escapeHtml(note.title)}</div>` : ''}
       <div class="note-card-date">${App.formatDate(note.updated, { relative: true })}</div>
@@ -323,6 +343,11 @@ window.Notes = {
     // Apply note color to editor background
     const sheet = modal.querySelector('.modal-sheet');
     if (sheet) sheet.style.background = note?.color || '';
+
+    // Set lock button state
+    this._noteLocked = note?.locked || false;
+    const lockBtn = document.getElementById('note-lock-btn');
+    if (lockBtn) lockBtn.classList.toggle('locked', this._noteLocked);
 
     // Lock body before modal open so keyboard doesn't auto-show during animation
     if (body) body.contentEditable = 'false';
@@ -432,7 +457,7 @@ window.Notes = {
       }
     }
 
-    const noteData = { title, content: contentHtml, tags, pinned, photos: this._photos, audio: this._audioDataUrl, drawing };
+    const noteData = { title, content: contentHtml, tags, pinned, photos: this._photos, audio: this._audioDataUrl, drawing, locked: this._noteLocked };
 
     if (this._currentNoteId) {
       const existing = await window.db.notes.get(this._currentNoteId);
@@ -1127,6 +1152,53 @@ window.Notes = {
     const menu = document.getElementById('note-add-submenu');
     if (menu) menu.classList.remove('open');
   },
+
+  toggleLock() {
+    const pin = localStorage.getItem('st2_pin');
+    if (!pin) {
+      App.showToast('Set a PIN in Settings → Security first.', 'info');
+      return;
+    }
+    if (this._noteLocked) {
+      this._showPinEntry(() => {
+        this._noteLocked = false;
+        const btn = document.getElementById('note-lock-btn');
+        if (btn) btn.classList.remove('locked');
+        App.showToast('Note unlocked permanently.', 'success');
+      });
+    } else {
+      this._noteLocked = true;
+      const btn = document.getElementById('note-lock-btn');
+      if (btn) btn.classList.add('locked');
+      App.showToast('Note locked.', 'success');
+    }
+  },
+
+  _showPinEntry(callback) {
+    this._pinCallback = callback;
+    const input = document.getElementById('pin-entry-input');
+    const error = document.getElementById('pin-entry-error');
+    if (input) input.value = '';
+    if (error) error.style.display = 'none';
+    App.openModal('modal-pin-entry');
+    setTimeout(() => input?.focus(), 200);
+  },
+
+  _confirmPin() {
+    const input = document.getElementById('pin-entry-input');
+    const error = document.getElementById('pin-entry-error');
+    const entered = input?.value || '';
+    const correct = localStorage.getItem('st2_pin') || '';
+    if (entered === correct && entered !== '') {
+      App.closeAllModals();
+      const cb = this._pinCallback;
+      this._pinCallback = null;
+      if (cb) cb();
+    } else {
+      if (error) error.style.display = 'block';
+      if (input) { input.value = ''; input.focus(); }
+    }
+  },
 };
 
 window.Notes = Notes;
@@ -1155,3 +1227,5 @@ window.NotesApplyColor = (id) => Notes.applyColor(id);
 window.NotesDeleteSelected = () => Notes.deleteSelected();
 window.NotesToggleAddMenu = () => Notes.toggleAddMenu();
 window.NotesCloseAddMenu = () => Notes.closeAddMenu();
+window.NotesToggleLock = () => Notes.toggleLock();
+window.NotesConfirmPin = () => Notes._confirmPin();

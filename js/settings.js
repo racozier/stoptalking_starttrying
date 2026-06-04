@@ -21,6 +21,13 @@ window.SettingsModule = {
       s.classList.toggle('active', s.dataset.theme === theme);
     });
 
+    // Show PIN status
+    const pin = localStorage.getItem('st2_pin');
+    const pinStatusEl = document.getElementById('pin-status-text');
+    const pinManageBtn = document.getElementById('pin-manage-btn');
+    if (pinStatusEl) pinStatusEl.textContent = pin ? 'PIN is set' : 'Not set';
+    if (pinManageBtn) pinManageBtn.textContent = pin ? 'Change / Remove' : 'Set PIN';
+
     // Show "Clear Sample Data" if sample data is loaded
     const clearBtn = document.getElementById('clear-sample-data-btn');
     if (clearBtn) clearBtn.style.display = settings.sampleDataLoaded ? 'flex' : 'none';
@@ -61,6 +68,59 @@ window.SettingsModule = {
     document.querySelectorAll('.theme-swatch').forEach((s) => {
       s.classList.toggle('active', s.dataset.theme === theme);
     });
+  },
+
+  managePin() {
+    const pin = localStorage.getItem('st2_pin');
+    const titleEl = document.getElementById('pin-setup-title');
+    const currentRow = document.getElementById('pin-current-row');
+    const removeBtn = document.getElementById('pin-remove-btn');
+    if (titleEl) titleEl.textContent = pin ? 'Change PIN' : 'Set PIN';
+    if (currentRow) currentRow.style.display = pin ? 'block' : 'none';
+    if (removeBtn) removeBtn.style.display = pin ? 'flex' : 'none';
+    ['pin-current', 'pin-new', 'pin-confirm'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const err = document.getElementById('pin-setup-error');
+    if (err) err.style.display = 'none';
+    App.openModal('modal-pin-setup');
+  },
+
+  savePinSetup() {
+    const existing = localStorage.getItem('st2_pin');
+    const currentEl = document.getElementById('pin-current');
+    const newEl = document.getElementById('pin-new');
+    const confirmEl = document.getElementById('pin-confirm');
+    const errEl = document.getElementById('pin-setup-error');
+    const showErr = (msg) => { if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; } };
+    if (existing && currentEl?.value !== existing) { showErr('Current PIN is incorrect.'); return; }
+    const newPin = newEl?.value || '';
+    if (newPin.length < 4) { showErr('PIN must be at least 4 characters.'); return; }
+    if (newPin !== (confirmEl?.value || '')) { showErr('PINs do not match.'); return; }
+    localStorage.setItem('st2_pin', newPin);
+    App.closeAllModals();
+    App.showToast('PIN saved.', 'success');
+    this.loadSettings();
+  },
+
+  async removePinConfirm() {
+    const existing = localStorage.getItem('st2_pin');
+    const currentEl = document.getElementById('pin-current');
+    const errEl = document.getElementById('pin-setup-error');
+    if (existing && (currentEl?.value || '') !== existing) {
+      if (errEl) { errEl.textContent = 'Current PIN is incorrect.'; errEl.style.display = 'block'; }
+      return;
+    }
+    if (!confirm('Remove PIN? All locked notes will be unlocked.')) return;
+    localStorage.removeItem('st2_pin');
+    const notes = await window.db.notes.getAll();
+    for (const n of notes.filter((x) => x.locked)) {
+      await window.db.notes.update({ ...n, locked: false });
+    }
+    App.closeAllModals();
+    App.showToast('PIN removed.', 'success');
+    this.loadSettings();
   },
 
   async renderStravaStatus() {
@@ -155,6 +215,9 @@ window.SettingsModule = {
 };
 
 window.SettingsModule = SettingsModule;
+window.SettingsManagePin = () => SettingsModule.managePin();
+window.SettingsSavePinSetup = () => SettingsModule.savePinSetup();
+window.SettingsRemovePin = () => SettingsModule.removePinConfirm();
 window.SettingsSave = () => SettingsModule.saveSettings();
 window.SettingsSetTheme = (t) => SettingsModule.setTheme(t);
 window.SettingsDisconnectStrava = () => SettingsModule.disconnectStrava();
