@@ -2,7 +2,7 @@ const NOTE_COLORS = [
   { id: 'default', bg: null,      lightBg: null,      label: 'Default' },
   { id: 'red',     bg: '#5c2020', lightBg: '#FFD6D6', label: 'Red' },
   { id: 'coral',   bg: '#5c3315', lightBg: '#FFE0CC', label: 'Coral' },
-  { id: 'yellow',  bg: '#5c4900', lightBg: '#FFF3C4', label: 'Yellow' },
+  { id: 'yellow',  bg: '#ebb734', lightBg: '#FFF3C4', label: 'Yellow' },
   { id: 'teal',    bg: '#0b3d38', lightBg: '#C8F0EB', label: 'Teal' },
   { id: 'blue',    bg: '#0d2d5e', lightBg: '#CCDEFF', label: 'Blue' },
   { id: 'green',   bg: '#1b3d1b', lightBg: '#C8EDCA', label: 'Green' },
