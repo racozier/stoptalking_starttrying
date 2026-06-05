@@ -414,11 +414,13 @@ window.Notes = {
           const sel = window.getSelection();
           if (!sel?.rangeCount || !scrollEl) return;
           const rect = sel.getRangeAt(0).getBoundingClientRect();
+          // bottomBar is position:fixed bottom:0, so its getBCR().top = innerHeight - barHeight
+          // which is BELOW the keyboard. We need the minimum of the visual viewport height
+          // and the bar's position so this works both with and without keyboard open.
           const bottomBar = modal.querySelector('.note-editor-bottombar');
-          // Use the top of the bottombar as the boundary so cursor never hides behind it
-          const boundary = bottomBar
-            ? bottomBar.getBoundingClientRect().top
-            : (window.visualViewport?.height ?? window.innerHeight);
+          const barTop = bottomBar ? bottomBar.getBoundingClientRect().top : Infinity;
+          const vvHeight = window.visualViewport?.height ?? window.innerHeight;
+          const boundary = Math.min(barTop, vvHeight);
           if (rect.bottom > boundary - 8) {
             scrollEl.scrollTop += rect.bottom - boundary + 20;
           }
