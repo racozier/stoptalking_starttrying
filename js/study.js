@@ -337,7 +337,7 @@ window.Study = {
 
   async renderTodayStudy() {
     const today = new Date().toISOString().split('T')[0];
-    const sessions = await window.db.study.getForDate(today);
+    const sessions = (await window.db.study.getForDate(today)).filter((s) => s.subject !== 'Polish Language');
     const totalMin = sessions.reduce((s, x) => s + x.durationMinutes, 0);
 
     // Update today total display
@@ -373,7 +373,7 @@ window.Study = {
     const weekDates = App.getWeekDates();
     const prevWeekDates = weekDates.map((d) => { const dt = new Date(d); dt.setDate(dt.getDate() - 7); return dt.toISOString().split('T')[0]; });
 
-    const allSessions = await window.db.study.getAll();
+    const allSessions = (await window.db.study.getAll()).filter((s) => s.subject !== 'Polish Language');
     const thisSessions = allSessions.filter((s) => weekDates.some((d) => s.date.startsWith(d)));
     const prevSessions = allSessions.filter((s) => prevWeekDates.some((d) => s.date.startsWith(d)));
 
