@@ -406,6 +406,35 @@ window.Notes = {
       if (b) b.contentEditable = 'true';
     }, 300);
 
+    // Cursor visibility fix: scroll to keep cursor above keyboard as user types
+    if (body) {
+      const scrollEl = modal.querySelector('.note-editor-body-scroll');
+      const scrollCursorIntoView = () => {
+        requestAnimationFrame(() => {
+          const sel = window.getSelection();
+          if (!sel?.rangeCount || !scrollEl) return;
+          const rect = sel.getRangeAt(0).getBoundingClientRect();
+          const vvHeight = window.visualViewport?.height ?? window.innerHeight;
+          if (rect.bottom > vvHeight - 16) {
+            scrollEl.scrollTop += rect.bottom - vvHeight + 56;
+          }
+        });
+      };
+      body._cursorScrollHandler && body.removeEventListener('keyup', body._cursorScrollHandler);
+      body._cursorScrollHandler = scrollCursorIntoView;
+      body.addEventListener('keyup', scrollCursorIntoView);
+      if (window.visualViewport) {
+        window.visualViewport.onresize = () => {
+          if (!modal.classList.contains('open')) return;
+          scrollCursorIntoView();
+        };
+      }
+    }
+
+    // Update tag button indicator
+    const tagBtn = document.getElementById('note-tag-btn');
+    if (tagBtn) tagBtn.classList.toggle('has-tags', (note?.tags || []).length > 0);
+
     // Checklist Enter key handler
     if (body) {
       body._checklistKeyHandler && body.removeEventListener('keydown', body._checklistKeyHandler);
@@ -512,6 +541,7 @@ window.Notes = {
 
     if (close) {
       clearInterval(this._saveTimer);
+      NotesCloseTagSheet();
       App.closeAllModals();
       App.showToast('Note saved.', 'success');
       await this.renderGrid();
@@ -1273,3 +1303,25 @@ window.NotesToggleAddMenu = () => Notes.toggleAddMenu();
 window.NotesCloseAddMenu = () => Notes.closeAddMenu();
 window.NotesToggleLock = () => Notes.toggleLock();
 window.NotesConfirmPin = () => Notes._confirmPin();
+
+function NotesOpenTagSheet() {
+  const sheet = document.getElementById('note-tag-sheet');
+  if (!sheet) return;
+  sheet.style.display = 'flex';
+  requestAnimationFrame(() => sheet.classList.add('open'));
+  setTimeout(() => document.getElementById('note-tag-input')?.focus(), 250);
+  // Update indicator when sheet closes
+  const tagBtn = document.getElementById('note-tag-btn');
+  if (tagBtn) tagBtn.classList.toggle('has-tags', Notes.getTags().length > 0);
+}
+window.NotesOpenTagSheet = NotesOpenTagSheet;
+
+function NotesCloseTagSheet() {
+  const sheet = document.getElementById('note-tag-sheet');
+  if (!sheet) return;
+  sheet.classList.remove('open');
+  setTimeout(() => { sheet.style.display = 'none'; }, 250);
+  const tagBtn = document.getElementById('note-tag-btn');
+  if (tagBtn) tagBtn.classList.toggle('has-tags', Notes.getTags().length > 0);
+}
+window.NotesCloseTagSheet = NotesCloseTagSheet;
