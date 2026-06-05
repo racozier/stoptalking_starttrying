@@ -713,7 +713,7 @@ function renderTlHeader() {
     }
   }
   if (nextBtn) nextBtn.style.visibility = isToday ? 'hidden' : 'visible';
-  if (returnBtn) returnBtn.style.display = daysAgo > 1 ? '' : 'none';
+  if (returnBtn) returnBtn.style.display = daysAgo >= 1 ? '' : 'none';
 }
 window.renderTlHeader = renderTlHeader;
 
