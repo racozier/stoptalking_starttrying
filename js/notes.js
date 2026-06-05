@@ -35,6 +35,8 @@ window.Notes = {
   _drawingColor: '#7C3AED',
   _drawingMode: 'pen',
   _photos: [],
+  _currentTags: [],
+  _globalTags: [],
   _saveTimer: null,
   _noteLocked: false,
   _pinCallback: null,
@@ -352,7 +354,6 @@ window.Notes = {
 
     const titleInput = modal.querySelector('#note-title-input');
     const body = modal.querySelector('#note-body');
-    const tagsContainer = modal.querySelector('#note-tags-container');
     const pinBtn = modal.querySelector('#note-pin-btn');
     const drawingSection = modal.querySelector('#note-drawing-section');
 
@@ -364,11 +365,10 @@ window.Notes = {
     // Upgrade checklist items and set up drag handlers
     this._setupAllTaskHandlers();
 
-    // Tags
-    if (tagsContainer) {
-      tagsContainer.innerHTML = '';
-      (note?.tags || []).forEach((t) => this.addTagChip(t));
-    }
+    // Tags — load global list and set current note's tags
+    this._currentTags = [...(note?.tags || [])];
+    this._globalTags = (await window.db.settings.get('globalTags')) || [];
+    this._updateTagBtn();
 
     // Photos
     this._photos = note?.photos ? [...note.photos] : [];
@@ -414,9 +414,13 @@ window.Notes = {
           const sel = window.getSelection();
           if (!sel?.rangeCount || !scrollEl) return;
           const rect = sel.getRangeAt(0).getBoundingClientRect();
-          const vvHeight = window.visualViewport?.height ?? window.innerHeight;
-          if (rect.bottom > vvHeight - 16) {
-            scrollEl.scrollTop += rect.bottom - vvHeight + 56;
+          const bottomBar = modal.querySelector('.note-editor-bottombar');
+          // Use the top of the bottombar as the boundary so cursor never hides behind it
+          const boundary = bottomBar
+            ? bottomBar.getBoundingClientRect().top
+            : (window.visualViewport?.height ?? window.innerHeight);
+          if (rect.bottom > boundary - 8) {
+            scrollEl.scrollTop += rect.bottom - boundary + 20;
           }
         });
       };
@@ -469,28 +473,88 @@ window.Notes = {
     this._saveTimer = setInterval(() => this.autoSave(), 30000);
   },
 
-  addTagChip(tag) {
-    const container = document.getElementById('note-tags-container');
-    if (!container) return;
-    const chip = document.createElement('span');
-    chip.className = 'tag-chip editable';
-    chip.innerHTML = `${App.escapeHtml(tag)} <button onclick="this.parentElement.remove()">×</button>`;
-    chip.dataset.tag = tag;
-    container.appendChild(chip);
+  getTags() { return [...this._currentTags]; },
+
+  _updateTagBtn() {
+    const btn = document.getElementById('note-tag-btn');
+    if (btn) btn.classList.toggle('has-tags', this._currentTags.length > 0);
   },
 
-  handleTagInput(e) {
-    if (e.key === ',' || e.key === 'Enter') {
-      e.preventDefault();
-      const input = document.getElementById('note-tag-input');
-      const tag = input?.value.trim().replace(',', '');
-      if (tag) { this.addTagChip(tag); input.value = ''; }
+  toggleTagDropdown() {
+    const dd = document.getElementById('note-tag-dropdown');
+    if (!dd) return;
+    const isOpen = dd.style.display !== 'none';
+    if (isOpen) {
+      this.closeTagDropdown();
+    } else {
+      dd.style.display = 'block';
+      this._renderTagDropdown();
+      setTimeout(() => document.addEventListener('click', this._tagDdOutside, { once: true }), 50);
     }
   },
 
-  getTags() {
-    return [...document.querySelectorAll('#note-tags-container .tag-chip.editable')].map((c) => c.dataset.tag).filter(Boolean);
+  _tagDdOutside(e) {
+    const dd = document.getElementById('note-tag-dropdown');
+    if (dd && !dd.contains(e.target)) Notes.closeTagDropdown();
   },
+
+  closeTagDropdown() {
+    const dd = document.getElementById('note-tag-dropdown');
+    if (dd) dd.style.display = 'none';
+    document.removeEventListener('click', this._tagDdOutside);
+  },
+
+  _renderTagDropdown() {
+    const list = document.getElementById('note-tag-dd-list');
+    if (!list) return;
+    if (this._globalTags.length === 0) {
+      list.innerHTML = '<div class="note-tag-dd-empty">No tags yet</div>';
+      return;
+    }
+    list.innerHTML = this._globalTags.map(tag => {
+      const active = this._currentTags.includes(tag);
+      return `<div class="note-tag-dd-item${active ? ' active' : ''}">
+        <button class="note-tag-dd-toggle" onclick="Notes._toggleNoteTag('${tag.replace(/'/g,"\\'")}')">
+          ${App.escapeHtml(tag)}
+        </button>
+        <button class="note-tag-dd-del" onclick="Notes._deleteGlobalTag('${tag.replace(/'/g,"\\'")}')">×</button>
+      </div>`;
+    }).join('');
+  },
+
+  _toggleNoteTag(tag) {
+    const idx = this._currentTags.indexOf(tag);
+    if (idx === -1) this._currentTags.push(tag);
+    else this._currentTags.splice(idx, 1);
+    this._updateTagBtn();
+    this._renderTagDropdown();
+  },
+
+  async _deleteGlobalTag(tag) {
+    this._globalTags = this._globalTags.filter(t => t !== tag);
+    this._currentTags = this._currentTags.filter(t => t !== tag);
+    await window.db.settings.set('globalTags', this._globalTags);
+    this._updateTagBtn();
+    this._renderTagDropdown();
+  },
+
+  async addGlobalTag() {
+    const input = document.getElementById('note-tag-new-input');
+    const tag = input?.value.trim();
+    if (!tag) return;
+    if (!this._globalTags.includes(tag)) {
+      this._globalTags.push(tag);
+      await window.db.settings.set('globalTags', this._globalTags);
+    }
+    if (!this._currentTags.includes(tag)) this._currentTags.push(tag);
+    this._updateTagBtn();
+    if (input) input.value = '';
+    this._renderTagDropdown();
+  },
+
+  // kept for backward compat (not used in new UI)
+  addTagChip() {},
+  handleTagInput() {},
 
   async autoSave() {
     if (!document.getElementById('modal-note-editor')?.classList.contains('open')) return;
@@ -541,7 +605,7 @@ window.Notes = {
 
     if (close) {
       clearInterval(this._saveTimer);
-      NotesCloseTagSheet();
+      this.closeTagDropdown();
       App.closeAllModals();
       App.showToast('Note saved.', 'success');
       await this.renderGrid();
@@ -1303,25 +1367,3 @@ window.NotesToggleAddMenu = () => Notes.toggleAddMenu();
 window.NotesCloseAddMenu = () => Notes.closeAddMenu();
 window.NotesToggleLock = () => Notes.toggleLock();
 window.NotesConfirmPin = () => Notes._confirmPin();
-
-function NotesOpenTagSheet() {
-  const sheet = document.getElementById('note-tag-sheet');
-  if (!sheet) return;
-  sheet.style.display = 'flex';
-  requestAnimationFrame(() => sheet.classList.add('open'));
-  setTimeout(() => document.getElementById('note-tag-input')?.focus(), 250);
-  // Update indicator when sheet closes
-  const tagBtn = document.getElementById('note-tag-btn');
-  if (tagBtn) tagBtn.classList.toggle('has-tags', Notes.getTags().length > 0);
-}
-window.NotesOpenTagSheet = NotesOpenTagSheet;
-
-function NotesCloseTagSheet() {
-  const sheet = document.getElementById('note-tag-sheet');
-  if (!sheet) return;
-  sheet.classList.remove('open');
-  setTimeout(() => { sheet.style.display = 'none'; }, 250);
-  const tagBtn = document.getElementById('note-tag-btn');
-  if (tagBtn) tagBtn.classList.toggle('has-tags', Notes.getTags().length > 0);
-}
-window.NotesCloseTagSheet = NotesCloseTagSheet;
