@@ -797,7 +797,8 @@ window.Study = {
     });
     App.closeAllModals();
     App.showToast('Session logged!', 'success');
-    await this.renderSubTab(this._subTab);
+    await this.renderOverview();
+    if (this._subTab === 'polish') await Polish.renderStats();
     if (App.currentTab === 'dashboard') await Dashboard.render();
   },
 

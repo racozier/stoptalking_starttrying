@@ -678,6 +678,7 @@ async function saveQuickStudy() {
   App.closeAllModals();
   App.showToast(`${_quickStudySubject} logged!`, 'success');
   if (App.currentTab === 'dashboard') await Dashboard.render();
+  else if (App.currentTab === 'study') await Study.renderSubTab(Study._subTab);
 }
 window.saveQuickStudy = saveQuickStudy;
 
