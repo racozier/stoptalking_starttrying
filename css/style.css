@@ -814,7 +814,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 
 /* ── Fitness Tab ──────────────────────────────────────────────────────────── */
 .tab-page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.tab-page-header h2 { font-size: 1.5rem; font-weight: 700; }
+.tab-page-header h2 { font-size: 1.5rem; font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: -0.02em; }
 .header-actions { display: flex; gap: 8px; }
 .icon-btn-round {
   width: 36px; height: 36px;
@@ -2897,7 +2897,10 @@ h3 { font-size: 1rem; font-weight: 600; }
 }
 .habits-title {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 800;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
   color: var(--text);
   margin: 0;
 }
