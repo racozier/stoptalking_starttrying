@@ -74,6 +74,8 @@ window.Habits = {
           : this._habits.map(h => this._renderHabitCard(h)).join('')}
       </div>
     `;
+    // Scroll all dot grids to the right so today is always visible
+    el.querySelectorAll('.habit-dot-grid').forEach((g) => { g.scrollLeft = g.scrollWidth; });
   },
 
   _calcStreak(logs, today, isDaily, targetPerWeek) {
@@ -137,7 +139,7 @@ window.Habits = {
     const freq = isDaily ? 'Daily' : `${target}× / week`;
     const desc = habit.description ? App.escapeHtml(habit.description) : freq;
     const hasNote = !!habit.note;
-    const dotGrid = this._buildDotGrid(logs);
+    const dotGrid = this._buildDotGrid(logs, habit);
     const toggleFn = isDaily ? `Habits.toggleToday(${habit.id})` : `Habits.toggleWeekly(${habit.id})`;
 
     return `
@@ -169,19 +171,35 @@ window.Habits = {
     `;
   },
 
-  _buildDotGrid(logs) {
+  _buildDotGrid(logs, habit) {
     const logSet = new Set(logs);
     const today = new Date();
-    const dayOfWeek = (today.getDay() + 6) % 7; // 0=Mon
-    const startDate = new Date(today);
-    startDate.setDate(today.getDate() - dayOfWeek - 20 * 7);
+    const todayDow = (today.getDay() + 6) % 7; // 0=Mon
+
+    // Start from the Monday of creation week (min 21 weeks back)
+    const minStart = new Date(today);
+    minStart.setDate(today.getDate() - todayDow - 20 * 7);
+
+    let creationStart = minStart;
+    if (habit?.createdAt) {
+      const created = new Date(habit.createdAt);
+      const createdDow = (created.getDay() + 6) % 7;
+      const monday = new Date(created);
+      monday.setDate(created.getDate() - createdDow);
+      if (monday < minStart) creationStart = monday;
+    }
+
+    // Count weeks from creationStart to the current week
+    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+    const totalWeeks = Math.round((today - creationStart) / msPerWeek - todayDow / 7) + 1;
+    const weekCount = Math.max(21, totalWeeks);
 
     let html = '';
-    for (let week = 0; week < 21; week++) {
+    for (let week = 0; week < weekCount; week++) {
       html += '<div class="habit-dot-col">';
       for (let day = 0; day < 7; day++) {
-        const d = new Date(startDate);
-        d.setDate(startDate.getDate() + week * 7 + day);
+        const d = new Date(creationStart);
+        d.setDate(creationStart.getDate() + week * 7 + day);
         const dateStr = d.toISOString().split('T')[0];
         const isLogged = logSet.has(dateStr);
         const isFuture = d > today;
