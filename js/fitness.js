@@ -114,9 +114,9 @@ window.Fitness = {
     const el = document.getElementById('fitness-weekly-summary');
     if (el) {
       const wStr = weightDelta !== null
-        ? `${weightDelta > 0 ? '+' : ''}${weightDelta.toFixed(1)} kg`
+        ? `${weightDelta > 0 ? '+' : ''}${App.formatWeight(weightDelta)}`
         : '--';
-      el.textContent = `${thisWorkouts.length} workouts  •  ${thisDist.toFixed(1)} km  •  ${wStr}`;
+      el.textContent = `${thisWorkouts.length} workouts  •  ${App.formatDistance(thisDist)}  •  ${wStr}`;
     }
   },
 
@@ -208,7 +208,7 @@ window.Fitness = {
 
   renderExerciseRow(ex, hidden = false) {
     const sets = (ex.sets || []).map((s) =>
-      `<div class="set-line">${s.weight > 0 ? `${s.weight} kg × ${s.reps}` : `BW × ${s.reps}`}</div>`
+      `<div class="set-line">${s.weight > 0 ? `${App.formatWeight(s.weight)} × ${s.reps}` : `BW × ${s.reps}`}</div>`
     ).join('');
 
     return `
@@ -251,9 +251,9 @@ window.Fitness = {
         <div class="activity-menu" onclick="Fitness.showActivityMenu('run', ${r.id})">···</div>
       </div>
       <div class="run-stats-row">
-        <div class="run-stat-col">${r.distance} km<span>Distance</span></div>
+        <div class="run-stat-col">${App.formatDistance(r.distance)}<span>Distance</span></div>
         <div class="run-stat-col">${App.formatDuration(r.durationSeconds)}<span>Time</span></div>
-        <div class="run-stat-col">${r.paceFormatted} /km<span>Avg Pace</span></div>
+        <div class="run-stat-col">${r.paceFormatted} /${App.distanceUnit()}<span>Avg Pace</span></div>
         <div class="run-stat-col">${r.calories || '--'}<span>Calories</span></div>
       </div>
       ${hasMap
@@ -436,7 +436,7 @@ window.Fitness = {
     this.switchRunTab('manual');
     const modal = document.getElementById('modal-log-run');
     if (!modal) return;
-    modal.querySelector('#run-date-input').value = new Date(r.date).toISOString().slice(0, 16);
+    modal.querySelector('#run-date-input').value = App.localDatetimeInput(new Date(r.date));
     modal.querySelector('#run-distance-input').value = r.distance;
     const mins = Math.floor(r.durationSeconds / 60);
     const secs = r.durationSeconds % 60;
@@ -460,7 +460,7 @@ window.Fitness = {
 
     // Reset form
     modal.querySelector('#workout-name-input').value = '';
-    modal.querySelector('#workout-date-input').value = new Date().toISOString().slice(0, 16);
+    modal.querySelector('#workout-date-input').value = App.localDatetimeInput(new Date());
     modal.querySelector('#workout-notes-input').value = '';
     modal.querySelector('#workout-exercises-list').innerHTML = '';
 
@@ -482,7 +482,7 @@ window.Fitness = {
     const modal = document.getElementById('modal-log-workout');
     if (!modal) return;
     modal.querySelector('#workout-name-input').value = w.name || '';
-    modal.querySelector('#workout-date-input').value = new Date(w.date).toISOString().slice(0, 16);
+    modal.querySelector('#workout-date-input').value = App.localDatetimeInput(new Date(w.date));
     modal.querySelector('#workout-notes-input').value = w.notes || '';
     // Replace the empty exercise row with existing exercises
     modal.querySelector('#workout-exercises-list').innerHTML = '';
@@ -527,7 +527,7 @@ window.Fitness = {
         <button class="icon-btn danger-btn" onclick="this.closest('.exercise-entry').remove()">✕</button>
       </div>
       <div class="sets-list" id="sets-list-${id}">
-        <div class="set-row-header"><span>Set</span><span>kg</span><span>Reps</span><span></span></div>
+        <div class="set-row-header"><span>Set</span><span>${App.weightUnit()}</span><span>Reps</span><span></span></div>
       </div>
       <button class="link-btn add-set-btn" onclick="Fitness.addSetRow(${id})">+ Add Set</button>
     `;
@@ -612,7 +612,7 @@ window.Fitness = {
     if (h3) h3.textContent = 'Log Run';
     this.switchRunTab('gpx');
     this.resetGpx();
-    modal.querySelector('#run-date-input').value = new Date().toISOString().slice(0, 16);
+    modal.querySelector('#run-date-input').value = App.localDatetimeInput(new Date());
     modal.querySelector('#run-distance-input').value = '';
     modal.querySelector('#run-time-input').value = '';
     modal.querySelector('#run-calories-input').value = '';

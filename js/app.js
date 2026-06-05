@@ -167,6 +167,20 @@ window.App = {
     return `${m}m`;
   },
 
+  // Returns YYYY-MM-DD in the user's configured timezone
+  localDateStr(date) {
+    const tz = this._timezone || 'Europe/Warsaw';
+    return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+  },
+
+  // Returns YYYY-MM-DDTHH:MM suitable for datetime-local inputs, in the user's timezone
+  localDatetimeInput(date) {
+    const tz = this._timezone || 'Europe/Warsaw';
+    const d = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+    const t = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+    return `${d}T${t}`;
+  },
+
   formatDate(isoStr, opts = {}) {
     const d = new Date(isoStr);
     const now = new Date();
@@ -190,21 +204,24 @@ window.App = {
     return `${kg.toFixed(1)} kg`;
   },
 
+  weightUnit() { return this._units === 'imperial' ? 'lbs' : 'kg'; },
+  distanceUnit() { return this._units === 'imperial' ? 'mi' : 'km'; },
+
   formatDistance(km) {
     if (this._units === 'imperial') return `${(km * 0.621371).toFixed(2)} mi`;
     return `${km.toFixed(2)} km`;
   },
 
-  // Returns Mon–Sun dates for the current week
+  // Returns Mon–Sun YYYY-MM-DD dates for the current week in the user's timezone
   getWeekDates() {
-    const now = new Date();
-    const day = now.getDay(); // 0=Sun
-    const monday = new Date(now);
-    monday.setDate(now.getDate() - ((day + 6) % 7));
+    const todayStr = this.localDateStr(new Date());
+    const [y, m, d] = todayStr.split('-').map(Number);
+    const base = new Date(Date.UTC(y, m - 1, d, 12)); // noon UTC on local today
+    const dow = (base.getUTCDay() + 6) % 7; // 0=Mon
     return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      return d.toISOString().split('T')[0];
+      const nd = new Date(base);
+      nd.setUTCDate(base.getUTCDate() - dow + i);
+      return nd.toISOString().split('T')[0];
     });
   },
 

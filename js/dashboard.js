@@ -34,15 +34,17 @@ window.Dashboard = {
 
     if (weights.length > 0) {
       const latest = weights[0];
-      el.textContent = latest.value.toFixed(1);
+      el.textContent = App.formatWeight(latest.value).replace(/\s*(kg|lbs)$/, '');
+      const wUnit = document.querySelector('.weight-value .unit');
+      if (wUnit) wUnit.textContent = App.weightUnit();
 
       if (all.length > 1) {
         const oldest = all[all.length - 1];
         const loss = oldest.value - latest.value;
         if (lossEl) {
           lossEl.innerHTML = loss > 0
-            ? `<span class="trend-down">↓ ${loss.toFixed(1)} kg total loss</span>`
-            : `<span class="trend-up">↑ ${Math.abs(loss).toFixed(1)} kg gained</span>`;
+            ? `<span class="trend-down">↓ ${App.formatWeight(loss)} total loss</span>`
+            : `<span class="trend-up">↑ ${App.formatWeight(Math.abs(loss))} gained</span>`;
         }
       }
 
@@ -61,7 +63,7 @@ window.Dashboard = {
 
     const weekDates = App.getWeekDates();
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = App.localDateStr(today);
 
     const [allStudy, allWorkouts, allRuns] = await Promise.all([
       window.db.study.getAll(),
@@ -71,12 +73,12 @@ window.Dashboard = {
 
     // Mental: any study session (WGU or Polish) logged that day
     const mentalDays = new Set();
-    for (const s of allStudy) mentalDays.add(s.date.split('T')[0]);
+    for (const s of allStudy) mentalDays.add(App.localDateStr(new Date(s.date)));
 
     // Physical: any workout or run logged that day
     const physicalDays = new Set();
-    for (const w of allWorkouts) physicalDays.add(w.date.split('T')[0]);
-    for (const r of allRuns) physicalDays.add(r.date.split('T')[0]);
+    for (const w of allWorkouts) physicalDays.add(App.localDateStr(new Date(w.date)));
+    for (const r of allRuns) physicalDays.add(App.localDateStr(new Date(r.date)));
 
     // Active day = both mental AND physical logged
     const activeDays = new Set([...mentalDays].filter((d) => physicalDays.has(d)));
@@ -86,7 +88,7 @@ window.Dashboard = {
     const checkDate = new Date(today);
     if (!activeDays.has(todayStr)) checkDate.setDate(checkDate.getDate() - 1);
     while (true) {
-      const ds = checkDate.toISOString().split('T')[0];
+      const ds = App.localDateStr(checkDate);
       if (activeDays.has(ds)) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
       else break;
     }
@@ -121,7 +123,7 @@ window.Dashboard = {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDay = new Date(year, month, 1).getDay();
     const startOffset = (firstDay + 6) % 7;
-    const todayDate = todayStr || new Date().toISOString().split('T')[0];
+    const todayDate = todayStr || App.localDateStr(new Date());
     const cells = [];
     for (let i = 0; i < startOffset; i++) cells.push('<div class="streak-mv-dot pre"></div>');
     for (let day = 1; day <= daysInMonth; day++) {
@@ -140,7 +142,7 @@ window.Dashboard = {
     const panel = document.getElementById('streak-year-panel');
     if (!gridEl || !panel) return;
     const activeDays = this._streakActiveDays;
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = App.localDateStr(new Date());
     const now = new Date();
     const months = [];
     for (let i = 11; i >= 0; i--) {
@@ -227,7 +229,7 @@ window.Dashboard = {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
     set('week-workouts', `<strong>${thisWorkouts.length}</strong>`);
     set('week-workouts-delta', delta(thisWorkouts.length, prevWorkouts.length));
-    set('week-km', `<strong>${thisDist.toFixed(1)}</strong> km`);
+    set('week-km', `<strong>${App.formatDistance(thisDist)}</strong>`);
     set('week-km-delta', delta(thisDist, prevDist, (v) => `${Math.abs(v).toFixed(1)}km`));
     set('week-study', `<strong>${thisStudyHours}h</strong>`);
     set('week-study-delta', delta(thisStudyHours, prevStudyHours, (v) => `${Math.abs(v).toFixed(1)}h`));
@@ -254,7 +256,7 @@ window.Dashboard = {
     const monthPolishHours = Math.round(monthPolish.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
 
     set('month-workouts', `<strong>${monthWorkouts.length}</strong>`);
-    set('month-km', `<strong>${monthDist.toFixed(1)}</strong> km`);
+    set('month-km', `<strong>${App.formatDistance(monthDist)}</strong>`);
     set('month-study', `<strong>${monthStudyHours}h</strong>`);
     set('month-polish', `<strong>${monthPolishHours}h</strong>`);
 
@@ -287,7 +289,7 @@ window.Dashboard = {
     const atPolishHours = Math.round(atPolish.reduce((s, x) => s + x.durationMinutes, 0) / 60 * 10) / 10;
 
     set('alltime-workouts', `<strong>${allWorkouts.length}</strong>`);
-    set('alltime-km', `<strong>${atDist.toFixed(1)}</strong> km`);
+    set('alltime-km', `<strong>${App.formatDistance(atDist)}</strong>`);
     set('alltime-study', `<strong>${atStudyHours}h</strong>`);
     set('alltime-polish', `<strong>${atPolishHours}h</strong>`);
 
@@ -307,14 +309,14 @@ window.Dashboard = {
     Charts.createMiniBarChart('alltime-polish-mini-chart', atPolishBars, '#CA8A04');
 
     // Today's activity checklist (panel 0)
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = App.localDateStr(new Date());
     const checkList = document.getElementById('today-activity-list');
     if (checkList) {
-      const todayPolish = allStudy.filter((s) => s.date.startsWith(todayStr) && s.subject === 'Polish Language');
-      const todayStudy  = allStudy.filter((s) => s.date.startsWith(todayStr) && s.subject !== 'Polish Language');
+      const todayPolish = allStudy.filter((s) => App.localDateStr(new Date(s.date)) === todayStr && s.subject === 'Polish Language');
+      const todayStudy  = allStudy.filter((s) => App.localDateStr(new Date(s.date)) === todayStr && s.subject !== 'Polish Language');
       const items = [
-        { label: 'Workout',      done: allWorkouts.some((w) => w.date.startsWith(todayStr)), lucide: 'dumbbell',   cls: 'icon-workout' },
-        { label: 'Run',          done: allRuns.some((r) => r.date.startsWith(todayStr)),     lucide: 'footprints', cls: 'icon-run' },
+        { label: 'Workout',      done: allWorkouts.some((w) => App.localDateStr(new Date(w.date)) === todayStr), lucide: 'dumbbell',   cls: 'icon-workout' },
+        { label: 'Run',          done: allRuns.some((r) => App.localDateStr(new Date(r.date)) === todayStr),     lucide: 'footprints', cls: 'icon-run' },
         { label: 'WGU Study',    done: todayStudy.length > 0,                                lucide: 'book-open',  cls: 'icon-study' },
         { label: 'Learn Polish', done: todayPolish.length > 0,                               lucide: null,         cls: 'icon-polish' },
       ];
@@ -336,7 +338,7 @@ window.Dashboard = {
     const container = document.getElementById('timeline-list');
     if (!container) return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = App.localDateStr(new Date());
     const dateStr = window._tlDate || today;
 
     const [workouts, runs, study, customEvents] = await Promise.all([
@@ -348,17 +350,17 @@ window.Dashboard = {
 
     const events = [];
 
-    runs.filter((r) => r.date.startsWith(dateStr)).forEach((r) => {
-      events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${r.distance} km • ${r.paceFormatted} /km`, type: 'run', id: r.id, polyline: r.polyline, hasNotes: !!(r.notes && r.notes.trim()) });
+    runs.filter((r) => App.localDateStr(new Date(r.date)) === dateStr).forEach((r) => {
+      events.push({ time: r.date, lucide: 'footprints', iconClass: 'icon-run', title: r.name, sub: `${App.formatDistance(r.distance)} • ${r.paceFormatted} /${App.distanceUnit()}`, type: 'run', id: r.id, polyline: r.polyline, hasNotes: !!(r.notes && r.notes.trim()) });
     });
-    workouts.filter((w) => w.date.startsWith(dateStr)).forEach((w) => {
+    workouts.filter((w) => App.localDateStr(new Date(w.date)) === dateStr).forEach((w) => {
       events.push({ time: w.date, lucide: 'dumbbell', iconClass: 'icon-workout', title: w.name, sub: `${w.setCount} sets • ${w.exerciseCount} exercises`, type: 'workout', id: w.id, hasNotes: !!(w.notes && w.notes.trim()) });
     });
-    study.filter((s) => s.date.startsWith(dateStr)).forEach((s) => {
+    study.filter((s) => App.localDateStr(new Date(s.date)) === dateStr).forEach((s) => {
       const isPolish = s.subject === 'Polish Language';
       events.push({ time: s.date, lucide: isPolish ? null : 'book-open', iconClass: isPolish ? 'icon-polish' : 'icon-study', title: s.subject, sub: App.formatMinutes(s.durationMinutes), type: 'study', id: s.id, hasNotes: !!(s.notes && s.notes.trim()), isPolish });
     });
-    customEvents.filter((e) => e.date.startsWith(dateStr)).forEach((e) => {
+    customEvents.filter((e) => App.localDateStr(new Date(e.date)) === dateStr).forEach((e) => {
       events.push({ time: e.date, lucide: 'calendar', iconClass: 'icon-event', title: e.title, sub: e.notes || '', type: 'event', id: e.id });
     });
 
@@ -522,13 +524,13 @@ async function renderWeightHistoryLog() {
           let dayStr = '';
           if (prev) {
             const diff = w.value - prev.value;
-            dayStr = (diff >= 0 ? '+' : '') + diff.toFixed(1) + ' kg';
+            dayStr = (diff >= 0 ? '+' : '') + App.formatWeight(Math.abs(diff));
           }
           const dayCls = prev ? (w.value < prev.value ? 'we-good' : w.value > prev.value ? 'we-bad' : '') : '';
           const dateStr = new Date(w.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
           return `<div class="we-entry">
             <span class="we-entry-date">${dateStr}</span>
-            <span class="we-entry-val">${w.value.toFixed(1)} kg</span>
+            <span class="we-entry-val">${App.formatWeight(w.value)}</span>
             <span class="we-entry-pct ${pctCls}">${pctStr}</span>
             <span class="we-entry-day ${dayCls}">${dayStr}</span>
           </div>`;
@@ -623,8 +625,7 @@ async function openQuickStudyModal(subject) {
 window.openQuickStudyModal = openQuickStudyModal;
 
 function toLocalDatetimeInput(date) {
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return App.localDatetimeInput(date);
 }
 
 function qsUpdateElapsed() {
@@ -693,10 +694,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ─── Timeline date navigation ──────────────────────────────────────────────────
-window._tlDate = new Date().toISOString().split('T')[0];
+window._tlDate = App.localDateStr(new Date());
 
 function renderTlHeader() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = App.localDateStr(new Date());
   const d = window._tlDate;
   const isToday = d === today;
   const daysAgo = Math.round((new Date(today + 'T12:00:00') - new Date(d + 'T12:00:00')) / 86400000);
@@ -717,14 +718,14 @@ function renderTlHeader() {
 window.renderTlHeader = renderTlHeader;
 
 function tlReturnToday() {
-  window._tlDate = new Date().toISOString().split('T')[0];
+  window._tlDate = App.localDateStr(new Date());
   renderTlHeader();
   Dashboard.renderTimeline();
 }
 window.tlReturnToday = tlReturnToday;
 
 function tlNavDay(delta) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = App.localDateStr(new Date());
   const d = new Date(window._tlDate + 'T12:00:00');
   d.setDate(d.getDate() + delta);
   const newDate = d.toISOString().split('T')[0];
@@ -752,7 +753,7 @@ window.openCalendarModal = openCalendarModal;
 async function renderCalendar() {
   const year = _calYear, month = _calMonth;
   const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-  const today = new Date().toISOString().split('T')[0];
+  const today = App.localDateStr(new Date());
 
   const [workouts, runs, study] = await Promise.all([
     window.db.workouts.getAll(),
@@ -765,10 +766,10 @@ async function renderCalendar() {
     if (!actMap[dateStr]) actMap[dateStr] = {};
     actMap[dateStr][type] = true;
   };
-  workouts.filter((w) => w.date.startsWith(monthPrefix)).forEach((w) => mark(w.date.slice(0, 10), 'workout'));
-  runs.filter((r) => r.date.startsWith(monthPrefix)).forEach((r) => mark(r.date.slice(0, 10), 'run'));
-  study.filter((s) => s.date.startsWith(monthPrefix) && s.subject !== 'Polish Language').forEach((s) => mark(s.date.slice(0, 10), 'wgu'));
-  study.filter((s) => s.date.startsWith(monthPrefix) && s.subject === 'Polish Language').forEach((s) => mark(s.date.slice(0, 10), 'polish'));
+  workouts.filter((w) => w.date.startsWith(monthPrefix)).forEach((w) => mark(App.localDateStr(new Date(w.date)), 'workout'));
+  runs.filter((r) => r.date.startsWith(monthPrefix)).forEach((r) => mark(App.localDateStr(new Date(r.date)), 'run'));
+  study.filter((s) => s.date.startsWith(monthPrefix) && s.subject !== 'Polish Language').forEach((s) => mark(App.localDateStr(new Date(s.date)), 'wgu'));
+  study.filter((s) => s.date.startsWith(monthPrefix) && s.subject === 'Polish Language').forEach((s) => mark(App.localDateStr(new Date(s.date)), 'polish'));
 
   const label = document.getElementById('cal-month-label');
   if (label) label.textContent = new Date(year, month, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
@@ -1255,7 +1256,7 @@ function openLogWeightModal() {
   const input = modal.querySelector('#weight-value-input');
   if (input) input.value = '';
   const dateInput = modal.querySelector('#weight-date-input');
-  if (dateInput) dateInput.value = new Date().toISOString().slice(0, 16);
+  if (dateInput) dateInput.value = App.localDatetimeInput(new Date());
   App.openModal('modal-log-weight');
 }
 
@@ -1273,9 +1274,13 @@ window.saveWeight = saveWeight;
 window.openLogWeightModal = openLogWeightModal;
 
 function openAddEventModal() {
-  const dateStr = window._tlDate || new Date().toISOString().split('T')[0];
   const now = new Date();
-  const localTime = `${dateStr}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const todayLocal = App.localDateStr(now);
+  const dateStr = window._tlDate || todayLocal;
+  // If the timeline is on today use the actual current time; otherwise default to noon
+  const localTime = (dateStr === todayLocal)
+    ? App.localDatetimeInput(now)
+    : `${dateStr}T12:00`;
   const titleEl = document.getElementById('event-title-input');
   const timeEl = document.getElementById('event-time-input');
   const notesEl = document.getElementById('event-notes-input');

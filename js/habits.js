@@ -114,7 +114,7 @@ window.Habits = {
   },
 
   _renderHabitCard(habit) {
-    const today = new Date().toISOString().split('T')[0];
+    const today = App.localDateStr(new Date());
     const logs = this._logs[habit.id] || [];
     const logSet = new Set(logs);
     const isDaily = habit.frequency === 'daily';
@@ -193,7 +193,7 @@ window.Habits = {
   },
 
   async toggleToday(habitId) {
-    const today = new Date().toISOString().split('T')[0];
+    const today = App.localDateStr(new Date());
     const isLogged = await window.db.habitLogs.isLogged(habitId, today);
     if (isLogged) {
       await window.db.habitLogs.unlog(habitId, today);
@@ -204,7 +204,7 @@ window.Habits = {
   },
 
   async toggleWeekly(habitId) {
-    const today = new Date().toISOString().split('T')[0];
+    const today = App.localDateStr(new Date());
     const habit = await window.db.habits.get(habitId);
     const target = habit?.targetPerWeek || 1;
     const weekDates = App.getWeekDates();
