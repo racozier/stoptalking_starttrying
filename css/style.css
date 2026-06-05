@@ -1625,8 +1625,10 @@ h3 { font-size: 1rem; font-weight: 600; }
 .notes-search:focus { border-color: var(--accent); }
 
 .pinned-label { font-size: 0.75rem; color: var(--subtext); font-weight: 600; margin-bottom: 8px; }
-.pinned-scroll { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+.pinned-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; }
+.pinned-scroll::-webkit-scrollbar { display: none; }
 .note-card-small {
+  flex: 0 0 calc(50% - 5px);
   height: 120px;
   overflow: hidden;
   background: var(--surface);
