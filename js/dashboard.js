@@ -528,7 +528,7 @@ async function renderWeightHistoryLog() {
           }
           const dayCls = prev ? (w.value < prev.value ? 'we-good' : w.value > prev.value ? 'we-bad' : '') : '';
           const dateStr = new Date(w.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-          return `<div class="we-entry">
+          return `<div class="we-entry" data-id="${w.id}">
             <span class="we-entry-date">${dateStr}</span>
             <span class="we-entry-val">${App.formatWeight(w.value)}</span>
             <span class="we-entry-pct ${pctCls}">${pctStr}</span>
@@ -540,7 +540,43 @@ async function renderWeightHistoryLog() {
   }
   el.innerHTML = html;
   if (window.lucide) lucide.createIcons();
+
+  // Long-press to delete
+  el.querySelectorAll('.we-entry[data-id]').forEach((row) => {
+    let timer = null;
+    const start = () => {
+      timer = setTimeout(() => {
+        timer = null;
+        row.classList.add('we-entry-pending-delete');
+        row.innerHTML = `
+          <span class="we-delete-prompt">Delete this entry?</span>
+          <span class="we-delete-actions">
+            <button class="we-delete-yes" onclick="confirmDeleteWeight(${row.dataset.id},this)">Delete</button>
+            <button class="we-delete-no" onclick="cancelDeleteWeight(this)">Cancel</button>
+          </span>`;
+      }, 500);
+    };
+    const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+    row.addEventListener('touchstart', start, { passive: true });
+    row.addEventListener('touchend', cancel);
+    row.addEventListener('touchmove', cancel);
+    row.addEventListener('mousedown', start);
+    row.addEventListener('mouseup', cancel);
+    row.addEventListener('mouseleave', cancel);
+  });
 }
+
+async function confirmDeleteWeight(id, btn) {
+  await window.db.weight.delete(id);
+  await renderWeightHistoryLog();
+  await Dashboard.renderWeightCard();
+}
+window.confirmDeleteWeight = confirmDeleteWeight;
+
+function cancelDeleteWeight(btn) {
+  renderWeightHistoryLog();
+}
+window.cancelDeleteWeight = cancelDeleteWeight;
 
 function toggleWeMonth(id) {
   const el = document.getElementById(id);
