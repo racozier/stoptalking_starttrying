@@ -2442,6 +2442,7 @@ h3 { font-size: 1rem; font-weight: 600; }
 .we-good { color: #78B86C !important; }
 .we-bad { color: #EF4444 !important; }
 .we-empty { padding: 16px 4px; color: var(--subtext); font-size: 0.82rem; }
+.we-entry { user-select: none; -webkit-user-select: none; }
 .we-entry-pending-delete { display: flex !important; align-items: center; justify-content: space-between; background: rgba(239,68,68,0.08); border-radius: 8px; padding: 6px 8px; gap: 8px; }
 .we-delete-prompt { font-size: 0.8rem; color: var(--text); }
 .we-delete-actions { display: flex; gap: 8px; flex-shrink: 0; }

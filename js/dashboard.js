@@ -544,7 +544,7 @@ async function renderWeightHistoryLog() {
   // Long-press to delete
   el.querySelectorAll('.we-entry[data-id]').forEach((row) => {
     let timer = null;
-    const start = () => {
+    const start = (e) => {
       timer = setTimeout(() => {
         timer = null;
         row.classList.add('we-entry-pending-delete');
@@ -557,9 +557,10 @@ async function renderWeightHistoryLog() {
       }, 500);
     };
     const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
-    row.addEventListener('touchstart', start, { passive: true });
+    row.addEventListener('touchstart', start, { passive: false });
     row.addEventListener('touchend', cancel);
     row.addEventListener('touchmove', cancel);
+    row.addEventListener('contextmenu', (e) => e.preventDefault());
     row.addEventListener('mousedown', start);
     row.addEventListener('mouseup', cancel);
     row.addEventListener('mouseleave', cancel);
