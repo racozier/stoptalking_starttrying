@@ -145,7 +145,8 @@ window.Charts = {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    if (canvas._chart) canvas._chart.destroy();
+    if (canvas._chart) { canvas._chart.destroy(); canvas._chart = null; }
+    if (!data || data.length === 0) { ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
     const { tick, grid } = this._colors();
     const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
     canvas._chart = new Chart(ctx, {
