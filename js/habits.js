@@ -200,7 +200,7 @@ window.Habits = {
       for (let day = 0; day < 7; day++) {
         const d = new Date(creationStart);
         d.setDate(creationStart.getDate() + week * 7 + day);
-        const dateStr = d.toISOString().split('T')[0];
+        const dateStr = App.localDateStr(d);
         const isLogged = logSet.has(dateStr);
         const isFuture = d > today;
         html += `<div class="habit-dot${isLogged ? ' logged' : ''}${isFuture ? ' future' : ''}"></div>`;
