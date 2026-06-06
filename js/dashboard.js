@@ -568,8 +568,12 @@ async function renderWeightHistoryLog() {
 
 async function confirmDeleteWeight(id, btn) {
   await window.db.weight.delete(id);
-  await renderWeightHistoryLog();
-  await Dashboard.renderWeightCard();
+  const activePeriod = document.querySelector('#weight-expand-panel .period-btn.active')?.dataset.period || '3M';
+  await Promise.all([
+    renderWeightExpandChart(activePeriod),
+    renderWeightHistoryLog(),
+    Dashboard.renderWeightCard(),
+  ]);
 }
 window.confirmDeleteWeight = confirmDeleteWeight;
 
