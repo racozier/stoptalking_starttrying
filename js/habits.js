@@ -203,11 +203,36 @@ window.Habits = {
         const dateStr = App.localDateStr(d);
         const isLogged = logSet.has(dateStr);
         const isFuture = d > today;
-        html += `<div class="habit-dot${isLogged ? ' logged' : ''}${isFuture ? ' future' : ''}"></div>`;
+        const tappable = !isFuture ? ` data-date="${dateStr}" data-hid="${habit.id}" onclick="Habits.toggleDot(this)"` : '';
+        html += `<div class="habit-dot${isLogged ? ' logged' : ''}${isFuture ? ' future' : ''}"${tappable}></div>`;
       }
       html += '</div>';
     }
     return html;
+  },
+
+  async toggleDot(dotEl) {
+    const date = dotEl.dataset.date;
+    const habitId = Number(dotEl.dataset.hid);
+    const isLogged = await window.db.habitLogs.isLogged(habitId, date);
+    if (isLogged) {
+      await window.db.habitLogs.unlog(habitId, date);
+      dotEl.classList.remove('logged');
+    } else {
+      await window.db.habitLogs.log(habitId, date);
+      dotEl.classList.add('logged');
+    }
+    // Refresh just the streak chip for this habit card
+    const card = dotEl.closest('.habit-card');
+    if (card) {
+      const logs = await window.db.habitLogs.getForHabit(habitId);
+      const logDates = logs.map(l => l.date);
+      const habit = await window.db.habits.get(habitId);
+      const today = App.localDateStr(new Date());
+      const streak = this._calcStreak(logDates, today, habit.frequency === 'daily', habit.targetPerWeek || 1);
+      const chip = card.querySelector('.habit-streak-chip');
+      if (chip) { chip.textContent = `🔥${streak}`; chip.classList.toggle('active', streak > 0); }
+    }
   },
 
   async toggleToday(habitId) {

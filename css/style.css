@@ -3075,6 +3075,7 @@ h3 { font-size: 1rem; font-weight: 600; }
   height: 13px;
   border-radius: 2px;
   background: var(--surface2);
+  cursor: pointer;
   flex-shrink: 0;
 }
 .habit-dot.logged {
